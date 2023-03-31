@@ -7,7 +7,6 @@ const authReducer = (state = {}, action) => {
       return {
         logged: true,
         user: {
-          ...state,
           ...action.payload
         },
       };

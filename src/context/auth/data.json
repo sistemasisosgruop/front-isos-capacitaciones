@@ -1,0 +1,17 @@
+{
+  "user": {
+      "id": 1,
+      "nombres": "Emerson",
+      "apellidoPaterno": "Vilallta",
+      "apellidoMaterno": "Quispe",
+      "dni": "72895382",
+      "genero": "masculino",
+      "edad": 25,
+      "fechadenac": "1998-08-12",
+      "areadetrabajo": "IT",
+      "cargo": "Empleado",
+      "rol": "trabajador",
+      "createdAt": "2023-03-31T17:13:41.335Z"
+  },
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImlhdCI6MTY4MDMwMTkzNiwiZXhwIjoxNjgwNDc0NzM2fQ.-6xULBKQ17sEAmwjbmHI_QYEEa2gGCFfQ-QDc7YbFk4"
+}

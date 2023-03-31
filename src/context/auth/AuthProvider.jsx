@@ -3,31 +3,31 @@ import { types } from '../types/types'
 import { AuthContext } from './authContext'
 import authReducer from './authReducer'
 
-const initialPayload = {
-  id:'15',
-  nombre:'Miguel Mendoza',
-  rol:'ADMIN'
-} 
-const initialState = {
-  logged:false,
-  user:{}
-} 
+
+const getUserLocalStorage = () => {
+
+  const user = JSON.parse(localStorage.getItem( 'userIsos' ));
+  const userFormat = user ? { logged: true, user:user } : { logged: false, user: {} } 
+  
+  return userFormat;
+}
 
 const AuthProvider = ({ children }) => {
   
-  const [authState, dispatch] = useReducer(authReducer, initialState)
+  const [authState, dispatch] = useReducer(authReducer, {}, getUserLocalStorage)
 
-  const login = ( user = initialPayload ) => {
+  const login = ( user = {} ) => {
 
     const action = {
       type: types.login,
       payload: user
     }
+    localStorage.setItem('userIsos', JSON.stringify(user))
     dispatch( action )
 
   }
 
-  const logout = ( user = initialPayload ) => {
+  const logout = ( user = {} ) => {
 
     const action = {
       type: types.logout,

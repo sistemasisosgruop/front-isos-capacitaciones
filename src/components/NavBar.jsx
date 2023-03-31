@@ -5,6 +5,7 @@ import { AuthContext } from "../context/auth/authContext";
 const NavBar = () => {
 
   const { logout, authState } = useContext( AuthContext )
+  const nombres = `${authState.user.nombres} ${authState.user.apellidoPaterno}`;
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -23,7 +24,6 @@ const NavBar = () => {
           <label tabIndex="0" className="btn btn-ghost btn-circle avatar">
             <div className="w-10 rounded-full">
               <img src="https://png.pngtree.com/png-vector/20220623/ourmid/pngtree-user-avatar-icon-profile-silhouette-png-image_5173766.png" />
-              <p>Miguel Mendoza</p>
             </div>
           </label>
           <ul
@@ -31,7 +31,7 @@ const NavBar = () => {
             className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
           >
             <li>
-              <a className="justify-between">Miguel Mendoza</a>
+              <a className="justify-between">{ nombres }</a>
             </li>
             <li>
               <a>Configuración</a>
