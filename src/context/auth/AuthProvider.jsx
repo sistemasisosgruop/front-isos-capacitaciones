@@ -15,6 +15,7 @@ const getUserLocalStorage = () => {
 const AuthProvider = ({ children }) => {
   
   const [authState, dispatch] = useReducer(authReducer, {}, getUserLocalStorage)
+  console.log("me ejecute");
 
   const login = ( user = {} ) => {
 

@@ -1,34 +1,63 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from 'react';
 
-const useForm = (initialForm, validate) => {
-  const [form, setForm] = useState(initialForm);
-  const [errors, setErrors] = useState({});
+export const useForm = ( initialForm = {}, formValidations = {}) => {
+  
+    const [ formState, setFormState ] = useState( initialForm );
+    const [ formValidation, setFormValidation ] = useState({});
 
-  const HandleForm = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
-  };
+    useEffect(() => {
+        createValidators();
+    }, [ formState ])
 
-  const HandleBlur = (e) => {
-    setErrors(validate(form));
-  };
+    useEffect(() => {
+        setFormState( initialForm );
+    }, [ initialForm ])
+    
+    
+    const isFormValid = useMemo( () => {
 
-  const getDataForm = () => {
-    return {
-      dni: form.user,
-      contraseña: form.password,
+        for (const formValue of Object.keys( formValidation )) {
+            if ( formValidation[formValue] !== null ) return false;
+        }
+
+        return true;
+    }, [ formValidation ])
+
+
+    const onInputChange = ({ target }) => {
+        const { name, value } = target;
+        setFormState({
+            ...formState,
+            [ name ]: value
+        });
     }
-  };
 
-  return {
-    form,
-    errors,
-    HandleForm,
-    HandleBlur,
-    getDataForm,
-  };
-};
+    const onResetForm = () => {
+        setFormState( initialForm );
+    }
 
-export default useForm;
+    const createValidators = () => {
+        
+        const formCheckedValues = {};
+        
+        for (const formField of Object.keys( formValidations )) {
+            const [ fn, errorMessage ] = formValidations[formField];
+
+            formCheckedValues[`${ formField }Valid`] = fn( formState[formField] ) ? null : errorMessage;
+        }
+
+        setFormValidation( formCheckedValues );
+    }
+
+
+
+    return {
+        ...formState,
+        formState,
+        onInputChange,
+        onResetForm,
+
+        ...formValidation,
+        isFormValid
+    }
+}

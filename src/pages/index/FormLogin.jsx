@@ -1,92 +1,100 @@
 import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import Alert from "../../components/Alert";
 import Button from "../../components/Button";
 
 import { AuthContext } from "../../context/auth/authContext";
-import useForm from "../../hooks/useForms";
-import { authAPi } from "../../services/auth";
+import { useForm } from "../../hooks/useForms";
 import validate from "./validateForm";
+import baseApiAuth from "../../services/auth";
 
-let initialForm={
-  user:"",
-  password:"",
-}
+let initialForm = {
+  user: "",
+  password: "",
+};
 
 const FormLogin = () => {
   const { login, authState } = useContext(AuthContext);
-  const [errorLogin, setErrorLogin] = useState({ state: false, message: null });
+  const [formSubmitted, setFormSubmitted] = useState(false);
+  const [errorLogin, setErrorLogin] = useState({});
+
   const navigate = useNavigate();
+  const formValidations = validate();
 
   const {
-    form,
-    errors,
-    HandleForm,
-    HandleBlur,
-    getDataForm,
-  } = useForm(initialForm, validate);
-
-  //const payload = { dni: "72895382", contraseña: "72895382" };
+    formState,
+    user,
+    password,
+    onInputChange,
+    isFormValid,
+    userValid,
+    passwordValid,
+  } = useForm(initialForm, formValidations);
 
   const getToken = async (payload) => {
-    const response = await authAPi.post("/login", payload).catch((error) => {
-      if (error.response) {
-        return { status: error.response.status, data: null };
-      }
-    });
+    const response = await baseApiAuth()
+      .post("/login", payload)
+      .catch((error) => {
+        if (error.response)
+          return { status: error.response.status, data: null };
+      });
     return response;
   };
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    setFormSubmitted(true);
 
-    const dataForm = getDataForm();
+    if (!isFormValid) return;
+    const { user: username, password: contraseña } = formState;
+    const peticionAuth = await getToken({ username, contraseña });
 
-    const peticionAuth = await getToken( dataForm );
     if (peticionAuth.status === 200) {
       const { nombres, apellidoPaterno, dni } = peticionAuth.data.user;
       const { token } = peticionAuth.data;
-      login( { nombres, apellidoPaterno, dni, token } );
-      navigate("/menu", {
+      login({ nombres, apellidoPaterno, dni, token });
+      navigate("/menu/trabajador", {
         replace: true,
       });
-    }
-    if (peticionAuth.status === 401) {
-      setErrorLogin({
-        state: true,
-        message: "La contraseña o usuario son incorrectos",
-      });
     } else {
-      setErrorLogin({
-        state: true,
-        message: `Ocurrio un error en el servidor => ${peticionAuth.status}`,
-      });
+      if (peticionAuth.status === 401) {
+        setErrorLogin({
+          state: true,
+          message: "La contraseña o usuario son incorrectos",
+        });
+      } else {
+        setErrorLogin({
+          state: true,
+          message: `Ocurrio un error en el servidor => ${peticionAuth.status}`,
+        });
+      }
+      setTimeout(() => {
+        setErrorLogin({});
+      }, 2000);
     }
   };
 
   return (
     <form onSubmit={handleLogin}>
-      <label>Usuario</label>
+      <label>Usuario - 72895382</label>
       <input
         type="text"
-        value={form.user}
+        value={user}
         name="user"
         className="input input-bordered input-sm w-full"
-        onBlur={HandleBlur}
-        onChange={HandleForm}
+        onChange={onInputChange}
       />
-      {errors.name && <p>{errors.name}</p>}
+      {!!userValid && formSubmitted && <p>{userValid}</p>}
 
       <label>Contraseña</label>
       <input
         type="password"
         name="password"
-        value={form.password}
+        value={password}
         className="input input-bordered input-sm w-full mb-3"
-        onBlur={HandleBlur}
-        onChange={HandleForm}
+        onChange={onInputChange}
       />
-      {errors.name && <p>{errors.name}</p>}
+      {!!passwordValid && formSubmitted && <p>{passwordValid}</p>}
 
       <div className="text-center">
         <Button description="Iniciar sesion" />

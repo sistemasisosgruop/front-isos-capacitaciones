@@ -9,9 +9,11 @@ import {
 } from "react-pro-sidebar";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUserFriends, faHospital, faChalkboardTeacher,faFileInvoice } from "@fortawesome/free-solid-svg-icons";
-import logoIsos from  '../assets/img/logoIsos.svg';
-import NavBar from "./NavBar";
+import { faUsers, faBuilding,faListOl, faChalkboardTeacher, faFileInvoice } from "@fortawesome/free-solid-svg-icons";
+import logoIsos from  '../../assets/img/logoIsos.svg';
+import NavBar from "../NavBar";
+import ItemsTrabajadores from "./ItemsTrabajador";
+import ItemsAdmin from "./ItemsAdmin";
 
 const menuItemStyles = {
   root: {
@@ -110,30 +112,9 @@ const SidebarCustom = ({ children }) => {
               <img src={ logoIsos } className='w-16' />
             </div>
           </div>
-          <MenuItem
-            component={<Link to="./trabajadores" />}
-            icon={<FontAwesomeIcon icon={ faUserFriends } />}
-          >
-            Trabajadores
-          </MenuItem>
-          <MenuItem
-            component={<Link to="./empresas" />}
-            icon={<FontAwesomeIcon icon={ faHospital } />}
-          >
-            Empresas
-          </MenuItem>
-          <MenuItem
-            component={<Link to="./capacitaciones" />}
-            icon={<FontAwesomeIcon icon={ faChalkboardTeacher } />}
-          >
-            Capacitaciones
-          </MenuItem>
-          <MenuItem
-            component={<Link to="./reportes" />}
-            icon={<FontAwesomeIcon icon={ faFileInvoice } />}
-          >
-            Reportes
-          </MenuItem>
+          
+          {/* <ItemsTrabajadores/> */}
+          <ItemsAdmin/>
     
         </Menu>
         <div>
@@ -145,9 +126,9 @@ const SidebarCustom = ({ children }) => {
         </div>
       </Sidebar>
 
-      <main className='w-full'>
+      <main className='w-full bg-slate-100'>
       <NavBar/>
-        <div style={{ padding: "16px 24px", color: "#44596e" }}>
+        <div style={{ color: "#44596e" }}>
           <div style={{ marginBottom: "2px" }}>
             {broken && (
               <button className="sb-button" onClick={() => toggleSidebar()}>
@@ -156,7 +137,9 @@ const SidebarCustom = ({ children }) => {
             )}
           </div>
         </div>
+        <div className="px-3">
         {children}
+        </div>
       </main>
     </div>
   );

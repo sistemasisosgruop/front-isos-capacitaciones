@@ -18,7 +18,7 @@ const NavBar = () => {
 
   }
   return (
-    <div className="flex justify-end w-full bg-emerald-600 px-3">
+    <div className="flex justify-end w-full bg-teal-600 px-3 mb-5">
       <div className="flex-none">
         <div className="dropdown dropdown-end">
           <label tabIndex="0" className="btn btn-ghost btn-circle avatar">

@@ -11,3 +11,9 @@
     margin: 0;
     padding: 0;
 }
+.btn-sweet-danger {
+    background-color: rgb(210, 60, 60) !important;
+}
+.btn-sweet-success {
+    background-color: rgb(44, 166, 154) !important;
+}

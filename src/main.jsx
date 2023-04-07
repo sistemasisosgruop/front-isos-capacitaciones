@@ -8,9 +8,11 @@ import { ProSidebarProvider } from "react-pro-sidebar";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ToastContainer } from "react-toastify";
 
 //styles
 import "./styles/global.css";
+import 'react-toastify/dist/ReactToastify.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +33,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
 
         </ProSidebarProvider>
       </QueryClientProvider>
+      <ToastContainer autoClose={2000}/>
     </AuthProvider>
   </React.StrictMode>
 );
