@@ -35,6 +35,16 @@ const getEmpresas = () => {
     });
 };
 
+const getImgs = ( id, typeImg ) => {
+  return baseApiEmpresas()
+    .get(`/${id}/${typeImg}`,{
+      responseType: 'blob'
+    })
+    .catch((error) => {
+      if (error.response) return { status: error.response.status, data: null };
+    });
+};
+
 const deleteEmpresa = (id) => {
   return baseApiEmpresas()
     .delete(`/${id}`)
@@ -43,4 +53,4 @@ const deleteEmpresa = (id) => {
     });
 };
 
-export { getEmpresas, deleteEmpresa, postEmpresas, patchEmpresas };
+export { getEmpresas, deleteEmpresa, postEmpresas, patchEmpresas, getImgs };

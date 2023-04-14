@@ -9,22 +9,21 @@ import {
 } from "../../../../services/empresa";
 import { toast } from "react-toastify";
 import validate from "../validateFormModal";
-import { postTrabajador } from "../../../../services/trabajador";
-import formatDateDMY from "../../../../utils/formtDate";
+import {
+  patchTrabajador,
+  postTrabajador,
+} from "../../../../services/trabajador";
+import formatDateYMD from "../../../../utils/formtDate";
 
 const FormularioTrabajador = ({
   initialForm,
   addItem,
   updateRow,
   closeModal,
+  empresas,
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [empresas, setEmpresas] = useState([]);
   const formValidations = validate();
-  useEffect(() => {
-    getEmpresas().then((res) => setEmpresas(res.data) );
-  }, []);
-
   //tipo de accion (Event)
   const action = initialForm.dni === "" ? "ADD" : "UPDATE";
 
@@ -59,36 +58,21 @@ const FormularioTrabajador = ({
     onInputChange,
   } = useForm(initialForm, formValidations);
 
-  /*   "nombres":"",
-        "apellidoPaterno":"",
-        "apellidoMaterno":"",
-        "dni": "",
-        "genero": "masculino", 
-        "edad": 18,
-        "areadetrabajo": "IT",
-        "cargo": "Empleado",
-        "fechadenac": "08/12/1998",
-        "user":{
-            "username": "",
-            "contraseña": ""
-        },
-        "empresaId": 1 */
-
   const handleForm = async (event, action) => {
     event.preventDefault();
     setFormSubmitted(true);
 
     if (!isFormValid) return;
 
-      //establecemos formato solicitado BACK
-      const { password, empresa, ...newFormat  } = formState; 
-      const jsonData = newFormat;
-      const newFormDate = formatDateDMY(new Date(newFormat.fechadenac))
+    //establecemos formato solicitado BACK
+    const { password, empresa, ...newFormat } = formState;
+    const jsonData = newFormat;
+    const newFormDate = formatDateYMD(new Date(newFormat.fechadenac));
 
-      jsonData.empresaId = empresa;
-      jsonData.fechadenac = newFormDate;
-      jsonData.user = {"username": formState.dni, "contraseña": password};
-console.log('jsonData', jsonData)
+    jsonData.empresaId = empresa;
+    jsonData.fechadenac = newFormDate;
+    jsonData.user = { username: formState.dni, contraseña: password };
+
     if (action === "ADD") {
       add(jsonData);
     } else {
@@ -97,10 +81,10 @@ console.log('jsonData', jsonData)
   };
 
   const update = (data) => {
-    patchEmpresas(data).then((res) => {
-      const { data } = res;
-      if (data) {
-        const { createdAt, ...newRowData } = res.data;
+    patchTrabajador(data).then((res) => {
+      console.log("res", res);
+      if (res.data) {
+        const { createdAt, ...newRowData } = res?.data;
         toast.success("Actualizado con exito", {
           position: "bottom-right",
         });
@@ -116,8 +100,8 @@ console.log('jsonData', jsonData)
   };
 
   const add = (data) => {
-    const {id, ...newData} = data;
-    console.log('newData', newData)
+    const { id, ...newData } = data;
+    console.log("newData", newData);
     postTrabajador(newData).then((res) => {
       const { data } = res;
       if (data) {
@@ -129,27 +113,13 @@ console.log('jsonData', jsonData)
         addItem(0, newrowData);
         setFormSubmitted(false);
       } else {
+        console.log('res', res)
         toast.error("Ocurrio un error en el servidor", {
           position: "bottom-right",
         });
       }
     });
   };
-
-  /*   "nombres":"",
-        "apellidoPaterno":"",
-        "apellidoMaterno":"",
-        "dni": "",
-        "genero": "masculino", 
-        "edad": 18,
-        "areadetrabajo": "IT",
-        "cargo": "Empleado",
-        "fechadenac": "08/12/1998",
-        "user":{
-            "username": "",
-            "contraseña": ""
-        },
-        "empresaId": 1 */
   return (
     <form onSubmit={(e) => handleForm(e, action)}>
       <div className="flex flex-col md:flex-row gap-3 mb-2">
@@ -331,15 +301,19 @@ console.log('jsonData', jsonData)
             className="select select-bordered select-sm block w-full"
             id="empresa"
             name="empresa"
-            defaultValue={''}
             onChange={onInputChange}
+            value={empresa}
           >
-            <option value="" disabled>Seleccione una empresa</option>
-            {
-              empresas.map( empresa => {
-              return <option key={empresa.id} value={empresa.id}>{empresa.nombreEmpresa}</option>
-              })
-            }
+            <option value="" disabled>
+              Seleccione una empresa
+            </option>
+            {empresas.map((empresa) => {
+              return (
+                <option key={empresa.id} value={empresa.id}>
+                  {empresa.nombreEmpresa}
+                </option>
+              );
+            })}
           </select>
           {!!empresaValid && formSubmitted && (
             <p className="text-sm text-red-700">{empresaValid}</p>

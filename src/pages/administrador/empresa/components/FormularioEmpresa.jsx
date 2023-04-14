@@ -38,35 +38,25 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
     setFormSubmitted(true);
 
     if (!isFormValid) return;
-
-    const {
-      empresa: nombreEmpresa,
-      direccion,
-      ruc: RUC,
-      nombreGerente,
-      numeroContacto,
-      logoEmpresa: imagenLogo,
-      fondoCertificado: imagenCertificado,
-    } = formState;
-
-    const jsonData = {
-      id,
-      nombreEmpresa,
-      direccion,
-      nombreGerente,
-      numeroContacto,
-      imagenLogo: "imagenFondo.png",
-      imagenCertificado: "imagencertificado.png",
-      RUC,
-    };
+    console.log('formState', formState)
+    const data = new FormData();
+    data.append("nombreEmpresa",empresa)
+    data.append("direccion",direccion)
+    data.append("nombreGerente",nombreGerente)
+    data.append("numeroContacto",numeroContacto)
+    data.append("imagenLogo",logoEmpresa)
+    data.append("imagenCertificado",fondoCertificado)
+    data.append("RUC",ruc)
+    
     if (action === "ADD") {
-      add(jsonData);
+      add(data);
     } else {
-      update(jsonData);
+      update(data);
     }
   };
 
   const update = (data) => {
+    data.append("id", id)
     patchEmpresas(data).then((res) => {
       const { data } = res;
       if (data) {
@@ -106,7 +96,7 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
 
   return (
     <form onSubmit={(e) => handleForm(e, action)}>
-      <div className="flex gap-3 mb-2">
+      <div className="flex flex-col md:flex-row gap-3  mb-2">
         <div className="w-full md:w-3/4">
           <label htmlFor="empresa" className="font-semibold">
             Empresa
@@ -141,7 +131,7 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
           )}
         </div>
       </div>
-      <div className="flex gap-3 mb-2">
+      <div className="flex flex-col md:flex-row gap-3  mb-2">
         <div className="w-full md:w-3/4">
           <label htmlFor="gerente" className="font-semibold">
             Nombre del gerente
@@ -175,7 +165,7 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
           )}
         </div>
       </div>
-      <div className="flex gap-3 mb-2">
+      <div className="flex flex-col md:flex-row gap-3  mb-2">
         <div className="w-full md:w-2/4">
           <label htmlFor="direccion" className="font-semibold">
             Dirección
@@ -201,7 +191,6 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
             id="logoEmpresa"
             name="logoEmpresa"
             className="file-input file-input-bordered file-input-sm w-full max-w-xs"
-            value={logoEmpresa}
             onChange={onInputChange}
             accept=".png, .jpg, .jpeg"
           />
@@ -218,7 +207,6 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
             id="fondo"
             name="fondoCertificado"
             className="file-input file-input-bordered file-input-sm w-full max-w-xs"
-            value={fondoCertificado}
             onChange={onInputChange}
             accept=".png, .jpg, .jpeg"
           />

@@ -17,3 +17,8 @@
 .btn-sweet-success {
     background-color: rgb(44, 166, 154) !important;
 }
+/* custom daysi UI */
+.table-compact td,
+.table-compact th {
+    padding: .3rem !important;
+}

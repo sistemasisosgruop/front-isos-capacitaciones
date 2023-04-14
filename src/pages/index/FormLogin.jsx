@@ -52,8 +52,9 @@ const FormLogin = () => {
     if (peticionAuth.status === 200) {
       const { nombres, apellidoPaterno, dni } = peticionAuth.data.user;
       const { token } = peticionAuth.data;
+      console.log(' peticionAuth.data.user',  peticionAuth.data)
       login({ nombres, apellidoPaterno, dni, token });
-      navigate("/menu/trabajador", {
+      navigate("/menu/admin/opciones", {
         replace: true,
       });
     } else {

@@ -5,10 +5,13 @@ import NotFound404 from "../pages/notFound404/NotFound404";
 import "../styles/global.css";
 import { userRoles } from "./constantsRoles";
 import ProtectedRoute from "./protectetRoute";
-import OpcionesTrabajador from "../pages/trabajador/opciones/opcionesTrabajador";
-import OpcionesAdmin from "../pages/administrador/OpcionesAdmin";
+import OpcionesTrabajador from "../pages/trabajador/opcionesTrabajador";
+import OpcionesAdmin from "../pages/administrador/opciones/OpcionesAdmin";
 import ListadoEmpresa from "../pages/administrador/empresa/ListadoEmpresa";
 import ListadoTrabajador from "../pages/administrador/trabajador/ListadoTrabajador";
+import ListaCapacitaciones from "../pages/administrador/capacitaciones/ListaCapacitaciones";
+import OpcionesReportes from "../pages/administrador/reportes/OpcionesReportes";
+import CapacitacionesTrabajador from "../pages/trabajador/capacitaciones/CapacitacionesTrabajador";
 
 const router = createBrowserRouter([
   {
@@ -28,8 +31,8 @@ const router = createBrowserRouter([
         ),
         children: [
           { path: "opciones", element: <OpcionesTrabajador/>},
-          { path: "capacitaciones", element: <h1>capacitaciones</h1> },
-          { path: "test", element: <h1>capacitaciones</h1> },
+          { path: "capacitaciones", element: <CapacitacionesTrabajador/> },
+          { path: "test", element: <h1>tests</h1> },
         ],
       },
       {
@@ -40,12 +43,12 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
         children: [
-          { path: "opciones", element: <OpcionesAdmin/>},
+          { path: "opciones", element: <OpcionesAdmin />},
           { path: "trabajadores", element: <ListadoTrabajador/>},
           { path: "empresas", element: <ListadoEmpresa /> },
-          { path: "capacitaciones", element: <h1>capacitaciones</h1> },
+          { path: "capacitaciones", element: <ListaCapacitaciones/> },
           { path: "test", element: <h1>test</h1> },
-          { path: "reportes", element: <h1>reportes</h1> },
+          { path: "reportes", element: <OpcionesReportes/> },
         ],
       },
 

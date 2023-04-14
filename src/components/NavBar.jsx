@@ -1,10 +1,11 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/auth/authContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
 
-const NavBar = () => {
-
-  const { logout, authState } = useContext( AuthContext )
+const NavBar = ({ broken, toggleSidebar }) => {
+  const { logout, authState } = useContext(AuthContext);
   const nombres = `${authState.user.nombres} ${authState.user.apellidoPaterno}`;
   const navigate = useNavigate();
 
@@ -12,13 +13,19 @@ const NavBar = () => {
     // cerrar sesion  DB
 
     logout();
-    navigate('/',{
-      replace:true
-    })  
-
-  }
+    navigate("/", {
+      replace: true,
+    });
+  };
   return (
-    <div className="flex justify-end w-full bg-teal-600 px-3 mb-5">
+    <div className="flex justify-between items-center w-full bg-teal-600 px-3 mb-5">
+      <div>
+        {broken && (
+          <button className="sb-button" onClick={() => toggleSidebar()}>
+            <FontAwesomeIcon icon={faBars} color="white" />
+          </button>
+        )}
+      </div>
       <div className="flex-none">
         <div className="dropdown dropdown-end">
           <label tabIndex="0" className="btn btn-ghost btn-circle avatar">
@@ -31,13 +38,13 @@ const NavBar = () => {
             className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
           >
             <li>
-              <a className="justify-between">{ nombres }</a>
+              <a className="justify-between">{nombres}</a>
             </li>
             <li>
               <a>Configuración</a>
             </li>
             <li>
-              <a onClick={ handleLogout }>Cerrar sesión</a>
+              <a onClick={handleLogout}>Cerrar sesión</a>
             </li>
           </ul>
         </div>

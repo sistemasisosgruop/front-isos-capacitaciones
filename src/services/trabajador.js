@@ -14,16 +14,24 @@ const postTrabajador = (data) => {
   return baseApiTrabajador()
     .post("/", data)
     .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null };
+      console.log('error', error)
+      if (error.response) return { status: error.response.status, data: null,msg:error.response.data.message };
+    });
+};
+const postImportar = (id, data) => {
+  return baseApiTrabajador()
+    .post(`/cargaexcel/${id}`, data)
+    .catch((error) => {
+      if (error.response) return { status: error.response.status, data: null, msg:error.response.msg };
     });
 };
 
-const patchEmpresas = ( data ) => {
+const patchTrabajador = (data) => {
   const { id, ...dataFormat } = data;
   return baseApiTrabajador()
-    .patch(`/${ id }`, dataFormat)
+    .patch(`/${id}`, dataFormat)
     .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null };
+      if (error.response) return { status: error.response.status, data: null, msg:error.response.msg };
     });
 };
 
@@ -35,12 +43,18 @@ const getTrabajadores = () => {
     });
 };
 
-const deleteEmpresa = (id) => {
+const deleteTrabajador = (id) => {
   return baseApiTrabajador()
     .delete(`/${id}`)
     .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null };
+      if (error.response) return { status: error.response.status, data: null, msg:error.response.msg };
     });
 };
 
-export { getTrabajadores, postTrabajador };
+export {
+  getTrabajadores,
+  postTrabajador,
+  postImportar,
+  patchTrabajador,
+  deleteTrabajador,
+};

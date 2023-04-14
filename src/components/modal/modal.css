@@ -52,19 +52,50 @@
   .container-modal .modal-content {
     width: 25%;
   }
+  .container-modal .modal-content.modal-sm {
+    width: 90%;
+  }
+  .container-modal .modal-content.modal-md {
+    width: 90%;
+  }
   .container-modal .modal-content.modal-lg {
     width: 85%;
+  }
+  .container-modal .modal-content.modal-xl {
+    width: 90%;
   }
 }
 /* Medium devices (tablets, 768px and up) */
 @media (min-width: 992px) { 
+  .container-modal .modal-content.modal-sm {
+    width: 60%;
+  }
+  .container-modal .modal-content.modal-md {
+    width: 80%;
+  }
   .container-modal .modal-content.modal-lg {
     width: 70%;
   }
+  .container-modal .modal-content.modal-xl {
+    width: 95%;
+  }
+  
+ 
 }
 /* Medium devices (tablets, 768px and up) */
 @media (min-width: 1200px) { 
+  .container-modal .modal-content.modal-sm {
+    width: 35%;
+  }
+  .container-modal .modal-content.modal-md {
+    width: 40%;
+  }
   .container-modal .modal-content.modal-lg {
     width: 60%;
   }
+  .container-modal .modal-content.modal-xl {
+    width: 80%;
+  }
+  
+  
 }

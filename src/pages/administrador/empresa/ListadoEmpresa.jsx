@@ -4,18 +4,21 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
-import SweetAlert from "react-bootstrap-sweetalert";
 import {
-  deleteEmpresa,
-  getEmpresas,
-} from "../../../services/empresa";
+  faPlus,
+  faEdit,
+  faTrashAlt,
+  faEye,
+} from "@fortawesome/free-solid-svg-icons";
+import SweetAlert from "react-bootstrap-sweetalert";
+import { deleteEmpresa, getEmpresas, getImgs } from "../../../services/empresa";
 import { useRef } from "react";
 import { Modal } from "../../../components/modal/Modal";
 import useModals from "../../../hooks/useModal";
 import Button from "../../../components/Button";
 import { toast } from "react-toastify";
 import FormularioEmpresa from "./components/FormularioEmpresa";
+import loadingImg from '../../../assets/img/cargando-loading-048.gif';
 
 const initialForm = {
   empresa: "",
@@ -33,15 +36,20 @@ const ListadoEmpresa = () => {
   const [dataForm, setdataForm] = useState(initialForm);
   const [sweetAlert, setSweetAlert] = useState(false);
   const [rowData, setRowData] = useState();
-  const [isOpen1, openModal1, closeModal1] = useModals();
   const [rowDelete, setRowDelete] = useState(null);
+
+  const [isOpenModal, openModal, closeModal] = useModals();
+  const [isOpenModalImg, openModalImg, closeModalImg] = useModals();
   const gridRef = useRef();
 
   //configuracion de la tabla
   const renderButtons = ({ data }) => {
     return (
       <>
-        <label onClick={() => updateButton(data)} className="cursor-pointer mr-2">
+        <label
+          onClick={() => updateButton(data)}
+          className="cursor-pointer mr-2"
+        >
           <FontAwesomeIcon icon={faEdit} />
         </label>
         <label className="cursor-pointer" onClick={() => openConfirm(data)}>
@@ -51,14 +59,43 @@ const ListadoEmpresa = () => {
     );
   };
 
+  const renderButtonLogo = ({ data }) => {
+    return (
+      <div
+        className="badge badge-primary cursor-pointer"
+        onClick={() => showImgs(data, true)}
+      >
+        <FontAwesomeIcon icon={faEye} />
+      </div>
+    );
+  };
+  const renderButtonCertificado = ({ data }) => {
+    return (
+      <div
+        className="badge badge-primary cursor-pointer"
+        onClick={() => showImgs(data, false)}
+      >
+        <FontAwesomeIcon icon={faEye} />
+      </div>
+    );
+  };
+
   const [columnDefs, setColumnDefs] = useState([
     { field: "id", hide: true },
     { field: "nombreEmpresa" },
     { field: "direccion" },
     { field: "nombreGerente" },
     { field: "numeroContacto" },
-    { field: "imagenLogo" },
-    { field: "imagenCertificado" },
+    {
+      field: "imagenLogo",
+      cellRenderer: renderButtonLogo,
+      cellStyle: { textAlign: "center" },
+    },
+    {
+      field: "imagenCertificado",
+      cellRenderer: renderButtonCertificado,
+      cellStyle: { textAlign: "center" },
+    },
     { field: "RUC" },
     { field: "Opciones", cellRenderer: renderButtons },
   ]);
@@ -111,10 +148,9 @@ const ListadoEmpresa = () => {
   }, []);
 
   const openAddModal = () => {
-    openModal1();
+    openModal();
     setdataForm(initialForm);
   };
-  
 
   const updateButton = (data) => {
     const {
@@ -126,7 +162,7 @@ const ListadoEmpresa = () => {
       id,
     } = data;
 
-    openModal1();
+    openModal();
     setdataForm({
       id,
       empresa,
@@ -162,6 +198,18 @@ const ListadoEmpresa = () => {
     });
   };
 
+  const showImgs = (data, isLogo) => {
+    console.log("data", data, isLogo);
+    const img = isLogo ? 'logo' : 'certificado';
+    getImgs(data.id, img).then( res => {
+      console.log('res', res)
+      const url = URL.createObjectURL(new Blob([res.data]));
+      const logoElement = document.getElementById("logo");
+      logoElement.src = url;
+    })
+    openModalImg();
+  };
+
   return (
     <div className="">
       <div className="bg-white p-3">
@@ -187,18 +235,28 @@ const ListadoEmpresa = () => {
         </div>
 
         <Modal
-          isOpen={isOpen1}
-          openModal={openModal1}
-          closeModal={closeModal1}
+          openModal={openModal}
+          isOpen={isOpenModal}
+          closeModal={closeModal}
           size={"modal-lg"}
           title="Agregar empresa"
         >
           <FormularioEmpresa
             initialForm={dataForm}
-            closeModal={closeModal1}
+            closeModal={closeModal}
             addItem={addItem}
             updateRow={updateRow}
           />
+        </Modal>
+        <Modal
+          isOpen={isOpenModalImg}
+          openModal={openModalImg}
+          closeModal={closeModalImg}
+          size={"modal-lg"}
+          title="Imagen"
+        >
+          <img id="logo" className="aspect-video w-full" src={loadingImg}/>
+          
         </Modal>
 
         <SweetAlert
@@ -213,7 +271,6 @@ const ListadoEmpresa = () => {
           show={sweetAlert}
           onCancel={() => setSweetAlert(false)}
         ></SweetAlert>
-
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import toBase64 from '../utils/convertBase64';
 
 export const useForm = ( initialForm = {}, formValidations = {}) => {
   
@@ -24,12 +25,17 @@ export const useForm = ( initialForm = {}, formValidations = {}) => {
     }, [ formValidation ])
 
 
-    const onInputChange = ({ target }) => {
-        const { name, value } = target;
-        setFormState({
-            ...formState,
-            [ name ]: value
-        });
+    const onInputChange  = async ({ target }) => {
+     
+        const { name, value, type, checked, files } = target;
+
+        if (type === 'checkbox') {
+            setFormState((valueFormState) => ({ ...valueFormState, [name]: checked }));
+          } else if (type === 'file') {
+            setFormState((valueFormState) => ({ ...valueFormState, [name]: files[0] }));
+          } else {
+            setFormState((valueFormState) => ({ ...valueFormState, [name]: value }));
+          }
     }
 
     const onResetForm = () => {
