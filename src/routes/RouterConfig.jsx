@@ -12,6 +12,7 @@ import ListadoTrabajador from "../pages/administrador/trabajador/ListadoTrabajad
 import ListaCapacitaciones from "../pages/administrador/capacitaciones/ListaCapacitaciones";
 import OpcionesReportes from "../pages/administrador/reportes/OpcionesReportes";
 import CapacitacionesTrabajador from "../pages/trabajador/capacitaciones/CapacitacionesTrabajador";
+import ListadoTest from "../pages/administrador/test/ListadoTest";
 
 const router = createBrowserRouter([
   {
@@ -32,7 +33,7 @@ const router = createBrowserRouter([
         children: [
           { path: "opciones", element: <OpcionesTrabajador/>},
           { path: "capacitaciones", element: <CapacitacionesTrabajador/> },
-          { path: "test", element: <h1>tests</h1> },
+          { path: "test", element: <h1>test</h1>  },
         ],
       },
       {
@@ -47,7 +48,7 @@ const router = createBrowserRouter([
           { path: "trabajadores", element: <ListadoTrabajador/>},
           { path: "empresas", element: <ListadoEmpresa /> },
           { path: "capacitaciones", element: <ListaCapacitaciones/> },
-          { path: "test", element: <h1>test</h1> },
+          { path: "test", element: <ListadoTest/> },
           { path: "reportes", element: <OpcionesReportes/> },
         ],
       },

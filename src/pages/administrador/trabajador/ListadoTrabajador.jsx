@@ -29,10 +29,9 @@ import {
 import { useEffect } from "react";
 import FormularioImportar from "./components/FormularioImportar";
 
-
-//excel 
-import { ExcelFile, ExcelSheet, ExcelColumn } from 'react-export-excel';
-
+//excel
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 const initialForm = {
   id: "",
@@ -85,14 +84,14 @@ const ListadoTrabajador = () => {
 
   const [columnDefs, setColumnDefs] = useState([
     { field: "id", hide: true },
-    { field: "apellidoPaterno" },
-    { field: "apellidoMaterno" },
-    { field: "nombres" },
-    { field: "dni" },
-    { field: "edad" },
-    { field: "areadetrabajo" },
-    { field: "cargo" },
-    { field: "empresaId" },
+    { field: "apellidoPaterno", headerName: "Apellido paterno" },
+    { field: "apellidoMaterno", headerName: "Apellido materno" },
+    { field: "nombres", headerName: "Nombres" },
+    { field: "dni", headerName: "DNI" },
+    { field: "edad", headerName: "Edad" },
+    { field: "areadetrabajo", headerName: "Area" },
+    { field: "cargo", headerName: "Cargo" },
+    { field: "nombreEmpresa", headerName: "Empresa" },
     { field: "Opciones", cellRenderer: renderButtons },
   ]);
 
@@ -134,11 +133,12 @@ const ListadoTrabajador = () => {
     getTrabajadores().then((res) => {
       const { data } = res;
       if (data) {
-        /*    const { empresa, ...newData } = data;
-        data.map( e => )
-        console.log('data', data)
-        newData.empresa = empresa.nombreEmpresa; */
-        setRowData(data);
+        const newData = data.map(function (obj) {
+          const { empresa, ...resObj } = obj;
+          resObj["nombreEmpresa"] = empresa.nombreEmpresa;
+          return resObj;
+        });
+        setRowData(newData);
       } else {
         toast.error("Ocurrio un error en el servidor", {
           position: "bottom-right",
@@ -195,46 +195,51 @@ const ListadoTrabajador = () => {
 
   //excel
 
-  const dataSet1 = [
-    {
-        name: "Johson",
-        amount: 30000,
-        sex: 'M',
-        is_married: true
-    },
-    {
-        name: "Monika",
-        amount: 355000,
-        sex: 'F',
-        is_married: false
-    },
-    {
-        name: "John",
-        amount: 250000,
-        sex: 'M',
-        is_married: false
-    },
-    {
-        name: "Josef",
-        amount: 450500,
-        sex: 'M',
-        is_married: true
-    }
-];
+  const crearExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    //confuguration
+    workbook.creator = "ISOS GROUP";
 
-var dataSet2 = [
-    {
-        name: "Johnson",
-        total: 25,
-        remainig: 16
-    },
-    {
-        name: "Josef",
-        total: 25,
-        remainig: 7
-    }
-];
+    // Force workbook calculation on load
+    workbook.calcProperties.fullCalcOnLoad = true;
 
+    //Agregar una hoja de trabajo
+    const worksheet = workbook.addWorksheet("Hoja 1");
+
+    // establecemos las filas
+    worksheet.columns = [
+      { header: "Nombre", key: "nombres", width: 32, color: "D58144" },
+      { header: "Apellido paterno", key: "apellidoPaterno", width: 32 },
+      { header: "Apellido materno", key: "apellidoMaterno", width: 32 },
+      { header: "DNI", key: "dni", width: 10 },
+      { header: "Genero", key: "genero", width: 10 },
+      { header: "Edad", key: "edad", width: 10 },
+      { header: "Area", key: "areadetrabajo", width: 32 },
+      { header: "Cargo", key: "cargo", width: 32 },
+      { header: "Empresa", key: "nombreEmpresa", width: 32 },
+    ];
+
+    // Obtener el rango correspondiente a la cabecera
+    const headerRange = worksheet.getRow(1);
+
+    // Aplicar un estilo de relleno a la cabecera
+    headerRange.fill = {
+      type: "pattern",
+      pattern: "solid",
+      fgColor: { argb: "16A971" },
+    };
+    // Add an array of rows
+
+    worksheet.addRows(rowData);
+
+    // Descarga el archivo Excel en el navegador
+    workbook.xlsx.writeBuffer().then(function (buffer) {
+      saveAs(
+        new Blob([buffer], { type: "application/octet-stream" }),
+        "trabajadores.xlsx"
+      );
+    });
+  };
   return (
     <div className="">
       <div className="bg-white p-3">
@@ -252,7 +257,7 @@ var dataSet2 = [
               <option value={""}>Seleccione una empresa</option>
               {empresas.map((empresa) => {
                 return (
-                  <option key={empresa.id} value={empresa.id}>
+                  <option key={empresa.id} value={empresa.nombreEmpresa}>
                     {empresa.nombreEmpresa}
                   </option>
                 );
@@ -273,7 +278,11 @@ var dataSet2 = [
               icon={faFileImport}
               event={openModalImport}
             />
-            <Button description="Exportar" icon={faFileExport} />
+            <Button
+              description="Exportar"
+              icon={faFileExport}
+              event={crearExcel}
+            />
             <Button
               description="Registrar"
               icon={faPlus}
@@ -337,20 +346,6 @@ var dataSet2 = [
           onCancel={() => setSweetAlert(false)}
         ></SweetAlert>
       </div>
-      <ExcelFile element={<button>Download Data</button>}>
-                <ExcelSheet data={dataSet1} name="Employees">
-                    <ExcelColumn label="Name" value="name"/>
-                    <ExcelColumn label="Wallet Money" value="amount"/>
-                    <ExcelColumn label="Gender" value="sex"/>
-                    <ExcelColumn label="Marital Status"
-                                 value={(col) => col.is_married ? "Married" : "Single"}/>
-                </ExcelSheet>
-                <ExcelSheet data={dataSet2} name="Leaves">
-                    <ExcelColumn label="Name" value="name"/>
-                    <ExcelColumn label="Total Leaves" value="total"/>
-                    <ExcelColumn label="Remaining Leaves" value="remaining"/>
-                </ExcelSheet>
-            </ExcelFile>
     </div>
   );
 };

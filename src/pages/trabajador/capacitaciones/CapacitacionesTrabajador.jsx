@@ -5,6 +5,11 @@ import TarjetasCapacitaciones from "./components/TarjetasCapacitaciones";
 import { useEffect } from "react";
 import SinRegistros from "../../../components/SinRegistros";
 import Pregunta from "./components/Pregunta";
+import Certificado from "./components/Certificado";
+import {
+  PDFDownloadLink,
+  PDFViewer
+} from "@react-pdf/renderer";
 
 const months = [
   {
@@ -141,6 +146,17 @@ const CapacitacionesTrabajador = () => {
       <div className="bg-white p-3">
         <div className="flex justify-between gap-3">
           <h2 className="font-bold text-2xl mb-3">Trabajadores</h2>
+          <PDFViewer width={'700px'} height={'454px'}>
+          <Certificado/>
+          </PDFViewer>  
+          <PDFDownloadLink 
+                document={<Certificado/>}
+                fileName="somename.pdf"
+              >
+                {({ blob, url, loading, error }) =>
+                  loading ? "Cargando..." : "Ver certificado"
+                }
+              </PDFDownloadLink>
         </div>
         <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
           <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
@@ -213,6 +229,7 @@ const CapacitacionesTrabajador = () => {
         >
           <Pregunta/>
         </Modal>
+        
       </div>
     </div>
   );

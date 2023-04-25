@@ -1,47 +1,49 @@
-import React from "react";
 
 const Pregunta = ({
   indice,
-  pregunta,
-  puntos,
-  respuesta1,
-  respuesta2,
-  respuesta3,
-  respuesta4,
-  respuesta5,
+  texto,
+  puntajeDePregunta,
+  opcion1,
+  opcion2,
+  opcion3,
+  opcion4,
+  opcion5,
   handleFormChange,
   removePregunta,
 }) => {
   return (
     <div className="shadow-xl bg-slate-100 p-3 rounded-lg mb-4">
       <div className="flex flex-col md:flex-row items-center gap-2">
-      <div className="flex gap-3 items-center">
-        <div className="bg-black w-10 h-10 rounded-full flex justify-center items-center text-white font-bold">
-          1
+        <div className="flex gap-3 items-center w-full md:w-4/5">
+          <div className="bg-black w-10 h-10 rounded-full flex justify-center items-center text-white font-bold">
+            1
+          </div>
+          <div className="w-full">
+            <label className="font-semibold">Digite la pregunta</label>
+            <input
+              type="text"
+              name="texto"
+              className={`input ${
+                texto === "" ? "input-error" : ""
+              } input-bordered input-sm w-full`}
+              value={texto}
+              onChange={(event) => handleFormChange(indice, event)}
+            />
+          </div>
         </div>
-        <div className="w-full">
-          <label className="font-semibold">Digite la pregunta</label>
-          <input
-            type="text"
-            name="pregunta"
-            className="input input-bordered input-sm w-full"
-            value={pregunta}
-            onChange={(event) => handleFormChange(indice, event)}
-          />
-        </div>
-      </div>
-        <div className="w-full">
+        <div className="w-full md:w-1/5">
           <label className="font-semibold">Puntos</label>
           <input
-            type="text"
-            name="puntos"
-            className="input input-bordered input-sm w-full"
-            value={puntos}
+            type="number"
+            name="puntajeDePregunta"
+            className={`input ${
+              puntajeDePregunta === "" ? "input-error" : ""
+            } input-bordered input-sm w-full`}
+            value={puntajeDePregunta}
             onChange={(event) => handleFormChange(indice, event)}
           />
         </div>
       </div>
-      {/* <p className="font-bold mb-2 text-center">Alternativas</p> */}
       <div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div>
@@ -50,9 +52,11 @@ const Pregunta = ({
             </label>
             <input
               type="text"
-              name="respuesta1"
-              className="input input-bordered input-sm w-full"
-              value={respuesta1}
+              name="opcion1"
+              className={`input ${
+                opcion1 === "" ? "input-error" : ""
+              } input-bordered   input-sm w-full`}
+              value={opcion1}
               onChange={(event) => handleFormChange(indice, event)}
             />
           </div>
@@ -60,42 +64,50 @@ const Pregunta = ({
             <label className="font-semibold text-transparent">-</label>
             <input
               type="text"
-              name="respuesta2"
-              className="input input-bordered input-sm w-full"
-              value={respuesta2}
+              name="opcion2"
+              className={`input ${
+                opcion2 === "" ? "input-error" : ""
+              } input-bordered   input-sm w-full`}
+              value={opcion2}
               onChange={(event) => handleFormChange(indice, event)}
             />
           </div>
           <div>
             <input
               type="text"
-              name="respuesta3"
-              className="input input-bordered input-sm w-full"
-              value={respuesta3}
+              name="opcion3"
+              className={`input ${
+                opcion3 === "" ? "input-error" : ""
+              } input-bordered   input-sm w-full`}
+              value={opcion3}
               onChange={(event) => handleFormChange(indice, event)}
             />
           </div>
           <div>
             <input
               type="text"
-              name="respuesta4"
-              className="input input-bordered input-sm w-full"
-              value={respuesta4}
+              name="opcion4"
+              className={`input ${
+                opcion4 === "" ? "input-error" : ""
+              } input-bordered   input-sm w-full`}
+              value={opcion4}
               onChange={(event) => handleFormChange(indice, event)}
             />
           </div>
           <div>
             <input
               type="text"
-              name="respuesta5"
-              className="input input-bordered input-sm w-full"
-              value={respuesta5}
+              name="opcion5"
+              className={`input ${
+                opcion5 === "" ? "input-error" : ""
+              } input-bordered   input-sm w-full`}
+              value={opcion5}
               onChange={(event) => handleFormChange(indice, event)}
             />
           </div>
           <div className="text-right">
             <button
-              class="btn btn-sm btn-error"
+              className="btn btn-sm btn-error"
               onClick={() => removePregunta(indice)}
             >
               Quitar pregunta
