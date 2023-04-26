@@ -81,6 +81,7 @@ const FormularioTrabajador = ({
   };
 
   const update = (data) => {
+    console.log('data', data)
     patchTrabajador(data).then((res) => {
       console.log("res", res);
       if (res.data) {

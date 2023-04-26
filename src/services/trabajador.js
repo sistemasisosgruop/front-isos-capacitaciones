@@ -27,9 +27,19 @@ const postImportar = (id, data) => {
 };
 
 const patchTrabajador = (data) => {
-  const { id, ...dataFormat } = data;
+  const { id, habilitado, reporte, nombreEmpresa, ...dataFormat } = data;
+  console.log('dataFormat', dataFormat)
   return baseApiTrabajador()
     .patch(`/${id}`, dataFormat)
+    .catch((error) => {
+      if (error.response) return { status: error.response.status, data: null, msg:error.response.msg };
+    });
+};
+
+const patchEstado = (data) => {
+  const { id, habilitado: estado } = data;
+  return baseApiTrabajador()
+    .patch(`/${id}`, {habilitado: !estado})
     .catch((error) => {
       if (error.response) return { status: error.response.status, data: null, msg:error.response.msg };
     });
@@ -57,4 +67,5 @@ export {
   postImportar,
   patchTrabajador,
   deleteTrabajador,
+  patchEstado
 };

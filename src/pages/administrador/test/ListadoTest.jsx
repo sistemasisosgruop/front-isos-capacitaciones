@@ -4,30 +4,25 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPlus,
-  faEdit,
-  faTrashAlt,
-  faEye,
-} from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faEdit, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
 import SweetAlert from "react-bootstrap-sweetalert";
-import { deleteEmpresa, getEmpresas, getImgs } from "../../../services/empresa";
+import { getEmpresas } from "../../../services/empresa";
 import { useRef } from "react";
 import { Modal } from "../../../components/modal/Modal";
 import useModals from "../../../hooks/useModal";
 import Button from "../../../components/Button";
 import { toast } from "react-toastify";
-import FormularioEmpresa from "./components/FormularioTest";
-import loadingImg from "../../../assets/img/cargando-loading-048.gif";
 import FormularioTest from "./components/FormularioTest";
+import { deleteTest, getTest } from "../../../services/test";
 
 const initialForm = {
+  id: "",
   detalle: "",
   urlTest: "",
   fechaCr: "",
   fechaVen: "",
   fechaAplazo: "",
-  empresas: "",
+  Empresas: "",
 };
 
 const ListadoTest = () => {
@@ -86,7 +81,7 @@ const ListadoTest = () => {
 
   //cargar la informacion de la tabla
   const onGridReady = useCallback((params) => {
-    /* getEmpresas().then((res) => {
+    getTest().then((res) => {
       const { data } = res;
       if (data) {
         setRowData(data);
@@ -95,38 +90,7 @@ const ListadoTest = () => {
           position: "bottom-right",
         });
       }
-    }); */
-    const data = [
-      {
-        id: "1",
-        detalle: "pruebaT 1",
-        urlTest: "https://www.youtube.com/watch?v=7JqeQM_9h_8",
-        fechaCr: "2023-04-18",
-        fechaVen: "2023-04-17",
-        fechaAplazo: "2023-04-17",
-        empresas: [1, 3],
-      },
-      {
-        id: "2",
-        detalle: "pruebaT2",
-        urlTest: "https://www.youtube.com/watch?v=7JqeQM_9h_8",
-        fechaCr: "2023-04-18",
-        fechaVen: "2023-04-17",
-        fechaAplazo: "2023-04-17",
-        empresas: [1, 2],
-      },
-      {
-        id: "3",
-        detalle: "pruebaT 3",
-        urlTest: "https://www.youtube.com/watch?v=7JqeQM_9h_8",
-        fechaCr: "2023-04-18",
-        fechaVen: "2023-04-17",
-        fechaAplazo: "2023-04-17",
-        empresas: [1],
-      },
-    ];
-    console.log("data", data);
-    setRowData(data);
+    });
   }, []);
 
   //funciones para refrescar la tabla
@@ -139,6 +103,7 @@ const ListadoTest = () => {
   }, []);
 
   const updateRow = useCallback((data) => {
+    console.log("data", data);
     var rowNode = gridRef.current.api.getRowNode(data?.id);
     rowNode.setData(data);
   }, []);
@@ -154,9 +119,22 @@ const ListadoTest = () => {
   };
 
   const updateButton = (data) => {
-    console.log('data', data)
+    const { createdAt, empresaId, Empresas, ...formatData } = data;
+
+    // ! esta campo debe venir de la DB
+    formatData.fechaAplazo = "";
+
+    const formatEmpresas = Empresas.map(function (obj) {
+      const { id, nombreEmpresa } = obj;
+      let newObj = {};
+      newObj["value"] = id;
+      newObj["label"] = nombreEmpresa;
+      return newObj;
+    });
+
+    formatData.Empresas = formatEmpresas;
+    setdataForm(formatData);
     openModal();
-    setdataForm(data);
   };
 
   const openConfirm = (data) => {
@@ -165,8 +143,7 @@ const ListadoTest = () => {
   };
 
   const confirmDelete = () => {
-    deleteEmpresa(rowDelete.id).then((res) => {
-      const { data } = res;
+    deleteTest(rowDelete.id).then(({ data }) => {
       if (data) {
         removeItem(rowDelete);
         setSweetAlert(false);
@@ -195,12 +172,28 @@ const ListadoTest = () => {
     });
   }, []);
 
+  const onFilterTextBoxChanged = useCallback((e) => {
+    gridRef.current.api.setQuickFilter(e.target.value);
+  }, []);
+
   return (
     <div className="">
       <div className="bg-white p-3">
-        <div className="flex justify-between gap-3">
-          <h2 className="font-bold text-2xl mb-3">Test</h2>
-          <Button description="Registrar" icon={faPlus} event={openAddModal} />
+        <h2 className="font-bold text-2xl mb-3">Test</h2>
+        <div className="flex justify-between gap-3 mb-2">
+            <input
+              type="text"
+              name="empresa"
+              placeholder="Buscar"
+              id="searchInput"
+              onChange={onFilterTextBoxChanged}
+              className="input input-bordered input-sm"
+            />
+            <Button
+              description="Registrar"
+              icon={faPlus}
+              event={openAddModal}
+            />
         </div>
 
         <div style={containerStyle}>
@@ -234,7 +227,7 @@ const ListadoTest = () => {
             empresasDb={empresas}
           />
         </Modal>
-        {/* 
+
         <SweetAlert
           warning
           showCancel
@@ -246,7 +239,7 @@ const ListadoTest = () => {
           onConfirm={confirmDelete}
           show={sweetAlert}
           onCancel={() => setSweetAlert(false)}
-        ></SweetAlert> */}
+        ></SweetAlert>
       </div>
     </div>
   );

@@ -43,6 +43,14 @@ const getCapacitaciones = () => {
     });
 };
 
+const getPreguntas = ( id ) => {
+  return baseApiCapacitaciones()
+    .get(`/${ id }`)
+    .catch((error) => {
+      if (error.response) return { status: error.response.status, data: null };
+    });
+};
+
 const deleteTrabajador = (id) => {
   return baseApiTrabajador()
     .delete(`/${id}`)
@@ -53,5 +61,6 @@ const deleteTrabajador = (id) => {
 
 export {
   getCapacitaciones,
-  postCapacitaciones
+  postCapacitaciones,
+  getPreguntas
 };

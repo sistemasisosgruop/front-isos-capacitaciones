@@ -8,14 +8,20 @@ import { toast } from "react-toastify";
 
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
+import { patchTest, postTest } from "../../../../services/test";
 const animatedComponents = makeAnimated();
 
-const FormularioTest = ({ initialForm, addItem, updateRow, closeModal,empresasDb }) => {
+const FormularioTest = ({
+  initialForm,
+  addItem,
+  updateRow,
+  closeModal,
+  empresasDb,
+}) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
   //tipo de accion (Event)
-  const action = initialForm.empresas === "" ? "ADD" : "UPDATE";
-console.log('empresasDb', empresasDb)
+  const action = initialForm.Empresas === "" ? "ADD" : "UPDATE";
   const {
     id,
     detalle,
@@ -23,7 +29,7 @@ console.log('empresasDb', empresasDb)
     fechaCr,
     fechaVen,
     fechaAplazo,
-    empresas,
+    Empresas,
 
     detalleValid,
     urlTestValid,
@@ -35,7 +41,8 @@ console.log('empresasDb', empresasDb)
     formState,
     isFormValid,
     onInputChange,
-    setFormState
+    setFormState,
+    onResetForm,
   } = useForm(initialForm, formValidations);
 
   const handleForm = async (event, action) => {
@@ -43,34 +50,25 @@ console.log('empresasDb', empresasDb)
     setFormSubmitted(true);
 
     if (!isFormValid) return;
-    console.log('formState', formState)
-    const data = new FormData();
-    data.append("nombreEmpresa",empresa)
-    data.append("direccion",direccion)
-    data.append("nombreGerente",nombreGerente)
-    data.append("numeroContacto",numeroContacto)
-    data.append("imagenLogo",logoEmpresa)
-    data.append("imagenCertificado",fondoCertificado)
-    data.append("RUC",ruc)
-    
+
+    const { fechaAplazo, Empresas: sendEmpresas, ...formatData } = formState;
+    const formatEmpresas = sendEmpresas.map((option) => option.value);
+    formatData.empresas = formatEmpresas;
     if (action === "ADD") {
-      add(data);
+      add(formatData);
     } else {
-      update(data);
+      update(formatData);
     }
   };
 
-  const update = (data) => {
-    data.append("id", id)
-    patchEmpresas(data).then((res) => {
-      const { data } = res;
+  const update = ({ id, ...data }) => {
+    patchTest(id, data).then(({ data }) => {
       if (data) {
-        const { createdAt, ...newRowData } = res.data;
         toast.success("Actualizado con exito", {
           position: "bottom-right",
         });
         closeModal();
-        updateRow(newRowData);
+        updateRow(data);
         setFormSubmitted(false);
       } else {
         toast.error("Ocurrio un error en el servidor", {
@@ -80,16 +78,15 @@ console.log('empresasDb', empresasDb)
     });
   };
 
-  const add = (data) => {
-    postEmpresas(data).then((res) => {
-      const { data } = res;
+  const add = ({ id, ...data }) => {
+    postTest(data).then(({ data }) => {
       if (data) {
-        const { createdAt, ...newrowData } = res.data;
         toast.success("Agregado con exito", {
           position: "bottom-right",
         });
         closeModal();
-        addItem(0, newrowData);
+        addItem(0, data);
+        onResetForm();
         setFormSubmitted(false);
       } else {
         toast.error("Ocurrio un error en el servidor", {
@@ -99,26 +96,11 @@ console.log('empresasDb', empresasDb)
     });
   };
 
-   const dataSelect = [
-    { value: '1', label: 'uno', },
-    { value: '2', label: 'dos',},
-    { value: '3', label: 'tres'},
-    { value: '4', label: 'cuatro',},
-    { value: '5', label: 'cinco'},
-  ];
-
   const handleEmpresas = (values) => {
-    const newData = values.map((obj) => obj.value);
-    if (newData.length === 0) {
-      setFormState( formState => ({ ...formState, ['empresas']: '' }))
-    } else {
-      console.log('newData', newData)
-      setFormState( formState => ({ ...formState, ['empresas']: newData }))
-    }
-    console.log("formState", formState);
+    formState.Empresas = values;
+    setFormState((valueForm) => ({ ...valueForm, ...formState }));
   };
-  console.log('formState', formState)
-console.log('empresas', empresas)
+
   return (
     <form onSubmit={(e) => handleForm(e, action)}>
       <div className="flex flex-col md:flex-row gap-3  mb-2">
@@ -144,13 +126,11 @@ console.log('empresas', empresas)
             Nombre de las empresas
           </label>
           <Select
-            closeMenuOnSelect={false}
             components={animatedComponents}
-           // value={empresas}
+            value={Empresas}
             isMulti
-            options={dataSelect}
-            onChange={(selectedOption) => handleEmpresas(selectedOption)}
-            name="empresas"
+            options={empresasDb}
+            onChange={handleEmpresas}
             placeholder="Selecciona empresa"
           />
           {!!empresasValid && formSubmitted && (
@@ -164,7 +144,7 @@ console.log('empresas', empresas)
             URL video
           </label>
           <input
-            type="text"
+            type="url"
             name="urlTest"
             id="urlTest"
             className="input input-bordered input-sm w-full"

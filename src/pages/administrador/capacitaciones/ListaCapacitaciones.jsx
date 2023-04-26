@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import useModals from "../../../hooks/useModal";
 import { Modal } from "../../../components/modal/Modal";
 import FormularioInicio from "./components/FormularioInicio";
-import { getCapacitaciones } from "../../../services/capacitacion";
+import { getCapacitaciones, getPreguntas } from "../../../services/capacitacion";
 import { AgGridReact } from "ag-grid-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getEmpresas } from "../../../services/empresa";
@@ -43,6 +43,9 @@ const ListaCapacitaciones = () => {
   const [formPreguntas, setFormPreguntas] = useState(initialFormPreguntas);
   const [isOpen, openModal, closeModal] = useModals();
   const [empresas, setEmpresas] = useState([]);
+  const [dataForm, setdataForm] = useState(initialForm);
+  const [rowSelected, setRowSelected] = useState([]);
+  const [preguntas, setPreguntas] = useState([])
 
   const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
@@ -142,31 +145,25 @@ const ListaCapacitaciones = () => {
   };
 
   const updateButton = (data) => {
-    const {
-      nombreEmpresa: empresa,
-      RUC: ruc,
-      nombreGerente,
-      numeroContacto,
-      direccion,
-      id,
-    } = data;
+    console.log('data', data)
+    getPreguntasExamen(data.id);
+    const { createdAt, examen, Empresas, ...dataFormat } = data;
 
     openModal();
-    setdataForm({
-      id,
-      empresa,
-      ruc,
-      nombreGerente,
-      numeroContacto,
-      direccion,
-      //TODO: agregar dinamismo
-      logoEmpresa: "",
-      fondoCertificado: "",
+    //obtenemos los id de las empresas
+    const empresasFormat = Empresas.map(function (obj) {
+      const { id, nombreEmpresa } = obj;
+      let newObj = {};
+      newObj["value"] = id;
+      newObj["label"] = nombreEmpresa;
+      return newObj;
     });
-  };
+    dataFormat.empresas = empresasFormat;
+    setdataForm(dataFormat)
+  }
 
   const openConfirm = (data) => {
-    setRowDelete(data);
+    setRowSelected(data);
     setSweetAlert(true);
   };
 
@@ -186,6 +183,36 @@ const ListaCapacitaciones = () => {
       }
     });
   };
+
+  const getPreguntasExamen = ( id ) => {
+    getPreguntas( id ).then( res => {
+      console.log('res', res)
+      setFormPreguntas()
+ /*      {
+        texto:"",
+        opcion1:"",
+        opcion2:"",
+        opcion3:"",
+        opcion4:"",
+        opcion5:"",
+        puntajeDePregunta:"",
+        respuesta_correcta:1,
+      },
+
+      {
+        "id": 1,
+        "texto": "¿Cuál es la capital de Francia?",
+        "opcion1": "Madrid",
+        "opcion2": "París",
+        "opcion3": "Londres",
+        "opcion4": "Roma",
+        "opcion5": "Berlín",
+        "respuesta_correcta": 2,
+        "puntajeDePregunta": 4,
+        "examenId": 1
+      } */
+    })
+  }
 
   // fin tabla
 
@@ -285,9 +312,11 @@ const ListaCapacitaciones = () => {
           <StepWizard initialStep={1} nav={<NavWizard />}>
             <div className="p-3" stepName={"inicio"}>
               <FormularioInicio
-                initialForm={initialForm}
+                initialForm={dataForm}
                 empresasDb={empresas}
                 validateGetPreguntas={validateGetPreguntas}
+                closeModal={closeModal}
+                addItem={addItem}
               />
             </div>
             <div className="p-3" stepName={"preguntas"}>

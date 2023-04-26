@@ -13,10 +13,13 @@ const FormularioInicio = ({
   initialForm,
   empresasDb,
   validateGetPreguntas,
+  addItem,
+  closeModal
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
   //tipo de accion (Event)
+  console.log('initialForm', initialForm)
   const action = initialForm.empresas === "" ? "ADD" : "UPDATE";
 
   const {
@@ -43,6 +46,8 @@ const FormularioInicio = ({
     formState,
     isFormValid,
     onInputChange,
+    onResetForm,
+    setFormState
   } = useForm(initialForm, formValidations);
 
   const handleForm = async (event, action) => {
@@ -60,6 +65,10 @@ const FormularioInicio = ({
       titulo: "Ejemplo de examen",
       preguntas: preguntasCreadas,
     };
+
+    //formatemos empresas a [1,2...]
+    const empresasFormat = formState.empresas.map((obj) => obj.value);
+
     const data = new FormData();
 
     data.append("nombre", formState.nombre);
@@ -69,12 +78,8 @@ const FormularioInicio = ({
     data.append("urlVideo", formState.urlVideo);
     data.append("certificado", formState.certificado);
     data.append("examen", JSON.stringify(formatPregunta));
-    data.append("empresas", formState.empresas);
-    data.append("horas", 12);
-    // Display the key/value pairs
-    /*   for (const pair of data.entries()) {
-      console.log(`${pair[0]}, ${pair[1]}`);
-    } */
+    data.append("empresas", empresasFormat);
+    data.append("horas", formState.horas);
 
     if (action === "ADD") {
       add(data);
@@ -85,7 +90,6 @@ const FormularioInicio = ({
 
   const add = (data) => {
     postCapacitaciones(data).then((res) => {
-      console.log("res", res);
       const { data } = res;
       if (data) {
         const { createdAt, ...newrowData } = res.data;
@@ -95,6 +99,7 @@ const FormularioInicio = ({
         closeModal();
         addItem(0, newrowData);
         setFormSubmitted(false);
+        onResetForm()
       } else {
         toast.error("Ocurrio un error en el servidor", {
           position: "bottom-right",
@@ -104,14 +109,9 @@ const FormularioInicio = ({
   };
 
   const handleEmpresas = (values) => {
-    const newData = values.map((obj) => obj.value);
-    console.log("newData", newData);
-    if (newData.length === 0) {
-      formState.empresas = "";
-    } else {
-      formState.empresas = newData;
-    }
-    console.log("formState", formState);
+    
+      formState.empresas = values;
+      setFormState( valueForm => ({...valueForm, formState}) )
   };
   return (
     <form onSubmit={(event) => handleForm(event, action)}>
@@ -138,13 +138,11 @@ const FormularioInicio = ({
             Nombre de la empresa
           </label>
           <Select
-            closeMenuOnSelect={false}
-            components={animatedComponents}
-            defaultValue={[]}
             isMulti
             options={empresasDb}
-            onChange={(selectedOption) => handleEmpresas(selectedOption)}
-            name="empresas"
+            onChange={handleEmpresas}
+            value={empresas}
+            //name="empresas"
             placeholder="Selecciona empresa"
           />
           {!!empresasValid && formSubmitted && (
@@ -174,7 +172,7 @@ const FormularioInicio = ({
             URL del video
           </label>
           <input
-            type="text"
+            type="url"
             name="urlVideo"
             id="urlVideo"
             className="input input-bordered input-sm w-full"

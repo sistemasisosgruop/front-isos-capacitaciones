@@ -17,6 +17,8 @@ import FormularioTrabajador from "./components/FormularioTrabajador";
 import {
   deleteTrabajador,
   getTrabajadores,
+  patchEstado,
+  patchTrabajador,
 } from "../../../services/trabajador";
 
 import {
@@ -25,6 +27,8 @@ import {
   faTrashAlt,
   faFileImport,
   faFileExport,
+  faCheckCircle,
+  faTimesCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { useEffect } from "react";
 import FormularioImportar from "./components/FormularioImportar";
@@ -53,6 +57,7 @@ const ListadoTrabajador = () => {
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [dataForm, setdataForm] = useState(initialForm);
   const [sweetAlert, setSweetAlert] = useState(false);
+  const [sweetAlertState, setSweetAlertState] = useState(false);
   const [rowData, setRowData] = useState();
   const [isOpen1, openModal1, closeModal1] = useModals();
   const [isOpenImport, openModalImport, closeModalImport] = useModals();
@@ -75,8 +80,22 @@ const ListadoTrabajador = () => {
         >
           <FontAwesomeIcon icon={faEdit} />
         </label>
-        <label className="cursor-pointer" onClick={() => openConfirm(data)}>
+        <label className="cursor-pointer" onClick={() => openConfirm(data, 'DELETE')}>
           <FontAwesomeIcon icon={faTrashAlt} />
+        </label>
+      </>
+    );
+  };
+
+  const renderButtonsEstado = ({ data }) => {
+    return (
+      <>
+        <label className="cursor-pointer" onClick={() => openConfirm(data,'UPDATE')}>
+          {data.habilitado ? (
+            <FontAwesomeIcon icon={faTimesCircle} />
+          ) : (
+            <FontAwesomeIcon icon={faCheckCircle} />
+          )}
         </label>
       </>
     );
@@ -92,6 +111,11 @@ const ListadoTrabajador = () => {
     { field: "areadetrabajo", headerName: "Area" },
     { field: "cargo", headerName: "Cargo" },
     { field: "nombreEmpresa", headerName: "Empresa" },
+    {
+      headerName: "Habil/deshab",
+      cellStyle: { textAlign: "center" },
+      cellRenderer: renderButtonsEstado,
+    },
     { field: "Opciones", cellRenderer: renderButtons },
   ]);
 
@@ -161,13 +185,34 @@ const ListadoTrabajador = () => {
     console.log("formatData", formatData);
   };
 
-  const openConfirm = (data) => {
+  const openConfirm = (data, action) => {
     setRowDelete(data);
-    setSweetAlert(true);
+    if (action === "DELETE") {
+      setSweetAlert(true);
+    } else {
+      setSweetAlertState(true);
+    }
   };
 
   const confirmDelete = () => {
     deleteTrabajador(rowDelete.id).then((res) => {
+      const { data } = res;
+      if (data) {
+        removeItem(rowDelete);
+        setSweetAlert(false);
+        toast.success("Eliminado con exito", {
+          position: "bottom-right",
+        });
+      } else {
+        toast.error("Ocurrio un error en el servidor", {
+          position: "bottom-right",
+        });
+      }
+    });
+  };
+
+  const confirmUpdateState = () => {
+    patchEstado(rowDelete).then((res) => {
       const { data } = res;
       if (data) {
         removeItem(rowDelete);
@@ -344,6 +389,19 @@ const ListadoTrabajador = () => {
           onConfirm={confirmDelete}
           show={sweetAlert}
           onCancel={() => setSweetAlert(false)}
+        ></SweetAlert>
+
+        <SweetAlert
+          warning
+          showCancel
+          confirmBtnText="si"
+          cancelBtnText="No, cancelar"
+          confirmBtnCssClass="btn-sweet-success"
+          cancelBtnCssClass="btn-sweet-danger"
+          title="¿Esta seguro de actualizar al trabajador?"
+          onConfirm={confirmUpdateState}
+          show={sweetAlertState}
+          onCancel={() => setSweetAlertState(false)}
         ></SweetAlert>
       </div>
     </div>
