@@ -3,26 +3,31 @@ import validate from "./validateFormModal";
 import { useForm } from "../../../../hooks/useForms";
 import { toast } from "react-toastify";
 import Button from "../../../../components/Button";
-import { postCapacitaciones } from "../../../../services/capacitacion";
+import {
+  getCapacitacion,
+  patchCapacitaciones,
+  postCapacitaciones,
+} from "../../../../services/capacitacion";
 
 import Select from "react-select";
-import makeAnimated from "react-select/animated";
-const animatedComponents = makeAnimated();
+import { hideLoader, showLoader } from "../../../../utils/loader";
 
 const FormularioInicio = ({
   initialForm,
   empresasDb,
   validateGetPreguntas,
   addItem,
-  closeModal
+  updateRow,
+  closeModal,
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
-  //tipo de accion (Event)
-  console.log('initialForm', initialForm)
+
+  //tipo de accion
   const action = initialForm.empresas === "" ? "ADD" : "UPDATE";
 
   const {
+    id,
     nombre,
     instructor,
     fechaInicio,
@@ -47,7 +52,7 @@ const FormularioInicio = ({
     isFormValid,
     onInputChange,
     onResetForm,
-    setFormState
+    setFormState,
   } = useForm(initialForm, formValidations);
 
   const handleForm = async (event, action) => {
@@ -60,7 +65,14 @@ const FormularioInicio = ({
       return toast.warning("Todos los preguntas deben llenadas correctamente", {
         position: "bottom-right",
       });
+    } else {
+      if (preguntasCreadas.length !== 5) {
+        return toast.warning("el minimo de preguntas es 5", {
+          position: "bottom-right",
+        });
+      }
     }
+
     const formatPregunta = {
       titulo: "Ejemplo de examen",
       preguntas: preguntasCreadas,
@@ -75,6 +87,7 @@ const FormularioInicio = ({
     data.append("instructor", formState.instructor);
     data.append("fechaInicio", formState.fechaInicio);
     data.append("fechaCulminacion", formState.fechaCulminacion);
+    fechaAplazo !== "" && data.append("fechaAplazo", formState.fechaAplazo);
     data.append("urlVideo", formState.urlVideo);
     data.append("certificado", formState.certificado);
     data.append("examen", JSON.stringify(formatPregunta));
@@ -89,30 +102,65 @@ const FormularioInicio = ({
   };
 
   const add = (data) => {
+    showLoader();
     postCapacitaciones(data).then((res) => {
+      console.log("res", res);
       const { data } = res;
       if (data) {
-        const { createdAt, ...newrowData } = res.data;
-        toast.success("Agregado con exito", {
-          position: "bottom-right",
+        getCapacitacion(data.id).then(({ data }) => {
+          const { capacitacion } = data;
+          delete data.capacitacion;
+          const dataFormat = { ...data, ...capacitacion };
+          toast.success("Agregado con exito", {
+            position: "bottom-right",
+          });
+          console.log("dataFormat", dataFormat);
+          addItem(0, dataFormat);
         });
+
         closeModal();
-        addItem(0, newrowData);
         setFormSubmitted(false);
-        onResetForm()
+        onResetForm();
       } else {
         toast.error("Ocurrio un error en el servidor", {
           position: "bottom-right",
         });
       }
+      hideLoader();
+    });
+  };
+
+  const update = (data) => {
+    showLoader();
+    patchCapacitaciones(id, data).then(({ data }) => {
+      if (data) {
+        getCapacitacion(data.id).then(({ data }) => {
+          const { capacitacion } = data;
+          delete data.capacitacion;
+          const dataFormat = { ...data, ...capacitacion };
+          toast.success("Actualizado con exito", {
+            position: "bottom-right",
+          });
+          console.log("dataFormat", dataFormat);
+          updateRow(dataFormat);
+        });
+
+        closeModal();
+        setFormSubmitted(false);
+      } else {
+        toast.error("Ocurrio un error en el servidor", {
+          position: "bottom-right",
+        });
+      }
+      hideLoader();
     });
   };
 
   const handleEmpresas = (values) => {
-    
-      formState.empresas = values;
-      setFormState( valueForm => ({...valueForm, formState}) )
+    formState.empresas = values;
+    setFormState((valueForm) => ({ ...valueForm, formState }));
   };
+
   return (
     <form onSubmit={(event) => handleForm(event, action)}>
       <div className="flex flex-col md:flex-row gap-3 mb-2">
@@ -142,7 +190,6 @@ const FormularioInicio = ({
             options={empresasDb}
             onChange={handleEmpresas}
             value={empresas}
-            //name="empresas"
             placeholder="Selecciona empresa"
           />
           {!!empresasValid && formSubmitted && (

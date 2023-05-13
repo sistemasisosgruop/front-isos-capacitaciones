@@ -1,13 +1,33 @@
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import Certificado from "./Certificado";
+const TarjetasCapacitaciones = ({ data, verPreguntas, verCertificado }) => {
+  let backgroundEstado = null;
+  let descripcionEstado = null;
 
-const TarjetasCapacitaciones = ({ title, date, openModal }) => {
+  if (!data.asistenciaExamen) {
+    descripcionEstado = "Pendiente";
+    backgroundEstado = " rgb(148 163 184)";
+  } else {
+    if (data.maximaNotaExamen / 2 > data.notaExamen) {
+      descripcionEstado = "Desaprobado";
+      backgroundEstado = "rgb(220 20 38)";
+    } else {
+      descripcionEstado = "Aprobado";
+      backgroundEstado = "rgb(13 148 136)";
+    }
+  }
   return (
-    <div className="w-full bg-slate-100 p-3 border-l-8 border-teal-600 rounded-lg shadow-lg">
+    <div
+      className={`w-full bg-slate-100 p-3 border-l-8 rounded-lg`}
+      style={{ borderLeftColor: backgroundEstado }}
+    >
       <div className="flex justify-between items-center mb-2">
-        <h2 className="font-bold text-sm md:text-lg">{title}</h2>
-        <div className="badge badge-accent bg-teal-600 text-white">
-          Aprobado
+        <h2 className="font-bold text-sm md:text-lg">
+          {data.capacitacion?.nombre}
+        </h2>
+        <div
+          className={`badge text-white`}
+          style={{ backgroundColor: backgroundEstado }}
+        >
+          {descripcionEstado}
         </div>
       </div>
       <div className="flex flex-col lg:flex-row">
@@ -17,35 +37,37 @@ const TarjetasCapacitaciones = ({ title, date, openModal }) => {
             <p className="font-semibold">Evaluación</p>
           </div>
           <div className="w-1/2 lg:w-3/5">
-            <div className="badge badge-outline text-blue-500 cursor-pointer block mb-2">
+            <a
+              href={data.capacitacion?.urlVideo}
+              target="_blank"
+              className="badge badge-outline text-blue-500 cursor-pointer block mb-2"
+            >
               Dar capacitación
-            </div>
+            </a>
             <div
-              className="badge badge-outline text-blue-500 cursor-pointer block"
-              onClick={openModal}
+              className="badge badge-outline text-blue-500 cursor-pointer block mb-2"
+              onClick={() =>
+                descripcionEstado !=='Aprobado' && verPreguntas(data)
+              }
             >
               Dar evaluación
             </div>
           </div>
         </div>
 
-        <div className="flex w-full lg:w-1/2">
+        <div className="flex w-full lg:w-1/2 gap-y-3">
           <div className="w-1/2 lg:w-2/5">
             <p className="font-semibold">Certificado</p>
             <p className="font-semibold">Fecha</p>
           </div>
           <div className="w-1/2 lg:w-3/5">
-            <div className="badge badge-outline text-blue-500 cursor-pointer block mb-2">
-              {/* <PDFDownloadLink
-                document={<Certificado />}
-                fileName="somename.pdf"
-              >
-                {({ blob, url, loading, error }) =>
-                  loading ? "Cargando..." : "Ver certificado"
-                }
-              </PDFDownloadLink> */}
+            <div
+              className="badge badge-outline text-blue-500 cursor-pointer block mb-2"
+              onClick={() => (descripcionEstado === 'Aprobado') && verCertificado(data)}
+            >
+              Ver certificado
             </div>
-            <p>{date}</p>
+            <p>{data.fechaCapacitacion}</p>
           </div>
         </div>
       </div>

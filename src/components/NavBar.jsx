@@ -13,9 +13,7 @@ const NavBar = ({ broken, toggleSidebar }) => {
     // cerrar sesion  DB
 
     logout();
-    navigate("/", {
-      replace: true,
-    });
+    navigate("/");
   };
   return (
     <div className="flex justify-between items-center w-full bg-teal-600 px-3 mb-5">

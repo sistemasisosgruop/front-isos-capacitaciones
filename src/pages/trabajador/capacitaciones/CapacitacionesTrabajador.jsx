@@ -1,162 +1,226 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import useModals from "../../../hooks/useModal";
 import { Modal } from "../../../components/modal/Modal";
 import TarjetasCapacitaciones from "./components/TarjetasCapacitaciones";
 import { useEffect } from "react";
 import SinRegistros from "../../../components/SinRegistros";
 import Pregunta from "./components/Pregunta";
-import Certificado from "./components/Certificado";
+import Certificado from "../../../components/Certificado";
+import { PDFViewer } from "@react-pdf/renderer";
 import {
-  PDFDownloadLink,
-  PDFViewer
-} from "@react-pdf/renderer";
+  getFirmaCertificado,
+  getPreguntas,
+} from "../../../services/capacitacion";
+import Button from "../../../components/Button";
+import randomArray from "../../../utils/randomArray";
+import { toast } from "react-toastify";
+import { getReporte, patchDarExamen } from "../../../services/reportes";
+import { AuthContext } from "../../../context/auth/authContext";
+import { formatDateDb, formatDateYMD } from "../../../utils/formtDate";
+import { getImgs } from "../../../services/empresa";
+import { months } from "../../../config";
+import getYearsBefore from "../../../utils/yearsBefore";
+import { getExamen } from "../../../services/examenes";
 
-const months = [
-  {
-    numero: 1,
-    descripcion: "Enero",
-  },
-  {
-    numero: 2,
-    descripcion: "Febrero",
-  },
-  {
-    numero: 3,
-    descripcion: "Marzo",
-  },
-  {
-    numero: 4,
-    descripcion: "Abril",
-  },
-  {
-    numero: 5,
-    descripcion: "mayo",
-  },
-  {
-    numero: 6,
-    descripcion: "Junio",
-  },
-  {
-    numero: 7,
-    descripcion: "Julio",
-  },
-  {
-    numero: 8,
-    descripcion: "Agosto",
-  },
-  {
-    numero: 9,
-    descripcion: "septiembre",
-  },
-  {
-    numero: 10,
-    descripcion: "octubre",
-  },
-  {
-    numero: 11,
-    descripcion: "noviembre",
-  },
-  {
-    numero: 12,
-    descripcion: "diciembre",
-  },
-];
-const dataInit = [
-  {
-    fecha: "08/01/2015",
-    titulo: "ejemplo de titulo 1 08/01/2015",
-  },
-  {
-    fecha: "02/02/2015",
-    titulo: "ejemplo de titulo 2 08/02/2015",
-  },
-  {
-    fecha: "03/12/2016",
-    titulo: "ejemplo de titulo 1 08/12/2016",
-  },
-  {
-    fecha: "02/02/2016",
-    titulo: "ejemplo de titulo 1 08/02/2016",
-  },
-  {
-    fecha: "08/03/2017",
-    titulo: "ejemplo de titulo 1 08/03/2017",
-  },
-];
+const initialFormPreguntas = {
+  examenId: "",
+  capacitacionId: "",
+  trabajadorID: "",
+  preguntas: [],
+};
+
 const CapacitacionesTrabajador = () => {
   const [selectMonth, setSelectMonth] = useState("");
   const [selectYear, setSelectYear] = useState("");
+  const [data, setData] = useState([]);
+  const [dataInit, setDataInit] = useState([]);
+  const [formPreguntas, setFormPreguntas] = useState(initialFormPreguntas);
+  const [dataCertificado, setDataCertificado] = useState("");
+  const [reFetchData, setReFetchData] = useState(true);
+
   const [isOpen, openModal, closeModal] = useModals();
-  const [data, setData] = useState(dataInit);
-  const [dataFilter, setDataFilter] = useState([]);
-  const [filterActive, setFilterActive] = useState(false);
+  const [isOpenCerti, openModalCerti, closeModalCerti] = useModals();
+  const { authState } = useContext(AuthContext);
+  const [years, setYears] = useState([]);
+
+  useEffect(() => {
+    setYears(getYearsBefore(10));
+  }, []);
 
   const filter = (obj) => {
-    const month = new Date(obj.fecha.split("/")[1]).getMonth() + 1;
-    const year = new Date(obj.fecha).getFullYear();
+    const [day, month, year] = formatDateDb(obj.createdAt);
     if (selectMonth !== "" && selectYear !== "") {
       if (year == selectYear && month == selectMonth) {
         return true;
       }
     } else {
       if (selectMonth === "") {
-        if (year == selectYear) {
-          return true;
-        }
+        if (year == selectYear) return true;
       } else if (selectYear === "") {
-        if (month == selectMonth) {
-          return true;
-        }
+        if (month == selectMonth) return true;
       }
     }
   };
 
   const filterData = () => {
-    if(selectMonth === "" && selectYear === "") {
-      setFilterActive(false);
+    if (selectMonth === "" && selectYear === "") {
       return;
-    };
-    var arrPorID = data.filter(filter); 
-    console.log('arrPorID', arrPorID)
-    setDataFilter(arrPorID);
+    }
+    var arrPorID = dataInit.filter(filter);
+    setData(arrPorID);
   };
+
   const handleSelectYear = (e) => {
-    console.log("cambio el select de años");
     setSelectYear(e.target.value);
   };
-  useEffect(() => {
-    console.log("estoy ejecutanbdo la funcion");
-    setFilterActive(true)
-    filterData();
-  }, [selectMonth, selectYear]);
-  
   const handleSelectMonth = (e) => {
-    console.log("cambio el select de meses");
     setSelectMonth(e.target.value);
   };
 
-  let fechaActual = new Date().getFullYear();
-  const years = [];
+  useEffect(() => {
+    filterData();
+  }, [selectMonth, selectYear]);
 
-  // creacion de 10 años anteriores
-  for (let x = 0; x < 10; x++) years.push(fechaActual - x);
+  useEffect(() => {
+    getReporte().then(({ data }) => {
+      const dataTrabajador = data.filter(
+        (capacitacion) => capacitacion.trabajadorId === authState.user.idUsuario  && capacitacion.capacitacion.habilitado
+      );
+      const newData = dataTrabajador.map((capacitacion) => {
+        capacitacion["fechaCapacitacion"] = formatDateYMD(
+          capacitacion.createdAt
+        );
+        return capacitacion;
+      });
 
+      const array = [];
+
+      newData.forEach((e) => {
+        array.push(getExamen(e.examen.id));
+      });
+
+      Promise.all(array).then((res) => {
+        res.map((examen, index) => {
+          newData[index]["maximaNotaExamen"] = examen.data.pregunta.reduce(
+            (acumulador, pregunta) => {
+              return acumulador + pregunta.puntajeDePregunta;
+            },
+            0
+          );
+          console.log("newData ===>>>", newData);
+          return examen;
+        });
+        console.log("newData", newData);
+        setDataInit(newData);
+        setData(newData);
+      });
+    });
+  }, [reFetchData]);
+
+  const handleFormChange = (index, event) => {
+    let data = { ...formPreguntas };
+    console.log("index", index);
+    console.log("event", event.target.value);
+    data["preguntas"][index][event.target.name] = event.target.value;
+    setFormPreguntas(data);
+  };
+
+  const verPreguntas = (capacitacion) => {
+    openModal();
+    const capacitacionId = capacitacion.capacitacion.id;
+    getPreguntas(capacitacionId).then(({ data }) => {
+      console.log("dataPrewgunta", data);
+      const newData = data.preguntas.map((pregunta) => {
+        const arrayCustom = [
+          { descripcion: pregunta.opcion1, value: 1 },
+          { descripcion: pregunta.opcion2, value: 2 },
+          { descripcion: pregunta.opcion3, value: 3 },
+          { descripcion: pregunta.opcion4, value: 4 },
+          { descripcion: pregunta.opcion5, value: 5 },
+        ];
+        pregunta.opciones = randomArray(arrayCustom);
+        pregunta.value_radio = "";
+
+        return pregunta;
+      });
+      console.log("newDataPreguntas -->", newData);
+      let newDataFormPreguntas = { ...formPreguntas };
+      newDataFormPreguntas.trabajadorID = capacitacion.trabajadorId;
+      newDataFormPreguntas.examenId = capacitacion.examenId;
+      newDataFormPreguntas.capacitacionId = capacitacionId;
+      newDataFormPreguntas.preguntas = newData;
+      setFormPreguntas(newDataFormPreguntas);
+    });
+  };
+
+  const validateGetPreguntas = () => {
+    return new Promise((resolve, reject) => {
+      formPreguntas.preguntas.forEach((pregunta) => {
+        let campoVacio = false;
+        if (pregunta.value_radio === "") campoVacio = true;
+        if (campoVacio) resolve(false);
+      });
+      resolve(formPreguntas);
+    });
+  };
+
+  const enviarExamen = async () => {
+    const validatePreguntas = await validateGetPreguntas();
+    if (!validatePreguntas) {
+      return toast.warning("Todos las preguntas deben llenadas correctamente", {
+        position: "bottom-right",
+      });
+    }
+    console.log("validatePreguntas", validatePreguntas);
+    const { examenId, capacitacionId, trabajadorID, preguntas } =
+      validatePreguntas;
+    const newFormatPreguntas = preguntas.map((e) => {
+      let obj = {};
+      obj["preguntaId"] = e.id;
+      obj["respuesta"] = Number(e.value_radio);
+      return obj;
+    });
+
+    let newFormatObj = {};
+    newFormatObj["respuestas"] = newFormatPreguntas;
+    console.log("newFormatObj", newFormatObj);
+    patchDarExamen(capacitacionId, trabajadorID, examenId, newFormatObj).then(
+      (res) => {
+        if (res.data) {
+          toast.success("Examen enviado", {
+            position: "bottom-right",
+          });
+          setReFetchData(!reFetchData);
+        }
+      }
+    );
+  };
+
+  const verCertificado = async (data) => {
+    const promesas = [
+      getImgs(8, "logo"),
+      getImgs(8, "certificado"),
+      getFirmaCertificado(7),
+    ];
+    Promise.all(promesas.map((prom) => prom.then((res) => res))).then((res) => {
+      const srcLogo = URL.createObjectURL(new Blob([res[0].data]));
+      const srcCertificado = URL.createObjectURL(new Blob([res[1].data]));
+      const srcFirma = URL.createObjectURL(new Blob([res[2].data]));
+      const imagenes = { srcLogo, srcCertificado, srcFirma };
+      const horasCapacitacion = data.capacitacion.horas;
+      data["imagenes"] = imagenes;
+      data["fechaCapacitacion"] = formatDateDb(data.createdAt);
+      data["horasCapacitacion"] =
+        horasCapacitacion < 10 ? "0" + horasCapacitacion : horasCapacitacion;
+      setDataCertificado(data);
+      openModalCerti();
+    });
+  };
   return (
     <div className="">
       <div className="bg-white p-3">
         <div className="flex justify-between gap-3">
-          <h2 className="font-bold text-2xl mb-3">Trabajadores</h2>
-          <PDFViewer width={'700px'} height={'454px'}>
-          <Certificado/>
-          </PDFViewer>  
-          <PDFDownloadLink 
-                document={<Certificado/>}
-                fileName="somename.pdf"
-              >
-                {({ blob, url, loading, error }) =>
-                  loading ? "Cargando..." : "Ver certificado"
-                }
-              </PDFDownloadLink>
+          <h2 className="font-bold text-2xl mb-3">Capacitaciones</h2>
         </div>
         <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
           <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
@@ -184,7 +248,7 @@ const CapacitacionesTrabajador = () => {
               <option value={""}>Mes</option>
               {months.map((month, index) => {
                 return (
-                  <option key={index} value={month.numero}>
+                  <option key={index} value={month.descripcion}>
                     {month.descripcion}
                   </option>
                 );
@@ -194,30 +258,20 @@ const CapacitacionesTrabajador = () => {
         </div>
 
         <div className="flex flex-col gap-3">
-          {
-           (selectMonth ==='' && selectYear==='') ?
-            data.map((card, index) =>{
-            return ( <TarjetasCapacitaciones
-              key={index}
-              title={card.titulo}
-              date={card.fecha}
-              openModal={openModal}
-            />
-            ) }
-          )
-          : dataFilter.map((card, index) =>{
-            return ( <TarjetasCapacitaciones 
-              key={index}
-              title={card.titulo}
-              date={card.fecha}
-              openModal={openModal}
-            />
-            ) }
-          )
-          }
-          {
-            (dataFilter.length <= 0  && filterActive) && <SinRegistros/>
-          }
+          {data.length !== 0 ? (
+            data.map((card, index) => {
+              return (
+                <TarjetasCapacitaciones
+                  key={index}
+                  data={card}
+                  verPreguntas={verPreguntas}
+                  verCertificado={verCertificado}
+                />
+              );
+            })
+          ) : (
+            <SinRegistros />
+          )}
         </div>
 
         <Modal
@@ -225,11 +279,33 @@ const CapacitacionesTrabajador = () => {
           openModal={openModal}
           closeModal={closeModal}
           size={"modal-md"}
+          title="Dar evaluación"
+        >
+          {formPreguntas.preguntas.map((objPregunta, index) => {
+            return (
+              <Pregunta
+                key={objPregunta.id}
+                indice={index}
+                data={objPregunta}
+                handleFormChange={handleFormChange}
+              />
+            );
+          })}
+          <div className="text-end">
+            <Button description="Enviar prueba" event={enviarExamen} />
+          </div>
+        </Modal>
+        <Modal
+          isOpen={isOpenCerti}
+          openModal={openModalCerti}
+          closeModal={closeModalCerti}
+          size={"modal-lg"}
           title=""
         >
-          <Pregunta/>
+          <PDFViewer width={"100%"} height={"454px"}>
+            <Certificado data={dataCertificado} />
+          </PDFViewer>
         </Modal>
-        
       </div>
     </div>
   );

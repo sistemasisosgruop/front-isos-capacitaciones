@@ -13,6 +13,9 @@ import ListaCapacitaciones from "../pages/administrador/capacitaciones/ListaCapa
 import OpcionesReportes from "../pages/administrador/reportes/OpcionesReportes";
 import CapacitacionesTrabajador from "../pages/trabajador/capacitaciones/CapacitacionesTrabajador";
 import ListadoTest from "../pages/administrador/test/ListadoTest";
+import ReporteExameAsistencia from "../pages/administrador/reportes/ReporteExameAsistencia";
+import ReporteCertificado from "../pages/administrador/reportes/ReporteCertificado";
+import TestTrabajador from "../pages/trabajador/capacitaciones/TestTrabajador";
 
 const router = createBrowserRouter([
   {
@@ -26,16 +29,18 @@ const router = createBrowserRouter([
       {
         path: "trabajador",
         element: (
-          <ProtectedRoute expectedRoles={[userRoles.ADMIN]}>
+          <ProtectedRoute expectedRoles={[userRoles.EMPLOYEE]}>
             <Outlet />
           </ProtectedRoute>
         ),
         children: [
-          { path: "opciones", element: <OpcionesTrabajador/>},
-          { path: "capacitaciones", element: <CapacitacionesTrabajador/> },
-          { path: "test", element: <h1>test</h1>  },
+          { path: "opciones", element: <OpcionesTrabajador /> },
+          { path: "capacitaciones", element: <CapacitacionesTrabajador /> },
+          { path: "test", element: <TestTrabajador/> },
+          { path: "*", element: <Navigate to="/menu/trabajador/opciones" /> },
         ],
       },
+      { path: "*", element: <Navigate to="/menu" /> },
       {
         path: "admin",
         element: (
@@ -44,30 +49,40 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
         children: [
-          { path: "opciones", element: <OpcionesAdmin />},
-          { path: "trabajadores", element: <ListadoTrabajador/>},
+          { path: "opciones", element: <OpcionesAdmin /> },
+          { path: "trabajadores", element: <ListadoTrabajador /> },
           { path: "empresas", element: <ListadoEmpresa /> },
-          { path: "capacitaciones", element: <ListaCapacitaciones/> },
-          { path: "test", element: <ListadoTest/> },
-          { path: "reportes", element: <OpcionesReportes/> },
+          { path: "capacitaciones", element: <ListaCapacitaciones /> },
+          { path: "test", element: <ListadoTest /> },
+          {
+            path: "reportes",
+            element: <Outlet />,
+            children: [
+              { path: "opciones", element: <OpcionesReportes /> },
+              {
+                path: "asistencias",
+                element: (
+                  <ReporteExameAsistencia
+                    titulo={"Reporte asistencias"}
+                    esExamen={false}
+                  />
+                ),
+              },
+              {
+                path: "examenes",
+                element: (
+                  <ReporteExameAsistencia
+                    titulo={"Reporte de examenes"}
+                    esExamen={true}
+                  />
+                ),
+              },
+              { path: "certificados", element: <ReporteCertificado /> },
+            ],
+          },
+          { path: "*", element: <Navigate to="/menu/admin/opciones" /> },
         ],
       },
-
-      { path: "*", element: <Menu /> },
-    ],
-  },
-    {
-    path: "/admin",
-    element: (
-      <ProtectedRoute expectedRoles={[userRoles.ADMIN]}>
-        <Menu />
-      </ProtectedRoute>
-    ),
-    children: [
-      { path: "opciones", element: <h1>seccion trabajadores</h1> },
-      { path: "empresas", element: <h1>seccion empresas</h1> },
-      { path: "capacitaciones", element: <h1>seccion capacitaciones</h1> },
-      { path: "reportes", element: <h1>seccion reportes</h1> },
       { path: "*", element: <Menu /> },
     ],
   },

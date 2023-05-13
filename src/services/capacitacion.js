@@ -1,66 +1,65 @@
-import axios from "axios";
-import getEnvVaribles from "../config/getEnvVariables";
-
-const baseApiCapacitaciones = () => {
-  const { VITE_API_URL } = getEnvVaribles();
-
-  const TrabajadoresAPi = axios.create({
-    baseURL: `${VITE_API_URL}/capacitaciones`,
-  });
-  return TrabajadoresAPi;
-};
+import baseApi from "./baseApi";
+import objErrorApi from "./objError";
+const stepApi = 'capacitaciones';
 
 const postCapacitaciones = (data) => {
-  return baseApiCapacitaciones()
+  return baseApi(stepApi)
     .post("/", data)
-    .catch((error) => {
-      console.log('error', error)
-      if (error.response) return { status: error.response.status, data: null,msg:error.response.data.message };
-    });
-};
-const postImportar = (id, data) => {
-  return baseApiTrabajador()
-    .post(`/cargaexcel/${id}`, data)
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null, msg:error.response.msg };
-    });
+    .catch();
 };
 
-const patchTrabajador = (data) => {
-  const { id, ...dataFormat } = data;
-  return baseApiTrabajador()
-    .patch(`/${id}`, dataFormat)
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null, msg:error.response.msg };
-    });
+const patchCapacitaciones = (id, data) => {
+  return baseApi(stepApi)
+    .patch(`/${id}`, data)
+    .catch(objErrorApi);
+};
+
+const patchEstadoCapacitacion = (data) => {
+  const { id, habilitado: estado } = data;
+  return baseApi(stepApi)
+    .patch(`/${id}`, { habilitado: !estado })
+    .catch(objErrorApi);
 };
 
 const getCapacitaciones = () => {
-  return baseApiCapacitaciones()
+  return baseApi(stepApi)
     .get("/")
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null };
-    });
+    .catch(objErrorApi);
 };
 
-const getPreguntas = ( id ) => {
-  return baseApiCapacitaciones()
-    .get(`/${ id }`)
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null };
-    });
+const getCapacitacion = (id) => {
+  return baseApi(stepApi)
+    .get(`/${id}`)
+    .catch(objErrorApi);
 };
 
-const deleteTrabajador = (id) => {
-  return baseApiTrabajador()
+const getPreguntas = (id) => {
+  return baseApi(stepApi)
+    .get(`/${id}`)
+    .catch(objErrorApi);
+};
+
+const getFirmaCertificado = (id) => {
+  return baseApi(stepApi)
+    .get(`/${id}/certificado`, {
+      responseType: "blob",
+    })
+    .catch(objErrorApi);
+};
+
+const deleteCapacitaciones = (id) => {
+  return baseApi(stepApi)
     .delete(`/${id}`)
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null, msg:error.response.msg };
-    });
+    .catch(objErrorApi);
 };
 
 export {
   getCapacitaciones,
+  getCapacitacion,
   postCapacitaciones,
-  getPreguntas
+  getPreguntas,
+  patchCapacitaciones,
+  patchEstadoCapacitacion,
+  deleteCapacitaciones,
+  getFirmaCertificado,
 };

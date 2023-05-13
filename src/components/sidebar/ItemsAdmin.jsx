@@ -38,7 +38,7 @@ const ItemsAdmin = () => {
         Test
       </MenuItem>
       <MenuItem
-        component={<Link to="./admin/reportes" />}
+        component={<Link to="./admin/reportes/opciones" />}
         icon={<FontAwesomeIcon icon={faFileInvoice} />}
       >
         Reportes

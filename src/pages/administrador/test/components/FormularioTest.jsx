@@ -1,14 +1,12 @@
 import { useState } from "react";
 import Button from "../../../../components/Button";
-
+import { getTest, patchTest, postTest } from "../../../../services/test";
+import { hideLoader, showLoader } from "../../../../utils/loader";
 import validate from "../validateFormModal";
 import { useForm } from "../../../../hooks/useForms";
-import { patchEmpresas, postEmpresas } from "../../../../services/empresa";
 import { toast } from "react-toastify";
-
 import Select from "react-select";
 import makeAnimated from "react-select/animated";
-import { patchTest, postTest } from "../../../../services/test";
 const animatedComponents = makeAnimated();
 
 const FormularioTest = ({
@@ -20,8 +18,10 @@ const FormularioTest = ({
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
-  //tipo de accion (Event)
+  
+  //tipo de accion del formulario
   const action = initialForm.Empresas === "" ? "ADD" : "UPDATE";
+
   const {
     id,
     detalle,
@@ -51,9 +51,10 @@ const FormularioTest = ({
 
     if (!isFormValid) return;
 
-    const { fechaAplazo, Empresas: sendEmpresas, ...formatData } = formState;
+    const { Empresas: sendEmpresas, ...formatData } = formState;
     const formatEmpresas = sendEmpresas.map((option) => option.value);
     formatData.empresas = formatEmpresas;
+
     if (action === "ADD") {
       add(formatData);
     } else {
@@ -62,37 +63,46 @@ const FormularioTest = ({
   };
 
   const update = ({ id, ...data }) => {
-    patchTest(id, data).then(({ data }) => {
+    showLoader();
+    patchTest(id, data).then(({ data, message = null }) => {
       if (data) {
-        toast.success("Actualizado con exito", {
-          position: "bottom-right",
+        getTest(data.id).then(({ data }) => {
+          toast.success("Actualizado con exito", {
+            position: "bottom-right",
+          });
+          updateRow(data);
         });
         closeModal();
-        updateRow(data);
         setFormSubmitted(false);
       } else {
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
+      hideLoader();
     });
   };
 
   const add = ({ id, ...data }) => {
-    postTest(data).then(({ data }) => {
+    showLoader();
+    postTest(data).then(({ data, message = null }) => {
       if (data) {
-        toast.success("Agregado con exito", {
-          position: "bottom-right",
+        getTest(data.id).then(({ data }) => {
+          toast.success("Agregado con exito", {
+            position: "bottom-right",
+          });
+          addItem(0, data);
         });
+
         closeModal();
-        addItem(0, data);
         onResetForm();
         setFormSubmitted(false);
       } else {
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
+      hideLoader()
     });
   };
 
@@ -187,22 +197,24 @@ const FormularioTest = ({
             <p className="text-sm text-red-700">{fechaVenValid}</p>
           )}
         </div>
-        <div className="w-full md:w-1/4">
-          <label htmlFor="fechaAplazo" className="font-semibold">
-            Fecha de aplazo
-          </label>
-          <input
-            type="date"
-            name="fechaAplazo"
-            id="fechaAplazo"
-            className="input input-bordered input-sm w-full"
-            value={fechaAplazo}
-            onChange={onInputChange}
-          />
-          {!!fechaAplazoValid && formSubmitted && (
-            <p className="text-sm text-red-700">{fechaAplazoValid}</p>
-          )}
-        </div>
+        {action === "UPDATE" && (
+          <div className="w-full md:w-1/4">
+            <label htmlFor="fechaAplazo" className="font-semibold">
+              Fecha de aplazo
+            </label>
+            <input
+              type="date"
+              name="fechaAplazo"
+              id="fechaAplazo"
+              className="input input-bordered input-sm w-full"
+              value={fechaAplazo}
+              onChange={onInputChange}
+            />
+            {!!fechaAplazoValid && formSubmitted && (
+              <p className="text-sm text-red-700">{fechaAplazoValid}</p>
+            )}
+          </div>
+        )}
       </div>
       <div className="flex justify-end">
         <Button description={action === "ADD" ? "Agregar" : "Guardar"} />

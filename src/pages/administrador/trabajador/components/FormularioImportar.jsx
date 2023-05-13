@@ -1,18 +1,14 @@
-import React from "react";
+import { useState } from "react";
 import Button from "../../../../components/Button";
 import { useForm } from "../../../../hooks/useForms";
 import validate from "./validateExcel";
 import { postImportar } from "../../../../services/trabajador";
-import { useState } from "react";
+import { toast } from "react-toastify";
+import { hideLoader, showLoader } from "../../../../utils/loader";
+import { initialFormImport } from "../config";
 
-const initialForm = {
-  excel: "",
-  empresa: "",
-};
-
-const FormularioImportar = ({ empresas }) => {
-
-  const [formSubmitted, setFormSubmitted] = useState(false)
+const FormularioImportar = ({ empresas, closeModal, setRefetchData }) => {
+  const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
   const {
     excel,
@@ -23,18 +19,27 @@ const FormularioImportar = ({ empresas }) => {
     formState,
     isFormValid,
     onInputChange,
-  } = useForm(initialForm, formValidations);
+  } = useForm(initialFormImport, formValidations);
 
   const handleForm = (event) => {
     event.preventDefault();
     setFormSubmitted(true);
-    if (!isFormValid) return
-
+    if (!isFormValid) return;
     const data = new FormData();
-    data.append('file', excel);
-      
-    postImportar(empresa, data).then( res => {
-      console.log('res', res)
+    data.append("file", excel);
+
+    showLoader();
+    postImportar(empresa, data).then(({ data, message = null }) => {
+      if (data) {
+        toast.success(message || "Agregado con exito", {
+          position: "bottom-right",
+        });
+        setRefetchData((data) => !data);
+        closeModal();
+      } else {
+        toast.error(message, { position: "bottom-right" });
+      }
+      hideLoader();
     });
   };
   return (
@@ -42,14 +47,15 @@ const FormularioImportar = ({ empresas }) => {
       <input
         type="file"
         name="excel"
+        accept=".xlsx,.xls"
         onChange={onInputChange}
-        className="file-input file-input-bordered file-input-sm w-full mb-3"
+        className="file-input file-input-bordered file-input-sm w-full mb-1"
       />
       {!!excelValid && formSubmitted && (
         <p className="text-sm text-red-700">{excelValid}</p>
       )}
       <select
-        className="select select-bordered select-sm w-full mb-3"
+        className="select select-bordered select-sm w-full mb-1"
         name="empresa"
         onChange={onInputChange}
         value={empresa}

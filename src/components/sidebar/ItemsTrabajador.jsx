@@ -4,7 +4,7 @@ import { MenuItem, menuClasses } from "react-pro-sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers, faBuilding,faListOl, faChalkboardTeacher, faFileInvoice } from "@fortawesome/free-solid-svg-icons";
 
-const ItemsTrabajadores = () => {
+const ItemsTrabajador = () => {
   return (
     <>
       <MenuItem
@@ -14,7 +14,7 @@ const ItemsTrabajadores = () => {
         Capacitaciones
       </MenuItem>
       <MenuItem
-        component={<Link to="./trabajador/capacitaciones" />}
+        component={<Link to="./trabajador/test" />}
         icon={<FontAwesomeIcon icon={faListOl} />}
       >
         Test
@@ -23,4 +23,4 @@ const ItemsTrabajadores = () => {
   );
 };
 
-export default ItemsTrabajadores;
+export default ItemsTrabajador;

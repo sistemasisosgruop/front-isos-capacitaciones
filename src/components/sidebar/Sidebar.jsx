@@ -7,6 +7,9 @@ import {
 import logoIsos from "../../assets/img/logoIsos.svg";
 import NavBar from "../NavBar";
 import ItemsAdmin from "./ItemsAdmin";
+import { AuthContext } from "../../context/auth/authContext";
+import { useContext } from "react";
+import ItemsTrabajador from "./ItemsTrabajador";
 
 const menuItemStyles = {
   root: {
@@ -61,6 +64,9 @@ const menuItemStyles2 = {
  */
 
 const SidebarCustom = ({ children }) => {
+
+  const { authState } = useContext(AuthContext);
+  const rolUser = authState.user.rol;
   const { collapseSidebar, collapsed, broken, toggleSidebar } = useProSidebar();
 
   return (
@@ -72,7 +78,9 @@ const SidebarCustom = ({ children }) => {
               <img src={logoIsos} className="w-16" />
             </div>
           </div>
-          <ItemsAdmin />
+          {
+            rolUser === 'Trabajador' ? <ItemsTrabajador/> : <ItemsAdmin />
+          }
         </Menu>
         <div className="text-center absolute bottom-0 right-0">
           {!collapsed ? (

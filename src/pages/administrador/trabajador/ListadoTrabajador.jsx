@@ -1,26 +1,24 @@
-import React, { useCallback, useMemo, useState } from "react";
-
+import React, { useCallback, useMemo, useEffect, useState } from "react";
+import { hideLoader, showLoader } from "../../../utils/loader";
+import Button from "../../../components/Button";
+import FormularioTrabajador from "./components/FormularioTrabajador";
+import { Modal } from "../../../components/modal/Modal";
+import useModals from "../../../hooks/useModal";
+import { initialForm } from "./config";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 import SweetAlert from "react-bootstrap-sweetalert";
-import { deleteEmpresa, getEmpresas } from "../../../services/empresa";
+import { getEmpresas } from "../../../services/empresa";
 import { useRef } from "react";
-import { Modal } from "../../../components/modal/Modal";
-import useModals from "../../../hooks/useModal";
-import Button from "../../../components/Button";
 import { toast } from "react-toastify";
-import FormularioTrabajador from "./components/FormularioTrabajador";
 import {
   deleteTrabajador,
+  getTrabajador,
   getTrabajadores,
   patchEstado,
-  patchTrabajador,
 } from "../../../services/trabajador";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
   faEdit,
@@ -30,27 +28,9 @@ import {
   faCheckCircle,
   faTimesCircle,
 } from "@fortawesome/free-solid-svg-icons";
-import { useEffect } from "react";
 import FormularioImportar from "./components/FormularioImportar";
-
-//excel
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-
-const initialForm = {
-  id: "",
-  nombres: "",
-  apellidoPaterno: "",
-  apellidoMaterno: "",
-  dni: "",
-  genero: "",
-  edad: "",
-  areadetrabajo: "",
-  cargo: "",
-  fechadenac: "",
-  password: "",
-  empresa: "",
-};
 
 const ListadoTrabajador = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
@@ -64,6 +44,8 @@ const ListadoTrabajador = () => {
   const [rowDelete, setRowDelete] = useState(null);
   const [selectFilter, setSelectFilter] = useState("");
   const [empresas, setEmpresas] = useState([]);
+  const [refetchData, setRefetchData] = useState(false);
+  const [descripcionModal, setDescripcionModal] = useState("");
   const gridRef = useRef();
 
   useEffect(() => {
@@ -80,7 +62,10 @@ const ListadoTrabajador = () => {
         >
           <FontAwesomeIcon icon={faEdit} />
         </label>
-        <label className="cursor-pointer" onClick={() => openConfirm(data, 'DELETE')}>
+        <label
+          className="cursor-pointer"
+          onClick={() => openConfirm(data, "DELETE")}
+        >
           <FontAwesomeIcon icon={faTrashAlt} />
         </label>
       </>
@@ -89,15 +74,13 @@ const ListadoTrabajador = () => {
 
   const renderButtonsEstado = ({ data }) => {
     return (
-      <>
-        <label className="cursor-pointer" onClick={() => openConfirm(data,'UPDATE')}>
+      <label className="cursor-pointer" onClick={() => openConfirm(data, "UPDATE")}>
           {data.habilitado ? (
-            <FontAwesomeIcon icon={faTimesCircle} />
+            <div className="badge bg-red-500">Deshabilitar</div>
           ) : (
-            <FontAwesomeIcon icon={faCheckCircle} />
+            <div className="badge bg-teal-700">Habilitar</div>
           )}
         </label>
-      </>
     );
   };
 
@@ -112,7 +95,7 @@ const ListadoTrabajador = () => {
     { field: "cargo", headerName: "Cargo" },
     { field: "nombreEmpresa", headerName: "Empresa" },
     {
-      headerName: "Habil/deshab",
+      headerName: "Habil/deshab", minWidth:150,
       cellStyle: { textAlign: "center" },
       cellRenderer: renderButtonsEstado,
     },
@@ -127,6 +110,7 @@ const ListadoTrabajador = () => {
       minWidth: 100,
     };
   }, []);
+
   const getRowId = useMemo(() => {
     return (params) => {
       return params.data.id;
@@ -153,36 +137,39 @@ const ListadoTrabajador = () => {
   }, []);
 
   //cargar la informacion de la tabla
-  const onGridReady = useCallback((params) => {
-    getTrabajadores().then((res) => {
-      const { data } = res;
-      if (data) {
-        const newData = data.map(function (obj) {
-          const { empresa, ...resObj } = obj;
-          resObj["nombreEmpresa"] = empresa.nombreEmpresa;
-          return resObj;
-        });
-        setRowData(newData);
-      } else {
-        toast.error("Ocurrio un error en el servidor", {
-          position: "bottom-right",
-        });
-      }
-    });
-  }, []);
+  const onGridReady = useCallback(
+    (params) => {
+      getTrabajadores().then(({ data, message = null }) => {
+        if (data) {
+          const newData = data.map(function (obj) {
+            const { empresa, ...resObj } = obj;
+            resObj["nombreEmpresa"] = empresa.nombreEmpresa;
+            return resObj;
+          });
+          setRowData(newData);
+        } else {
+          toast.error("Ocurrio un error en el servidor", {
+            position: "bottom-right",
+          });
+        }
+      });
+    },
+    [refetchData]
+  );
 
   const openAddModal = () => {
+    setDescripcionModal("Agregar trabajador");
     openModal1();
     setdataForm(initialForm);
   };
 
   const updateButton = (data) => {
+    setDescripcionModal("Actualizar trabajador");
     openModal1();
     const { createdAt, userId, empresaId: empresa, user, ...formatData } = data;
-    formatData.password = data.user.contraseña;
+    formatData.password = "";
     formatData.empresa = empresa;
     setdataForm(formatData);
-    console.log("formatData", formatData);
   };
 
   const openConfirm = (data, action) => {
@@ -195,8 +182,8 @@ const ListadoTrabajador = () => {
   };
 
   const confirmDelete = () => {
-    deleteTrabajador(rowDelete.id).then((res) => {
-      const { data } = res;
+    showLoader();
+    deleteTrabajador(rowDelete.id).then(({ data, message = null }) => {
       if (data) {
         removeItem(rowDelete);
         setSweetAlert(false);
@@ -204,30 +191,36 @@ const ListadoTrabajador = () => {
           position: "bottom-right",
         });
       } else {
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
+      hideLoader();
     });
   };
 
   const confirmUpdateState = () => {
-    patchEstado(rowDelete).then((res) => {
-      const { data } = res;
+    showLoader();
+    patchEstado(rowDelete).then(({ data, message = null }) => {
       if (data) {
-        removeItem(rowDelete);
-        setSweetAlert(false);
-        toast.success("Eliminado con exito", {
+        getTrabajador(rowDelete.id).then(({ data }) => {
+          data["nombreEmpresa"] = data.empresa.nombreEmpresa;
+          updateRow(data);
+        });
+        setSweetAlertState(false);
+        toast.success("Actualizado con exito", {
           position: "bottom-right",
         });
       } else {
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
+      hideLoader();
     });
   };
 
+  //filtro de la tabla
   const onFilterTextBoxChanged = useCallback((e, isSelect) => {
     if (isSelect) {
       setSelectFilter(e.target.value);
@@ -239,14 +232,8 @@ const ListadoTrabajador = () => {
   }, []);
 
   //excel
-
   const crearExcel = async () => {
     const workbook = new ExcelJS.Workbook();
-    //confuguration
-    workbook.creator = "ISOS GROUP";
-
-    // Force workbook calculation on load
-    workbook.calcProperties.fullCalcOnLoad = true;
 
     //Agregar una hoja de trabajo
     const worksheet = workbook.addWorksheet("Hoja 1");
@@ -273,8 +260,7 @@ const ListadoTrabajador = () => {
       pattern: "solid",
       fgColor: { argb: "16A971" },
     };
-    // Add an array of rows
-
+    //agrega filas
     worksheet.addRows(rowData);
 
     // Descarga el archivo Excel en el navegador
@@ -357,7 +343,7 @@ const ListadoTrabajador = () => {
           openModal={openModal1}
           closeModal={closeModal1}
           size={"modal-lg"}
-          title="Agregar empresa"
+          title={descripcionModal}
         >
           <FormularioTrabajador
             initialForm={dataForm}
@@ -375,7 +361,11 @@ const ListadoTrabajador = () => {
           size={"modal-sm"}
           title="Importar trabajadores"
         >
-          <FormularioImportar empresas={empresas} />
+          <FormularioImportar
+            setRefetchData={setRefetchData}
+            closeModal={closeModalImport}
+            empresas={empresas}
+          />
         </Modal>
 
         <SweetAlert
@@ -385,7 +375,7 @@ const ListadoTrabajador = () => {
           cancelBtnText="No, cancelar"
           confirmBtnCssClass="btn-sweet-success"
           cancelBtnCssClass="btn-sweet-danger"
-          title="¿Esta seguro de eliminar?"
+          title="¿Esta seguro de eliminar al trabajador?"
           onConfirm={confirmDelete}
           show={sweetAlert}
           onCancel={() => setSweetAlert(false)}

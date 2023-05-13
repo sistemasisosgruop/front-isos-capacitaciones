@@ -1,15 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
-
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPlus,
-  faEdit,
-  faTrashAlt,
-  faEye,
-} from "@fortawesome/free-solid-svg-icons";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { deleteEmpresa, getEmpresas, getImgs } from "../../../services/empresa";
 import { useRef } from "react";
@@ -18,17 +10,16 @@ import useModals from "../../../hooks/useModal";
 import Button from "../../../components/Button";
 import { toast } from "react-toastify";
 import FormularioEmpresa from "./components/FormularioEmpresa";
-import loadingImg from '../../../assets/img/cargando-loading-048.gif';
-
-const initialForm = {
-  empresa: "",
-  ruc: "",
-  nombreGerente: "",
-  numeroContacto: "",
-  direccion: "",
-  logoEmpresa: "",
-  fondoCertificado: "",
-};
+import loadingImg from "../../../assets/img/cargando-loading-048.gif";
+import { hideLoader, showLoader } from "../../../utils/loader";
+import { initialForm } from "./config";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faPlus,
+  faEdit,
+  faTrashAlt,
+  faEye,
+} from "@fortawesome/free-solid-svg-icons";
 
 const ListadoEmpresa = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
@@ -37,6 +28,7 @@ const ListadoEmpresa = () => {
   const [sweetAlert, setSweetAlert] = useState(false);
   const [rowData, setRowData] = useState();
   const [rowDelete, setRowDelete] = useState(null);
+  const [descripcionModal, setDescripcionModal] = useState('');
 
   const [isOpenModal, openModal, closeModal] = useModals();
   const [isOpenModalImg, openModalImg, closeModalImg] = useModals();
@@ -69,6 +61,7 @@ const ListadoEmpresa = () => {
       </div>
     );
   };
+
   const renderButtonCertificado = ({ data }) => {
     return (
       <div
@@ -108,6 +101,7 @@ const ListadoEmpresa = () => {
       minWidth: 100,
     };
   }, []);
+
   const getRowId = useMemo(() => {
     return (params) => {
       return params.data.id;
@@ -135,8 +129,7 @@ const ListadoEmpresa = () => {
 
   //cargar la informacion de la tabla
   const onGridReady = useCallback((params) => {
-    getEmpresas().then((res) => {
-      const { data } = res;
+    getEmpresas().then(({ data }) => {
       if (data) {
         setRowData(data);
       } else {
@@ -148,11 +141,13 @@ const ListadoEmpresa = () => {
   }, []);
 
   const openAddModal = () => {
+    setDescripcionModal('Agregar empresa');
     openModal();
     setdataForm(initialForm);
   };
-
+  
   const updateButton = (data) => {
+    setDescripcionModal('Actualizar empresa');
     const {
       nombreEmpresa: empresa,
       RUC: ruc,
@@ -170,9 +165,8 @@ const ListadoEmpresa = () => {
       nombreGerente,
       numeroContacto,
       direccion,
-      //TODO: agregar dinamismo
-      logoEmpresa: "",
-      fondoCertificado: "",
+      logoEmpresa: "-",
+      fondoCertificado: "-",
     });
   };
 
@@ -182,8 +176,8 @@ const ListadoEmpresa = () => {
   };
 
   const confirmDelete = () => {
-    deleteEmpresa(rowDelete.id).then((res) => {
-      const { data } = res;
+    showLoader();
+    deleteEmpresa(rowDelete.id).then(({ data, message = null }) => {
       if (data) {
         removeItem(rowDelete);
         setSweetAlert(false);
@@ -191,22 +185,21 @@ const ListadoEmpresa = () => {
           position: "bottom-right",
         });
       } else {
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
+      hideLoader();
     });
   };
 
   const showImgs = (data, isLogo) => {
-    console.log("data", data, isLogo);
-    const img = isLogo ? 'logo' : 'certificado';
-    getImgs(data.id, img).then( res => {
-      console.log('res', res)
+    const img = isLogo ? "logo" : "certificado";
+    getImgs(data.id, img).then((res) => {
       const url = URL.createObjectURL(new Blob([res.data]));
       const logoElement = document.getElementById("logo");
       logoElement.src = url;
-    })
+    });
     openModalImg();
   };
 
@@ -239,7 +232,7 @@ const ListadoEmpresa = () => {
           isOpen={isOpenModal}
           closeModal={closeModal}
           size={"modal-lg"}
-          title="Agregar empresa"
+          title={descripcionModal}
         >
           <FormularioEmpresa
             initialForm={dataForm}
@@ -255,8 +248,7 @@ const ListadoEmpresa = () => {
           size={"modal-lg"}
           title="Imagen"
         >
-          <img id="logo" className="aspect-video w-full" src={loadingImg}/>
-          
+          <img id="logo" className="aspect-video w-full" src={loadingImg} />
         </Modal>
 
         <SweetAlert

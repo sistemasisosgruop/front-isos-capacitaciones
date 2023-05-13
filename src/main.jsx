@@ -13,6 +13,7 @@ import { ToastContainer } from "react-toastify";
 //styles
 import "./styles/global.css";
 import 'react-toastify/dist/ReactToastify.css';
+import Loader from "./components/loader/Loader";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +35,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </ProSidebarProvider>
       </QueryClientProvider>
       <ToastContainer autoClose={2000}/>
+      <Loader/>
     </AuthProvider>
   </React.StrictMode>
 );

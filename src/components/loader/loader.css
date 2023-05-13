@@ -1,10 +1,20 @@
 
 .seccion-general-loader {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
     width: 100%;
-    display: inline-block;
-    text-align: center;
-    min-height: 215px;
-    vertical-align: top;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    z-index: -1000;
+    background-color: white;
+}
+.isActiveLoader {
+    z-index: 9999999;
 }
 
 @media only screen and (max-width: 600px) {

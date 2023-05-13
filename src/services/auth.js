@@ -1,14 +1,13 @@
-import axios from 'axios';
-import getEnvVaribles from '../config/getEnvVariables';
+import baseApi from "./baseApi";
+import objErrorApi from "./objError";
+const stepApi = 'auth'
 
-const baseApiAuth = () => {
+const postAuth = (data) => {
+  return baseApi(stepApi)
+    .post("/login", data)
+    .catch(objErrorApi);
+};
 
-  const { VITE_API_URL } = getEnvVaribles();
-
-   const authAPi = axios.create({
-    baseURL: `${ VITE_API_URL }/auth`,
-  })
-  return authAPi;
-
+export {
+  postAuth
 }
-export default baseApiAuth

@@ -1,19 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Button from "../../../../components/Button";
-
-import { useForm } from "../../../../hooks/useForms";
-import {
-  getEmpresas,
-  patchEmpresas,
-  postEmpresas,
-} from "../../../../services/empresa";
-import { toast } from "react-toastify";
+import { formatDateYMD } from "../../../../utils/formtDate";
+import { hideLoader, showLoader } from "../../../../utils/loader";
 import validate from "../validateFormModal";
+import { useForm } from "../../../../hooks/useForms";
+import { toast } from "react-toastify";
 import {
+  getTrabajador,
   patchTrabajador,
   postTrabajador,
 } from "../../../../services/trabajador";
-import formatDateYMD from "../../../../utils/formtDate";
 
 const FormularioTrabajador = ({
   initialForm,
@@ -24,7 +20,7 @@ const FormularioTrabajador = ({
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
-  //tipo de accion (Event)
+  //tipo de accion del formulario
   const action = initialForm.dni === "" ? "ADD" : "UPDATE";
 
   const {
@@ -56,6 +52,7 @@ const FormularioTrabajador = ({
     formState,
     isFormValid,
     onInputChange,
+    onResetForm,
   } = useForm(initialForm, formValidations);
 
   const handleForm = async (event, action) => {
@@ -67,60 +64,74 @@ const FormularioTrabajador = ({
     //establecemos formato solicitado BACK
     const { password, empresa, ...newFormat } = formState;
     const jsonData = newFormat;
-    const newFormDate = formatDateYMD(new Date(newFormat.fechadenac));
+    const newFormDate = formatDateYMD(newFormat.fechadenac);
 
     jsonData.empresaId = empresa;
     jsonData.fechadenac = newFormDate;
-    jsonData.user = { username: formState.dni, contraseña: password };
-
+    
     if (action === "ADD") {
+      //reset 
+      jsonData.user = { username: formState.dni, contraseña: password };
+      jsonData.user = { username: formState.dni, contraseña: formState.dni };
       add(jsonData);
     } else {
+      if (password !== '') {
+        jsonData.user = { username: formState.dni, contraseña: password };
+      }
       update(jsonData);
     }
   };
 
-  const update = (data) => {
-    console.log('data', data)
-    patchTrabajador(data).then((res) => {
-      console.log("res", res);
-      if (res.data) {
-        const { createdAt, ...newRowData } = res?.data;
+  const update = (dataForm) => {
+    showLoader();
+    patchTrabajador(dataForm).then(({data, message=null}) => {
+      if (data) {
+        const { createdAt, ...newRowData } = data;
+        getTrabajador(dataForm.id).then(({ data }) => {
+          data["nombreEmpresa"] = data.empresa.nombreEmpresa;
+          updateRow(data);
+        });
         toast.success("Actualizado con exito", {
           position: "bottom-right",
         });
+        newRowData["nombreEmpresa"] = newRowData.empresa.nombreEmpresa;
         closeModal();
-        updateRow(newRowData);
         setFormSubmitted(false);
       } else {
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
+      hideLoader();
     });
   };
 
-  const add = (data) => {
-    const { id, ...newData } = data;
-    console.log("newData", newData);
-    postTrabajador(newData).then((res) => {
-      const { data } = res;
+  const add = (dataForm) => {
+    showLoader();
+    const { id, ...newData } = dataForm;
+    postTrabajador(newData).then(({data, message=null}) => {
       if (data) {
-        const { createdAt, ...newrowData } = res.data;
+        const { createdAt, ...newrowData } = data;
+        getTrabajador(data.id).then(({ data }) => {
+          data["nombreEmpresa"] = data.empresa.nombreEmpresa;
+          addItem(0, data);
+        });
         toast.success("Agregado con exito", {
           position: "bottom-right",
         });
         closeModal();
-        addItem(0, newrowData);
         setFormSubmitted(false);
+        onResetForm();
       } else {
-        console.log('res', res)
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
+      hideLoader();
     });
   };
+
+
   return (
     <form onSubmit={(e) => handleForm(e, action)}>
       <div className="flex flex-col md:flex-row gap-3 mb-2">
@@ -195,14 +206,20 @@ const FormularioTrabajador = ({
           <label htmlFor="genero" className="font-semibold">
             Genero
           </label>
-          <input
-            type="text"
-            name="genero"
+          <select
+            className="select select-bordered select-sm block w-full"
             id="genero"
-            className="input input-bordered input-sm w-full"
-            value={genero}
+            name="genero"
             onChange={onInputChange}
-          />
+            value={genero}
+          >
+            <option value="" disabled>
+              {" "}
+              Seleccione una genero{" "}
+            </option>
+            <option value="F">Femenino</option>
+            <option value="M">Masculino</option>
+          </select>
           {!!generoValid && formSubmitted && (
             <p className="text-sm text-red-700">{generoValid}</p>
           )}
@@ -249,7 +266,7 @@ const FormularioTrabajador = ({
             type="text"
             id="cargo"
             name="cargo"
-            className="file-input file-input-bordered file-input-sm w-full max-w-xs"
+            className="input input-bordered file-input-sm w-full"
             value={cargo}
             onChange={onInputChange}
             accept=".png, .jpg, .jpeg"
@@ -276,23 +293,25 @@ const FormularioTrabajador = ({
         </div>
       </div>
       <div className="flex flex-col md:flex-row gap-3  mb-2">
-        <div className="w-full md:w-1/3">
-          <label htmlFor="password" className="font-semibold">
-            Contraseña
-          </label>
-          <input
-            type="text"
-            id="password"
-            name="password"
-            className="file-input file-input-bordered file-input-sm w-full max-w-xs"
-            value={password}
-            onChange={onInputChange}
-            accept=".png, .jpg, .jpeg"
-          />
-          {!!passwordValid && formSubmitted && (
-            <p className="text-sm text-red-700">{passwordValid}</p>
-          )}
-        </div>
+        {action === "UPDATE" ? (
+          <div className="w-full md:w-1/3">
+            <label htmlFor="password" className="font-semibold">
+              Contraseña <span className="text-yellow-500 text-sm">(dejar vacio para no actualizar este campo )</span> 
+            </label>
+            <input
+              type="text"
+              id="password"
+              name="password"
+              className="file-input file-input-bordered file-input-sm w-full max-w-xs"
+              value={password}
+              onChange={onInputChange}
+              accept=".png, .jpg, .jpeg"
+            />
+          </div>
+        ) : (
+          ""
+        )}
+
         <div className="w-full md:w-1/3">
           <label htmlFor="empresa" className="font-semibold">
             Empresa

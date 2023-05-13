@@ -1,56 +1,50 @@
-import axios from "axios";
-import getEnvVaribles from "../config/getEnvVariables";
-
-const baseApiEmpresas = () => {
-  const { VITE_API_URL } = getEnvVaribles();
-
-  const empresasAPi = axios.create({
-    baseURL: `${VITE_API_URL}/empresas`,
-  });
-  return empresasAPi;
-};
+import baseApi from "./baseApi";
+import objErrorApi from "./objError";
+const stepApi = 'empresas' 
 
 const postEmpresas = (data) => {
-  return baseApiEmpresas()
+  return baseApi(stepApi)
     .post("/", data)
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null };
-    });
+    .catch(objErrorApi);
 };
 
-const patchEmpresas = ( data ) => {
-  const { id, ...dataFormat } = data;
-  return baseApiEmpresas()
-    .patch(`/${ id }`, dataFormat)
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null };
-    });
+const patchEmpresas = ( data, id ) => {
+  return baseApi(stepApi)
+    .patch(`/${ id }`, data)
+    .catch(objErrorApi);
 };
 
 const getEmpresas = () => {
-  return baseApiEmpresas()
+  return baseApi(stepApi)
     .get("/")
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null };
-    });
+    .catch(objErrorApi);
+};
+
+const getEmpresa = ( id ) => {
+  return baseApi(stepApi)
+    .get(`/${ id }`)
+    .catch(objErrorApi);
 };
 
 const getImgs = ( id, typeImg ) => {
-  return baseApiEmpresas()
+  return baseApi(stepApi)
     .get(`/${id}/${typeImg}`,{
       responseType: 'blob'
     })
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null };
-    });
+    .catch(objErrorApi);
 };
 
 const deleteEmpresa = (id) => {
-  return baseApiEmpresas()
+  return baseApi(stepApi)
     .delete(`/${id}`)
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null };
-    });
+    .catch(objErrorApi);
 };
 
-export { getEmpresas, deleteEmpresa, postEmpresas, patchEmpresas, getImgs };
+export { 
+  getEmpresas,
+  getEmpresa,
+  deleteEmpresa,
+  postEmpresas, 
+  patchEmpresas, 
+  getImgs 
+};

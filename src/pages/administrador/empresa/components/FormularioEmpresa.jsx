@@ -1,15 +1,16 @@
 import { useState } from "react";
 import Button from "../../../../components/Button";
-
 import validate from "../validateFormModal";
 import { useForm } from "../../../../hooks/useForms";
 import { patchEmpresas, postEmpresas } from "../../../../services/empresa";
 import { toast } from "react-toastify";
+import { hideLoader, showLoader } from "../../../../utils/loader";
 
 const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
-  //tipo de accion (Event)
+
+  //tipo de accion del formulario
   const action = initialForm.empresa === "" ? "ADD" : "UPDATE";
 
   const {
@@ -38,16 +39,17 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
     setFormSubmitted(true);
 
     if (!isFormValid) return;
-    console.log('formState', formState)
     const data = new FormData();
-    data.append("nombreEmpresa",empresa)
-    data.append("direccion",direccion)
-    data.append("nombreGerente",nombreGerente)
-    data.append("numeroContacto",numeroContacto)
-    data.append("imagenLogo",logoEmpresa)
-    data.append("imagenCertificado",fondoCertificado)
-    data.append("RUC",ruc)
-    
+
+    data.append("nombreEmpresa", empresa);
+    data.append("direccion", direccion);
+    data.append("nombreGerente", nombreGerente);
+    data.append("numeroContacto", numeroContacto);
+    logoEmpresa !== "-" && data.append("imagenLogo", logoEmpresa);
+    fondoCertificado !== "-" &&
+      data.append("imagenCertificado", fondoCertificado);
+    data.append("RUC", ruc);
+
     if (action === "ADD") {
       add(data);
     } else {
@@ -56,11 +58,10 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
   };
 
   const update = (data) => {
-    data.append("id", id)
-    patchEmpresas(data).then((res) => {
-      const { data } = res;
+    showLoader();
+    patchEmpresas(data, id).then(({ data, message = null }) => {
       if (data) {
-        const { createdAt, ...newRowData } = res.data;
+        const { createdAt, ...newRowData } = data;
         toast.success("Actualizado con exito", {
           position: "bottom-right",
         });
@@ -68,18 +69,19 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
         updateRow(newRowData);
         setFormSubmitted(false);
       } else {
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
+      hideLoader();
     });
   };
 
   const add = (data) => {
-    postEmpresas(data).then((res) => {
-      const { data } = res;
+    showLoader();
+    postEmpresas(data).then(({ data, message = null }) => {
       if (data) {
-        const { createdAt, ...newrowData } = res.data;
+        const { createdAt, ...newrowData } = data;
         toast.success("Agregado con exito", {
           position: "bottom-right",
         });
@@ -87,10 +89,11 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
         addItem(0, newrowData);
         setFormSubmitted(false);
       } else {
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
+      hideLoader();
     });
   };
 

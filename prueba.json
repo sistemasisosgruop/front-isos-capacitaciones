@@ -1,0 +1,24 @@
+{
+  "titulo": "Ejemplo de examen",
+  "preguntas": [{
+    "texto": "Nisi enim asperiores",
+    "opcion1": "Dicta tempor aliquid",
+    "opcion2": "Voluptatibus cillum ",
+    "opcion3": "Ut dolor nobis proid",
+    "opcion4": "Voluptas quia dolore",
+    "opcion5": "Vero dignissimos sol",
+    "puntajeDePregunta": "49",
+    "respuesta_correcta": 1
+  },
+  {
+    "texto": "Nisi enim asperiores",
+    "opcion1": "Dicta tempor aliquid",
+    "opcion2": "Voluptatibus cillum ",
+    "opcion3": "Ut dolor nobis proid",
+    "opcion4": "Voluptas quia dolore",
+    "opcion5": "Vero dignissimos sol",
+    "puntajeDePregunta": "49",
+    "respuesta_correcta": 1
+  }
+]
+}

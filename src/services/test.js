@@ -1,92 +1,35 @@
-import axios from "axios";
-import getEnvVaribles from "../config/getEnvVariables";
-
-const baseApiTest = () => {
-  const { VITE_API_URL } = getEnvVaribles();
-
-  const TrabajadoresAPi = axios.create({
-    baseURL: `${VITE_API_URL}/test`,
-  });
-  return TrabajadoresAPi;
-};
+import baseApi from "./baseApi";
+import objErrorApi from "./objError";
+const stepApi = 'test';
 
 const postTest = (data) => {
-  return baseApiTest()
+  return baseApi(stepApi)
     .post("/", data)
-    .catch((error) => {
-      console.log("error", error);
-      if (error.response)
-        return {
-          status: error.response.status,
-          data: null,
-          msg: error.response.data.message,
-        };
-    });
-};
-const postImportar = (id, data) => {
-  return baseApiTest()
-    .post(`/cargaexcel/${id}`, data)
-    .catch((error) => {
-      if (error.response)
-        return {
-          status: error.response.status,
-          data: null,
-          msg: error.response.msg,
-        };
-    });
+    .catch(objErrorApi);
 };
 
 const patchTest = (id, data) => {
-  return baseApiTest()
+  return baseApi(stepApi)
     .patch(`/${id}`, data)
-    .catch((error) => {
-      if (error.response)
-        return {
-          status: error.response.status,
-          data: null,
-          msg: error.response.msg,
-        };
-    });
+    .catch(objErrorApi);
 };
 
-const patchEstado = (data) => {
-  const { id, habilitado: estado } = data;
-  return baseApiTest()
-    .patch(`/${id}`, { habilitado: !estado })
-    .catch((error) => {
-      if (error.response)
-        return {
-          status: error.response.status,
-          data: null,
-          msg: error.response.msg,
-        };
-    });
-};
-
-const getTest = () => {
-  return baseApiTest()
+const getTests = () => {
+  return baseApi(stepApi)
     .get("/")
-    .catch((error) => {
-      if (error.response)
-        return {
-          status: error.response.status,
-          data: null,
-          msg: error.response.msg,
-        };
-    });
+    .catch(objErrorApi);
+};
+
+const getTest = ( id ) => {
+  return baseApi(stepApi)
+    .get(`${ id }`)
+    .catch(objErrorApi);
 };
 
 const deleteTest = (id) => {
-  return baseApiTest()
+  return baseApi(stepApi)
     .delete(`/${id}`)
-    .catch((error) => {
-      if (error.response)
-        return {
-          status: error.response.status,
-          data: null,
-          msg: error.response.msg,
-        };
-    });
+    .catch(objErrorApi);
 };
 
-export { getTest, postTest, patchTest, deleteTest };
+export { getTest, getTests, postTest, patchTest, deleteTest };

@@ -1,64 +1,48 @@
-import axios from "axios";
-import getEnvVaribles from "../config/getEnvVariables";
-
-const baseApiTrabajador = () => {
-  const { VITE_API_URL } = getEnvVaribles();
-
-  const TrabajadoresAPi = axios.create({
-    baseURL: `${VITE_API_URL}/trabajadores`,
-  });
-  return TrabajadoresAPi;
-};
+import baseApi from "./baseApi";
+import objErrorApi from "./objError";
+const stepApi = "trabajadores";
 
 const postTrabajador = (data) => {
-  return baseApiTrabajador()
+  return baseApi(stepApi)
     .post("/", data)
-    .catch((error) => {
-      console.log('error', error)
-      if (error.response) return { status: error.response.status, data: null,msg:error.response.data.message };
-    });
+    .catch(objErrorApi);
 };
 const postImportar = (id, data) => {
-  return baseApiTrabajador()
+  return baseApi(stepApi)
     .post(`/cargaexcel/${id}`, data)
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null, msg:error.response.msg };
-    });
+    .catch(objErrorApi);
 };
 
 const patchTrabajador = (data) => {
   const { id, habilitado, reporte, nombreEmpresa, ...dataFormat } = data;
-  console.log('dataFormat', dataFormat)
-  return baseApiTrabajador()
+  return baseApi(stepApi)
     .patch(`/${id}`, dataFormat)
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null, msg:error.response.msg };
-    });
+    .catch(objErrorApi);
 };
 
 const patchEstado = (data) => {
   const { id, habilitado: estado } = data;
-  return baseApiTrabajador()
-    .patch(`/${id}`, {habilitado: !estado})
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null, msg:error.response.msg };
-    });
+  return baseApi(stepApi)
+    .patch(`/${id}`, { habilitado: !estado })
+    .catch(objErrorApi);
 };
 
 const getTrabajadores = () => {
-  return baseApiTrabajador()
+  return baseApi(stepApi)
     .get("/")
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null };
-    });
+    .catch(objErrorApi);
+};
+
+const getTrabajador = (id) => {
+  return baseApi(stepApi)
+    .get(`/${id}`)
+    .catch(objErrorApi);
 };
 
 const deleteTrabajador = (id) => {
-  return baseApiTrabajador()
+  return baseApi(stepApi)
     .delete(`/${id}`)
-    .catch((error) => {
-      if (error.response) return { status: error.response.status, data: null, msg:error.response.msg };
-    });
+    .catch(objErrorApi);
 };
 
 export {
@@ -67,5 +51,6 @@ export {
   postImportar,
   patchTrabajador,
   deleteTrabajador,
-  patchEstado
+  patchEstado,
+  getTrabajador,
 };

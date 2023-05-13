@@ -8,9 +8,9 @@ import {
   Font,
 } from "@react-pdf/renderer";
 
-import backgroundImage from "../../../../assets/img/fondocomprimido.jpg";
-import logo from "../../../../assets/img/Nissan_logo.png";
-import firma from "../../../../assets/img/firma-sello-melitza.png";
+import backgroundImage from "../assets/img/fondocomprimido.jpg";
+import logo from "../assets/img/Nissan_logo.png";
+import firma from "../assets/img/firma-sello-melitza.png";
 
 const styles = StyleSheet.create({
   page: {
@@ -88,28 +88,34 @@ const styles = StyleSheet.create({
   },
 });
 
-const Certificado = () => {
+const Certificado = ({ data }) => {
+  console.log('data--->', data)
+  if (data === '') {
+    return <Document></Document>;
+  }
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
         <View style={styles.container}>
-          <Image style={styles.background} src={backgroundImage} />
-          <Image src={logo} style={styles.logo} />
+          <Image style={styles.background} src={data.imagenes.srcCertificado} />
+          <Image src={data.imagenes.srcLogo} style={styles.logo} />
           <View style={styles.main}>
             <View style={styles.submain}>
               <Text style={styles.title}>Titulo de la constancia</Text>
               <Text style={styles.otorgado}>Otorgado a:</Text>
-              <Text style={styles.persona}>Luis Miguel Mendoza Aquino</Text>
+              <Text style={styles.persona}>{
+                `${data.trabajador.apellidoPaterno} ${data.trabajador.apellidoMaterno} ${data.trabajador.nombres}`}
+                </Text>
               <Text style={styles.descripcion}>
                 Por haber asistido al curso "
-                <Text>Exposicion a riesgos fisicos y quimicos</Text>" celebrado
-                el día 21 de marzo, con una duracion total de 02 horas.
+                <Text>{data.capacitacion.nombre}</Text>" celebrado
+                el día <Text>{`${data.fechaCapacitacion[0]} de ${data.fechaCapacitacion[1]}`}</Text>, con una duracion total de <Text>{data.horasCapacitacion}</Text>  horas.
               </Text>
-              <Text style={styles.fecha}>Arequipa, marzo 2023</Text>
-              <Image src={firma} style={styles.firma}/>
+              <Text style={styles.fecha}>Arequipa, {`${data.fechaCapacitacion[1]} ${data.fechaCapacitacion[2]}`}</Text>
+              <Image src={data.imagenes.srcFirma} style={styles.firma}/>
             </View>
           </View>
-          <Text style={styles.codigo}>Num-cert-2023</Text>
+          <Text style={styles.codigo}>CERT-{`${data.trabajadorId}.${data.capacitacionId}-${data.fechaCapacitacion[2]}`}</Text>
         </View>
       </Page>
     </Document>

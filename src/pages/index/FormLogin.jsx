@@ -6,17 +6,16 @@ import Button from "../../components/Button";
 import { AuthContext } from "../../context/auth/authContext";
 import { useForm } from "../../hooks/useForms";
 import validate from "./validateForm";
-import baseApiAuth from "../../services/auth";
-
+import { postAuth } from "../../services/auth";
+import { toast } from "react-toastify";
 let initialForm = {
   user: "",
   password: "",
 };
 
 const FormLogin = () => {
-  const { login, authState } = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
   const [formSubmitted, setFormSubmitted] = useState(false);
-  const [errorLogin, setErrorLogin] = useState({});
 
   const navigate = useNavigate();
   const formValidations = validate();
@@ -31,48 +30,56 @@ const FormLogin = () => {
     passwordValid,
   } = useForm(initialForm, formValidations);
 
-  const getToken = async (payload) => {
-    const response = await baseApiAuth()
-      .post("/login", payload)
-      .catch((error) => {
-        if (error.response)
-          return { status: error.response.status, data: null };
-      });
-    return response;
-  };
-
   const handleLogin = async (event) => {
     event.preventDefault();
     setFormSubmitted(true);
 
     if (!isFormValid) return;
-    const { user: username, password: contraseña } = formState;
-    const peticionAuth = await getToken({ username, contraseña });
 
-    if (peticionAuth.status === 200) {
-      const { nombres, apellidoPaterno, dni } = peticionAuth.data.user;
-      const { token } = peticionAuth.data;
-      console.log(' peticionAuth.data.user',  peticionAuth.data)
-      login({ nombres, apellidoPaterno, dni, token });
-      navigate("/menu/admin/opciones", {
-        replace: true,
-      });
-    } else {
-      if (peticionAuth.status === 401) {
-        setErrorLogin({
-          state: true,
-          message: "La contraseña o usuario son incorrectos",
-        });
-      } else {
-        setErrorLogin({
-          state: true,
-          message: `Ocurrio un error en el servidor => ${peticionAuth.status}`,
-        });
+    const { user: username, password: contraseña } = formState;
+
+    postAuth({ username, contraseña }).then(
+      ({ data, message = null, status }) => {
+        if (status === 200) {
+          const rol = data.user.rol;
+          const token = data.token;
+          let idUsuario = null;
+          let rutaInicio = "";
+
+          if (rol === "Administrador") {
+            const nombres = data.admin.nombres;
+            const apellidoPaterno = "";
+            rutaInicio = "/menu/admin/opciones";
+            idUsuario = data.admin.id;
+            login({ nombres, apellidoPaterno, token, idUsuario, rol });
+          } else {
+            const nombres = data.worker.nombres;
+            const apellidoPaterno = data.worker.apellidoPaterno;
+            idUsuario = data.worker.id;
+            rutaInicio = "/menu/trabajador/opciones";
+            login({ nombres, apellidoPaterno, token, idUsuario, rol });
+          }
+          setTimeout(() => {
+            navigate(rutaInicio, {
+              replace: true,
+            });
+          }, 500);
+        } else {
+          if (status === 401) {
+            toast.error(
+              "el usuario ingresado no cuenta con credenciales correctas",
+              {
+                position: "bottom-right",
+              }
+            );
+          } else {
+            toast.error(`Ocurrio un error en el servidor`, {
+              position: "bottom-right",
+            });
+          }
+        }
       }
-      setTimeout(() => {
-        setErrorLogin({});
-      }, 2000);
-    }
+    );
   };
 
   return (
@@ -100,7 +107,6 @@ const FormLogin = () => {
       <div className="text-center">
         <Button description="Iniciar sesion" />
       </div>
-      {errorLogin.state && <Alert message={errorLogin.message} />}
     </form>
   );
 };
