@@ -1,18 +1,8 @@
 import logoIndex from "../../assets/img/logoIndex.png";
 import logoIsos from "../../assets/img/logoIsos.svg";
 import FormLogin from "./FormLogin";
-import { useQuery } from "@tanstack/react-query";
-import getEnvVaribles from "../../config/getEnvVariables";
-
-
 
 const Index = () => {
-  //console.log("render COMPONENTE");
-/*   const { data } = useQuery({
-    queryKey: ["auht"],
-    queryFn: () => getToken(payload),
-  }); */
-
   return (
     <div className="">
       <div className="flex justify-center items-center h-screen bg-slate-200">

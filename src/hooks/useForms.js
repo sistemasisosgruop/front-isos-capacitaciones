@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react';
-import toBase64 from '../utils/convertBase64';
 
 export const useForm = ( initialForm = {}, formValidations = {}) => {
   

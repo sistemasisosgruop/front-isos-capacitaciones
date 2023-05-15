@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-
+import { Modal } from "../../../components/modal/Modal";
+import Certificado from "../../../components/Certificado";
+import useModals from "../../../hooks/useModal";
+import { formatDateDb } from "../../../utils/formtDate";
+import { months } from "../../../config";
+import { getEmpresa, getEmpresas, getImgs } from "../../../services/empresa";
+import Button from "../../../components/Button";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -7,29 +13,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFileExport,
   faArrowAltCircleDown,
-  faTimesCircle,
-  faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
-import { getEmpresa, getEmpresas, getImgs } from "../../../services/empresa";
-import Button from "../../../components/Button";
+
 import { toast } from "react-toastify";
 import { getReporte } from "../../../services/reportes";
 import {
   getCapacitaciones,
   getFirmaCertificado,
 } from "../../../services/capacitacion";
-import { months } from "./config";
-
-//pdf
 import { PDFViewer } from "@react-pdf/renderer";
 
-//excel
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import { Modal } from "../../../components/modal/Modal";
-import Certificado from "../../../components/Certificado";
-import useModals from "../../../hooks/useModal";
-import { formatDateDb } from "../../../utils/formtDate";
 
 const ReporteCertificado = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
@@ -44,19 +39,18 @@ const ReporteCertificado = () => {
   const [dataReporte, setDataReporte] = useState([]);
 
   const [isOpenModal, openModal, closeModal] = useModals();
+
   //configuracion de la tabla
   const renderButtons = ({ data }) => {
     return (
-      <>
-        <label
-          className="cursor-pointer"
-          onClick={() => descargaCertificado(data)}
-        >
-        {
-          data.asistenciaExamen && <FontAwesomeIcon icon={faArrowAltCircleDown} />
-        }
-        </label>
-      </>
+      <label
+        className="cursor-pointer"
+        onClick={() => descargaCertificado(data)}
+      >
+        {data.asistenciaExamen && (
+          <FontAwesomeIcon icon={faArrowAltCircleDown} />
+        )}
+      </label>
     );
   };
 
@@ -86,9 +80,7 @@ const ReporteCertificado = () => {
 
   //cargar la informacion de la tabla
   const onGridReady = useCallback((params) => {
-    getReporte().then(async (res) => {
-      let { data } = res;
-
+    getReporte().then(({ data }) => {
       if (data) {
         const array = [];
 
@@ -113,7 +105,6 @@ const ReporteCertificado = () => {
             data[index].fechaExamen = fechaExamen;
             data[index].mesExamen = month;
           });
-          console.log('data :>> ', data);
           setDataReporte(data);
           setRowData(data);
         });
@@ -209,28 +200,25 @@ const ReporteCertificado = () => {
       pattern: "solid",
       fgColor: { argb: "16A971" },
     };
-    // Add an array of rows
-
     worksheet.addRows(rowData);
 
     // Descarga el archivo Excel en el navegador
     workbook.xlsx.writeBuffer().then(function (buffer) {
       saveAs(
         new Blob([buffer], { type: "application/octet-stream" }),
-        "trabajadores.xlsx"
+        "Reporte certificados.xlsx"
       );
     });
   };
 
   const descargaCertificado = async (data) => {
-    console.log("data", data);
+    const empresaTrabajador = data.trabajador.empresaId;
     const promesas = [
-      getImgs(4, "logo"),
-      getImgs(4, "certificado"),
-      getFirmaCertificado(7),
+      getImgs(empresaTrabajador, "logo"),
+      getImgs(empresaTrabajador, "certificado"),
+      getFirmaCertificado(data.capacitacionId),
     ];
     Promise.all(promesas.map((prom) => prom.then((res) => res))).then((res) => {
-      console.log("res", res);
       const srcLogo = URL.createObjectURL(new Blob([res[0].data]));
       const srcCertificado = URL.createObjectURL(new Blob([res[1].data]));
       const srcFirma = URL.createObjectURL(new Blob([res[2].data]));

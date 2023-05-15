@@ -1,6 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
-import Alert from "../../components/Alert";
+import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 
 import { AuthContext } from "../../context/auth/authContext";
@@ -8,10 +7,7 @@ import { useForm } from "../../hooks/useForms";
 import validate from "./validateForm";
 import { postAuth } from "../../services/auth";
 import { toast } from "react-toastify";
-let initialForm = {
-  user: "",
-  password: "",
-};
+import { initialForm } from "./config";
 
 const FormLogin = () => {
   const { login } = useContext(AuthContext);

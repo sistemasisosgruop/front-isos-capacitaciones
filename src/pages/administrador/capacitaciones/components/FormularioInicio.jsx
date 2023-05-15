@@ -1,16 +1,15 @@
 import { useState } from "react";
+import Button from "../../../../components/Button";
+import { hideLoader, showLoader } from "../../../../utils/loader";
 import validate from "./validateFormModal";
 import { useForm } from "../../../../hooks/useForms";
 import { toast } from "react-toastify";
-import Button from "../../../../components/Button";
 import {
   getCapacitacion,
   patchCapacitaciones,
   postCapacitaciones,
 } from "../../../../services/capacitacion";
-
 import Select from "react-select";
-import { hideLoader, showLoader } from "../../../../utils/loader";
 
 const FormularioInicio = ({
   initialForm,
@@ -23,7 +22,7 @@ const FormularioInicio = ({
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
 
-  //tipo de accion
+  //tipo de accion del formulario
   const action = initialForm.empresas === "" ? "ADD" : "UPDATE";
 
   const {
@@ -103,9 +102,7 @@ const FormularioInicio = ({
 
   const add = (data) => {
     showLoader();
-    postCapacitaciones(data).then((res) => {
-      console.log("res", res);
-      const { data } = res;
+    postCapacitaciones(data).then(({ data, message = null }) => {
       if (data) {
         getCapacitacion(data.id).then(({ data }) => {
           const { capacitacion } = data;
@@ -114,7 +111,6 @@ const FormularioInicio = ({
           toast.success("Agregado con exito", {
             position: "bottom-right",
           });
-          console.log("dataFormat", dataFormat);
           addItem(0, dataFormat);
         });
 
@@ -122,7 +118,7 @@ const FormularioInicio = ({
         setFormSubmitted(false);
         onResetForm();
       } else {
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
@@ -132,7 +128,7 @@ const FormularioInicio = ({
 
   const update = (data) => {
     showLoader();
-    patchCapacitaciones(id, data).then(({ data }) => {
+    patchCapacitaciones(id, data).then(({ data, message = null }) => {
       if (data) {
         getCapacitacion(data.id).then(({ data }) => {
           const { capacitacion } = data;
@@ -141,14 +137,13 @@ const FormularioInicio = ({
           toast.success("Actualizado con exito", {
             position: "bottom-right",
           });
-          console.log("dataFormat", dataFormat);
           updateRow(dataFormat);
         });
 
         closeModal();
         setFormSubmitted(false);
       } else {
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
@@ -296,22 +291,24 @@ const FormularioInicio = ({
             <p className="text-sm text-red-700">{fechaCulminacionValid}</p>
           )}
         </div>
-        <div className="w-full md:w-1/4">
-          <label htmlFor="fechaAplazo" className="font-semibold">
-            Fecha de aplazo
-          </label>
-          <input
-            type="date"
-            name="fechaAplazo"
-            id="fechaAplazo"
-            className="input input-bordered input-sm w-full"
-            value={fechaAplazo}
-            onChange={onInputChange}
-          />
-          {!!fechaAplazoValid && formSubmitted && (
-            <p className="text-sm text-red-700">{fechaAplazoValid}</p>
-          )}
-        </div>
+        {action === "UPDATE" && (
+          <div className="w-full md:w-1/4">
+            <label htmlFor="fechaAplazo" className="font-semibold">
+              Fecha de aplazo
+            </label>
+            <input
+              type="date"
+              name="fechaAplazo"
+              id="fechaAplazo"
+              className="input input-bordered input-sm w-full"
+              value={fechaAplazo}
+              onChange={onInputChange}
+            />
+            {!!fechaAplazoValid && formSubmitted && (
+              <p className="text-sm text-red-700">{fechaAplazoValid}</p>
+            )}
+          </div>
+        )}
       </div>
       <div className="flex justify-end mt-3">
         <Button description={action === "ADD" ? "Agregar" : "Guardar"} />

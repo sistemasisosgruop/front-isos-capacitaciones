@@ -2,7 +2,6 @@ import regexs from  '../../../../utils/regexValidations';
 
 const validate = () => {
 
-    // la funcion anonima debe retornar true caso contrario es error
     return  {
       nombre:[ value => value.length >= 1, 'Este campo es requerido' ],
       instructor:[ value => value.length >= 1, 'Este campo es requerido' ],

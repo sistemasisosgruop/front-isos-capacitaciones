@@ -25,9 +25,13 @@ const TestTrabajador = () => {
   //configuracion de la tabla
   const renderButtons = ({ data }) => {
     return (
-        <a className="cursor-pointer badge badge-accent badge-outline" href={data.urlTest} target="_blank">
-          Ver enlace
-        </a>
+      <a
+        className="cursor-pointer badge badge-accent badge-outline"
+        href={data.urlTest}
+        target="_blank"
+      >
+        Ver enlace
+      </a>
     );
   };
 
@@ -57,17 +61,17 @@ const TestTrabajador = () => {
   const onGridReady = useCallback((params) => {
     getTests().then(({ data }) => {
       getTrabajador(authState.user.idUsuario).then((res) => {
-        const idEmpresaTrabajador = res.data.empresaId
-        const newData = data.filter( obj =>{
+        const idEmpresaTrabajador = res.data.empresaId;
+        const newData = data.filter((obj) => {
           let coincideEmpresa = false;
-          obj.Empresas.forEach( e => {
+          obj.Empresas.forEach((e) => {
             if (e.id === idEmpresaTrabajador) coincideEmpresa = true;
           });
           if (coincideEmpresa) return true;
-        })
+        });
         setDataInit(newData);
         setRowData(newData);
-      })
+      });
     });
   }, []);
 

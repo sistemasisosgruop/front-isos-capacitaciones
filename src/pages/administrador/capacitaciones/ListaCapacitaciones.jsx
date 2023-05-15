@@ -31,7 +31,6 @@ const ListaCapacitaciones = () => {
   const [descripcionModal, setDescripcionModal] = useState("");
   const [sweetAlert, setSweetAlert] = useState(false);
   const [sweetAlertState, setSweetAlertState] = useState(false);
-  
 
   const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
@@ -50,12 +49,15 @@ const ListaCapacitaciones = () => {
         </label>
         <label
           className="cursor-pointer mr-2"
-          onClick={() => openConfirm(data, 'DELETE')}
+          onClick={() => openConfirm(data, "DELETE")}
         >
           <FontAwesomeIcon icon={faTrashAlt} />
         </label>
         {}
-        <label className="cursor-pointer" onClick={() => openConfirm(data,'UPDATE')}>
+        <label
+          className="cursor-pointer"
+          onClick={() => openConfirm(data, "UPDATE")}
+        >
           {data.habilitado ? (
             <div className="badge bg-red-500">Deshabilitar</div>
           ) : (
@@ -105,7 +107,7 @@ const ListaCapacitaciones = () => {
 
   //cargar la informacion de la tabla
   const onGridReady = useCallback((params) => {
-    getCapacitaciones().then(({data}) => {
+    getCapacitaciones().then(({ data }) => {
       if (data) {
         setRowData(data);
       } else {
@@ -135,6 +137,10 @@ const ListaCapacitaciones = () => {
     gridRef.current.api.applyTransaction({ remove: arrayItems });
   }, []);
 
+  const onFilterTextBoxChanged = useCallback((e) => {
+    gridRef.current.api.setQuickFilter(e.target.value);
+  }, []);
+
   const updateButton = (data) => {
     //obtenemos todas las preguntas
     getPreguntasExamen(data.id);
@@ -148,7 +154,7 @@ const ListaCapacitaciones = () => {
       newObj["label"] = nombreEmpresa;
       return newObj;
     });
-    console.log("pase pór aqui");
+
     const dataFormat = {
       id: data.id,
       nombre: data.nombre,
@@ -177,16 +183,15 @@ const ListaCapacitaciones = () => {
 
   const confirmDelete = () => {
     showLoader();
-    deleteCapacitaciones(rowSelected.id).then((res) => {
-      if (res.data) {
+    deleteCapacitaciones(rowSelected.id).then(({ data, message = null }) => {
+      if (data) {
         removeItem(data);
         setSweetAlert(false);
         toast.success("Eliminado con exito", {
           position: "bottom-right",
         });
       } else {
-        console.log("res", res);
-        toast.error(res.message, {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
@@ -196,29 +201,26 @@ const ListaCapacitaciones = () => {
 
   const confirmUpdateState = () => {
     showLoader();
-    patchEstadoCapacitacion(rowSelected).then(({data, message = ''}) => {
-      console.log('data :>><<<<<<<<<<<<<<<<<<<<<< ', data);
+    patchEstadoCapacitacion(rowSelected).then(({ data, message = null }) => {
       if (data) {
-        getCapacitacion(data.id).then(({data}) => {
-          const {capacitacion} = data;
+        getCapacitacion(data.id).then(({ data }) => {
+          const { capacitacion } = data;
           delete data.capacitacion;
-          const dataFormat = {...data, ...capacitacion}
+          const dataFormat = { ...data, ...capacitacion };
           toast.success("Actualizado con exito", {
             position: "bottom-right",
           });
-          console.log('dataFormat', dataFormat)
           updateRow(dataFormat);
-        })
+        });
         setSweetAlertState(false);
       } else {
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error(message, {
           position: "bottom-right",
         });
       }
       hideLoader();
     });
   };
-
 
   const getPreguntasExamen = (id) => {
     getPreguntas(id).then(({ data }) => {
@@ -240,38 +242,18 @@ const ListaCapacitaciones = () => {
     });
   };
 
-  // fin tabla
-
+  //funcion para controlar las preguntas
   const handleFormChange = (index, event) => {
-    let data = [...formPreguntas];
-    data[index][event.target.name] = event.target.value;
-    setFormPreguntas(data);
-  };
-
-  const addPregunta = () => {
-    let newPregunta = {
-      texto: "",
-      opcion1: "",
-      opcion2: "",
-      opcion3: "",
-      opcion4: "",
-      opcion5: "",
-      puntajeDePregunta: "",
-      respuesta_correcta: 1,
-    };
-
-    setFormPreguntas([...formPreguntas, newPregunta]);
-  };
-
-  const removePregunta = (index) => {
-    let data = [...formPreguntas];
-    data.splice(index, 1);
+    let data = formPreguntas.map((item, i) => {
+      if (i !== index) return item;
+      return { ...item, [event.target.name]: event.target.value };
+    });
     setFormPreguntas(data);
   };
 
   useEffect(() => {
-    getEmpresas().then((res) => {
-      const newData = res.data.map(function (obj) {
+    getEmpresas().then(({ data }) => {
+      const newData = data.map(function (obj) {
         const { id, nombreEmpresa } = obj;
         let newObj = {};
         newObj["value"] = id;
@@ -300,15 +282,11 @@ const ListaCapacitaciones = () => {
     });
   };
 
-  const onFilterTextBoxChanged = useCallback((e) => {
-    gridRef.current.api.setQuickFilter(e.target.value);
-  }, []);
-
   const openAddModal = () => {
     setDescripcionModal("Agregar capacitación");
     openModal();
-    setdataForm(initialForm);
     setFormPreguntas(initialFormPreguntas);
+    setdataForm(initialForm);
   };
 
   return (
@@ -374,16 +352,10 @@ const ListaCapacitaciones = () => {
                       opcion4={pregunta.opcion4}
                       opcion5={pregunta.opcion5}
                       handleFormChange={handleFormChange}
-                      removePregunta={removePregunta}
                     />
                   );
                 })}
               </form>
-              {/*   <Button
-                description="Nueva pregunta"
-                icon={faPlus}
-                event={addPregunta}
-              /> */}
             </div>
           </StepWizard>
         </Modal>

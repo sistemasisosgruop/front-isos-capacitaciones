@@ -89,7 +89,6 @@ const styles = StyleSheet.create({
 });
 
 const Certificado = ({ data }) => {
-  console.log('data--->', data)
   if (data === '') {
     return <Document></Document>;
   }

@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
 });
 
 const ExamenCapacitacion = ({ data }) => {
+  console.log('data :>> ', data);
   if (data !== "") {
   } else {
     return <Document></Document>;
@@ -54,7 +55,7 @@ const ExamenCapacitacion = ({ data }) => {
             </View>
             <View style={styles.dataList}>
               <Text style={styles.subtitle}>DNI</Text>
-              <Text style={styles.descripcion}>{`${data.trabajador.dni}`}</Text>
+              <Text style={styles.descripcion}>{`${data.trabajador?.dni}`}</Text>
             </View>
             <View style={styles.dataList}>
               <Text style={styles.subtitle}>apellidos y nombres</Text>

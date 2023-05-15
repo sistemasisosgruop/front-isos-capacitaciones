@@ -21,13 +21,7 @@ import { getImgs } from "../../../services/empresa";
 import { months } from "../../../config";
 import getYearsBefore from "../../../utils/yearsBefore";
 import { getExamen } from "../../../services/examenes";
-
-const initialFormPreguntas = {
-  examenId: "",
-  capacitacionId: "",
-  trabajadorID: "",
-  preguntas: [],
-};
+import { initialFormPreguntas } from "./config";
 
 const CapacitacionesTrabajador = () => {
   const [selectMonth, setSelectMonth] = useState("");
@@ -36,12 +30,12 @@ const CapacitacionesTrabajador = () => {
   const [dataInit, setDataInit] = useState([]);
   const [formPreguntas, setFormPreguntas] = useState(initialFormPreguntas);
   const [dataCertificado, setDataCertificado] = useState("");
+  const [years, setYears] = useState([]);
   const [reFetchData, setReFetchData] = useState(true);
 
   const [isOpen, openModal, closeModal] = useModals();
   const [isOpenCerti, openModalCerti, closeModalCerti] = useModals();
   const { authState } = useContext(AuthContext);
-  const [years, setYears] = useState([]);
 
   useEffect(() => {
     setYears(getYearsBefore(10));
@@ -84,7 +78,9 @@ const CapacitacionesTrabajador = () => {
   useEffect(() => {
     getReporte().then(({ data }) => {
       const dataTrabajador = data.filter(
-        (capacitacion) => capacitacion.trabajadorId === authState.user.idUsuario  && capacitacion.capacitacion.habilitado
+        (capacitacion) =>
+          capacitacion.trabajadorId === authState.user.idUsuario &&
+          capacitacion.capacitacion.habilitado
       );
       const newData = dataTrabajador.map((capacitacion) => {
         capacitacion["fechaCapacitacion"] = formatDateYMD(
@@ -107,10 +103,8 @@ const CapacitacionesTrabajador = () => {
             },
             0
           );
-          console.log("newData ===>>>", newData);
           return examen;
         });
-        console.log("newData", newData);
         setDataInit(newData);
         setData(newData);
       });
@@ -119,8 +113,6 @@ const CapacitacionesTrabajador = () => {
 
   const handleFormChange = (index, event) => {
     let data = { ...formPreguntas };
-    console.log("index", index);
-    console.log("event", event.target.value);
     data["preguntas"][index][event.target.name] = event.target.value;
     setFormPreguntas(data);
   };
@@ -129,7 +121,6 @@ const CapacitacionesTrabajador = () => {
     openModal();
     const capacitacionId = capacitacion.capacitacion.id;
     getPreguntas(capacitacionId).then(({ data }) => {
-      console.log("dataPrewgunta", data);
       const newData = data.preguntas.map((pregunta) => {
         const arrayCustom = [
           { descripcion: pregunta.opcion1, value: 1 },
@@ -143,7 +134,7 @@ const CapacitacionesTrabajador = () => {
 
         return pregunta;
       });
-      console.log("newDataPreguntas -->", newData);
+
       let newDataFormPreguntas = { ...formPreguntas };
       newDataFormPreguntas.trabajadorID = capacitacion.trabajadorId;
       newDataFormPreguntas.examenId = capacitacion.examenId;
@@ -171,7 +162,6 @@ const CapacitacionesTrabajador = () => {
         position: "bottom-right",
       });
     }
-    console.log("validatePreguntas", validatePreguntas);
     const { examenId, capacitacionId, trabajadorID, preguntas } =
       validatePreguntas;
     const newFormatPreguntas = preguntas.map((e) => {
@@ -183,25 +173,30 @@ const CapacitacionesTrabajador = () => {
 
     let newFormatObj = {};
     newFormatObj["respuestas"] = newFormatPreguntas;
-    console.log("newFormatObj", newFormatObj);
     patchDarExamen(capacitacionId, trabajadorID, examenId, newFormatObj).then(
-      (res) => {
-        if (res.data) {
+      ({data, message =null}) => {
+        if (data) {
           toast.success("Examen enviado", {
             position: "bottom-right",
           });
           setReFetchData(!reFetchData);
+        } else {
+          toast.error(message, {
+            position: "bottom-right",
+          });
         }
       }
     );
   };
 
   const verCertificado = async (data) => {
+    const empresaTrabajador = data.trabajador.empresaId;
     const promesas = [
-      getImgs(8, "logo"),
-      getImgs(8, "certificado"),
-      getFirmaCertificado(7),
+      getImgs(empresaTrabajador, "logo"),
+      getImgs(empresaTrabajador, "certificado"),
+      getFirmaCertificado(data.capacitacionId),
     ];
+
     Promise.all(promesas.map((prom) => prom.then((res) => res))).then((res) => {
       const srcLogo = URL.createObjectURL(new Blob([res[0].data]));
       const srcCertificado = URL.createObjectURL(new Blob([res[1].data]));

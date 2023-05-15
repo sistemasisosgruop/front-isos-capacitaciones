@@ -18,7 +18,6 @@ const AuthProvider = ({ children }) => {
     {},
     getUserLocalStorage
   );
-  console.log("me ejecute");
 
   const login = (user = {}) => {
     const action = {

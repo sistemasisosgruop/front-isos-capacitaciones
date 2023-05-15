@@ -1,4 +1,3 @@
-
 const Pregunta = ({
   indice,
   texto,
@@ -9,14 +8,13 @@ const Pregunta = ({
   opcion4,
   opcion5,
   handleFormChange,
-  removePregunta,
 }) => {
   return (
     <div className="shadow-xl bg-slate-100 p-3 rounded-lg mb-4">
       <div className="flex flex-col md:flex-row items-center gap-2">
         <div className="flex gap-3 items-center w-full md:w-4/5">
           <div className="bg-black w-10 h-10 rounded-full flex justify-center items-center text-white font-bold">
-            {indice+1}
+            {indice + 1}
           </div>
           <div className="w-full">
             <label className="font-semibold">Digite la pregunta</label>
@@ -105,14 +103,6 @@ const Pregunta = ({
               onChange={(event) => handleFormChange(indice, event)}
             />
           </div>
-         {/*  <div className="text-right">
-            <button
-              className="btn btn-sm btn-error"
-              onClick={() => removePregunta(indice)}
-            >
-              Quitar pregunta
-            </button>
-          </div> */}
         </div>
       </div>
     </div>

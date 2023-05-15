@@ -1,5 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-
+import { getEmpresa, getEmpresas } from "../../../services/empresa";
+import Button from "../../../components/Button";
+import { toast } from "react-toastify";
+import { getReporte } from "../../../services/reportes";
+import { getCapacitaciones } from "../../../services/capacitacion";
+import { Modal } from "../../../components/modal/Modal";
+import useModals from "../../../hooks/useModal";
+import ExamenCapacitacion from "../../../components/ExamenCapacitacion";
+import { getExamen } from "../../../services/examenes";
+import { months } from "../../../config";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -10,73 +19,9 @@ import {
   faTimesCircle,
   faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
-import { getEmpresa, getEmpresas } from "../../../services/empresa";
-import Button from "../../../components/Button";
-import { toast } from "react-toastify";
-import { getReporte } from "../../../services/reportes";
-import { getCapacitaciones } from "../../../services/capacitacion";
-
-//excel
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import Certificado from "../../../components/Certificado";
-import { PDFViewer, PDFDownloadLink } from "@react-pdf/renderer";
-import { Modal } from "../../../components/modal/Modal";
-import useModals from "../../../hooks/useModal";
-import Loader from "../../../components/loader/Loader";
-import ExamenCapacitacion from "../../../components/ExamenCapacitacion";
-import { getExamen } from "../../../services/examenes";
-
-const months = [
-  {
-    numero: 1,
-    descripcion: "Enero",
-  },
-  {
-    numero: 2,
-    descripcion: "Febrero",
-  },
-  {
-    numero: 3,
-    descripcion: "Marzo",
-  },
-  {
-    numero: 4,
-    descripcion: "Abril",
-  },
-  {
-    numero: 5,
-    descripcion: "mayo",
-  },
-  {
-    numero: 6,
-    descripcion: "Junio",
-  },
-  {
-    numero: 7,
-    descripcion: "Julio",
-  },
-  {
-    numero: 8,
-    descripcion: "Agosto",
-  },
-  {
-    numero: 9,
-    descripcion: "septiembre",
-  },
-  {
-    numero: 10,
-    descripcion: "octubre",
-  },
-  {
-    numero: 11,
-    descripcion: "noviembre",
-  },
-  {
-    numero: 12,
-    descripcion: "diciembre",
-  },
-];
+import { PDFViewer } from "@react-pdf/renderer";
 
 const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
@@ -105,15 +50,13 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
 
   const renderEstado = ({ data }) => {
     return (
-      <>
-        <label className="cursor-pointer">
-          {data.asistenciaExamen ? (
-            <FontAwesomeIcon icon={faCheckCircle} size="1x" color="green" />
-          ) : (
-            <FontAwesomeIcon icon={faTimesCircle} size="1x" color="red" />
-          )}
-        </label>
-      </>
+      <label className="cursor-pointer">
+        {data.asistenciaExamen ? (
+          <FontAwesomeIcon icon={faCheckCircle} size="1x" color="green" />
+        ) : (
+          <FontAwesomeIcon icon={faTimesCircle} size="1x" color="red" />
+        )}
+      </label>
     );
   };
 
@@ -152,9 +95,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
 
   //cargar la informacion de la tabla
   const onGridReady = useCallback((params) => {
-    getReporte().then(async (res) => {
-      let { data } = res;
-
+    getReporte().then(({ data }) => {
       if (data) {
         const array = [];
 
@@ -181,7 +122,6 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
           });
           setDataReporte(data);
           setRowData(data);
-          console.log("data", data);
         });
       } else {
         toast.error("Ocurrio un error en el servidor", {
@@ -275,20 +215,19 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       pattern: "solid",
       fgColor: { argb: "16A971" },
     };
-    // Add an array of rows
-
     worksheet.addRows(rowData);
 
     // Descarga el archivo Excel en el navegador
     workbook.xlsx.writeBuffer().then(function (buffer) {
       saveAs(
         new Blob([buffer], { type: "application/octet-stream" }),
-        "trabajadores.xlsx"
+        "Reporte.xlsx"
       );
     });
   };
 
   const descargaExamen = async (data) => {
+    console.log('data :>> ', data);
     const arrayRespuestas = [
       data.rptpregunta1,
       data.rptpregunta2,
@@ -297,8 +236,9 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       data.rptpregunta5,
     ];
 
-    getExamen(data.examenId).then((examen) => {
-      const newData = examen.data.pregunta.map((pregunta, index) => {
+    getExamen(data.examenId).then(({ data }) => {
+      console.log('dataExamen :>> ', data);
+      const newData = data.pregunta.map((pregunta, index) => {
         pregunta["respuestaTrabajador"] = arrayRespuestas[index];
         return pregunta;
       });
@@ -308,8 +248,6 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     });
   };
 
-  const abrirLoaderDescarga = async (data) => {};
-  console.log("new render");
   return (
     <div className="">
       <div className="bg-white p-3">
