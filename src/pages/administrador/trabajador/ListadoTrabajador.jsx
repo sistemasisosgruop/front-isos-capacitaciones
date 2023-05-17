@@ -154,8 +154,14 @@ const ListadoTrabajador = () => {
         }
       });
     },
-    [refetchData]
+    []
   );
+  useEffect(() => {
+    
+    onGridReady();
+
+  }, [refetchData])
+  
 
   const openAddModal = () => {
     setDescripcionModal("Agregar trabajador");

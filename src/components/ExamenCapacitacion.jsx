@@ -39,7 +39,6 @@ const styles = StyleSheet.create({
 });
 
 const ExamenCapacitacion = ({ data }) => {
-  console.log('data :>> ', data);
   if (data !== "") {
   } else {
     return <Document></Document>;

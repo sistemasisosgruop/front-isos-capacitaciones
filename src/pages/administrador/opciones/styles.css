@@ -2,7 +2,7 @@
   width: 95%;
   display: grid;
   margin: auto;
-  gap: 2rem ;
+  gap: .5rem ;
   grid-template-columns: repeat(6, 1fr);
   grid-template-rows: repeat(2, 1fr);
   grid-template-areas: 

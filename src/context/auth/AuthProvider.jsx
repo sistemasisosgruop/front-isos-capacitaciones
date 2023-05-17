@@ -5,6 +5,7 @@ import authReducer from "./authReducer";
 
 const getUserLocalStorage = () => {
   const user = JSON.parse(localStorage.getItem("userIsos"));
+  console.log(user);
   const userFormat = user
     ? { logged: true, user: user }
     : { logged: false, user: {} };

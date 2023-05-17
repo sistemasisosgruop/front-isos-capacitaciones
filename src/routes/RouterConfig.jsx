@@ -16,10 +16,12 @@ import ListadoTest from "../pages/administrador/test/ListadoTest";
 import ReporteExameAsistencia from "../pages/administrador/reportes/ReporteExameAsistencia";
 import ReporteCertificado from "../pages/administrador/reportes/ReporteCertificado";
 import TestTrabajador from "../pages/trabajador/capacitaciones/TestTrabajador";
+import validateToken from "./validateToken";
 
 const router = createBrowserRouter([
   {
     path: "/menu",
+    loader:validateToken,
     element: (
       <ProtectedRoute expectedRoles={[userRoles.ADMIN, userRoles.EMPLOYEE]}>
         <Menu />
@@ -28,6 +30,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "trabajador",
+        loader:validateToken,
         element: (
           <ProtectedRoute expectedRoles={[userRoles.EMPLOYEE]}>
             <Outlet />
@@ -43,6 +46,7 @@ const router = createBrowserRouter([
       { path: "*", element: <Navigate to="/menu" /> },
       {
         path: "admin",
+        loader:validateToken,
         element: (
           <ProtectedRoute expectedRoles={[userRoles.ADMIN]}>
             <Outlet />

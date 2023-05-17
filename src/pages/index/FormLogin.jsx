@@ -59,7 +59,7 @@ const FormLogin = () => {
             navigate(rutaInicio, {
               replace: true,
             });
-          }, 500);
+          }, 1000);
         } else {
           if (status === 401) {
             toast.error(
@@ -88,7 +88,7 @@ const FormLogin = () => {
         className="input input-bordered input-sm w-full"
         onChange={onInputChange}
       />
-      {!!userValid && formSubmitted && <p>{userValid}</p>}
+      {!!userValid && formSubmitted && <p className="text-sm text-red-700">{userValid}</p>}
 
       <label>Contraseña</label>
       <input
@@ -98,7 +98,8 @@ const FormLogin = () => {
         className="input input-bordered input-sm w-full mb-3"
         onChange={onInputChange}
       />
-      {!!passwordValid && formSubmitted && <p>{passwordValid}</p>}
+      {!!passwordValid && formSubmitted && 
+        <p className="text-sm text-red-700">{passwordValid}</p>}
 
       <div className="text-center">
         <Button description="Iniciar sesion" />

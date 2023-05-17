@@ -8,6 +8,14 @@ const postAuth = (data) => {
     .catch(objErrorApi);
 };
 
+const validToken = () => {
+  return baseApi(stepApi)
+    .get("/verify-token")
+    .catch(objErrorApi);
+};
+
+
 export {
-  postAuth
+  postAuth,
+  validToken
 }

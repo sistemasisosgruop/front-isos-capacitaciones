@@ -51,7 +51,8 @@ const FormularioTest = ({
 
     if (!isFormValid) return;
 
-    const { Empresas: sendEmpresas, ...formatData } = formState;
+    const { Empresas: sendEmpresas, fechaAplazo, ...formatData } = formState;
+    if (fechaAplazo !== "") formatData['fechaAplazo'] = fechaAplazo;
     const formatEmpresas = sendEmpresas.map((option) => option.value);
     formatData.empresas = formatEmpresas;
 

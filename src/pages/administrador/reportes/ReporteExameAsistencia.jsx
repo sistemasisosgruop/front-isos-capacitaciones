@@ -21,7 +21,14 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import { PDFViewer } from "@react-pdf/renderer";
+import {
+  BlobProvider,
+  Document,
+  PDFViewer,
+  Page,
+  Text,
+  pdf,
+} from "@react-pdf/renderer";
 
 const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
@@ -105,10 +112,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
 
         Promise.all(array).then((res) => {
           res.map((empresa, index) => {
-            const nombreTrabajador = `
-            ${data[index].trabajador.nombres} 
-            ${data[index].trabajador.apellidoPaterno} 
-            ${data[index].trabajador.apellidoMaterno}`;
+            const nombreTrabajador = ` ${data[index].trabajador.nombres} ${data[index].trabajador.apellidoPaterno} ${data[index].trabajador.apellidoMaterno}`;
 
             const fechaExamen = data[index].examen.fechadeExamen;
             const d = new Date(fechaExamen);
@@ -226,25 +230,60 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     });
   };
 
-  const descargaExamen = async (data) => {
-    console.log('data :>> ', data);
+  const descargaExamen = (dataRow) => {
     const arrayRespuestas = [
-      data.rptpregunta1,
-      data.rptpregunta2,
-      data.rptpregunta3,
-      data.rptpregunta4,
-      data.rptpregunta5,
+      dataRow.rptpregunta1,
+      dataRow.rptpregunta2,
+      dataRow.rptpregunta3,
+      dataRow.rptpregunta4,
+      dataRow.rptpregunta5,
     ];
 
-    getExamen(data.examenId).then(({ data }) => {
-      console.log('dataExamen :>> ', data);
+    getExamen(dataRow.examenId).then(({ data }) => {
       const newData = data.pregunta.map((pregunta, index) => {
         pregunta["respuestaTrabajador"] = arrayRespuestas[index];
         return pregunta;
       });
-      data["preguntas"] = newData;
-      setDataExamen(data);
+      dataRow["preguntas"] = newData;
+      setDataExamen(dataRow);
       openModal();
+    });
+  };
+
+  const descargarExamenes = () => {
+    const arrayTrabajadores = rowData.map((e) => getExamen(e.examenId));
+    Promise.all(arrayTrabajadores).then((res) => {
+      const newData = rowData.map((TrabajadorRep, index) => {
+        const arrayRespuestas = [
+          TrabajadorRep.rptpregunta1,
+          TrabajadorRep.rptpregunta2,
+          TrabajadorRep.rptpregunta3,
+          TrabajadorRep.rptpregunta4,
+          TrabajadorRep.rptpregunta5,
+        ];
+
+        const newDataPreguntas = res[index].data.pregunta.map(
+          (pregunta, index) => {
+            pregunta["respuestaTrabajador"] = arrayRespuestas[index];
+            return pregunta;
+          }
+        );
+        TrabajadorRep["preguntas"] = newDataPreguntas;
+        return TrabajadorRep;
+      });
+      handleDownload();
+    });
+  };
+
+  const handleDownload = () => {
+    rowData.forEach(async (data) => {
+      const link = document.createElement("a");
+      const pdfBlob = await pdf(<ExamenCapacitacion data={data} />).toBlob();
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      link.href = pdfUrl;
+      link.target = "_blank";
+      link.download = `Examen-${data.nombreTrabajador}.pdf`;
+      link.click();
     });
   };
 
@@ -252,8 +291,8 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     <div className="">
       <div className="bg-white p-3">
         <h2 className="font-bold text-2xl mb-3 block">{titulo}</h2>
-        <div className="flex justify-between gap-3 mb-2">
-          <div>
+        <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
+          <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
             <select
               className="select select-bordered select-sm"
               id="searchSelect"
@@ -302,11 +341,19 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
           </div>
-          <Button
-            description="Exportar"
-            event={crearExcel}
-            icon={faFileExport}
-          />
+          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-2/5">
+            <Button
+              description="Exportar"
+              event={crearExcel}
+              icon={faFileExport}
+            />
+            <button
+              className="btn btn-sm btn-outline btn-error"
+              onClick={descargarExamenes}
+            >
+              Descargar PDFS
+            </button>
+          </div>
         </div>
 
         <div style={containerStyle}>

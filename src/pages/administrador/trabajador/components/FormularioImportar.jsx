@@ -34,7 +34,7 @@ const FormularioImportar = ({ empresas, closeModal, setRefetchData }) => {
         toast.success(message || "Agregado con exito", {
           position: "bottom-right",
         });
-        setRefetchData((data) => !data);
+        setRefetchData(data => !data);
         closeModal();
       } else {
         toast.error(message, { position: "bottom-right" });

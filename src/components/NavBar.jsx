@@ -10,8 +10,6 @@ const NavBar = ({ broken, toggleSidebar }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    // cerrar sesion  DB
-
     logout();
     navigate("/");
   };
@@ -37,9 +35,6 @@ const NavBar = ({ broken, toggleSidebar }) => {
           >
             <li>
               <a className="justify-between">{nombres}</a>
-            </li>
-            <li>
-              <a>Configuración</a>
             </li>
             <li>
               <a onClick={handleLogout}>Cerrar sesión</a>

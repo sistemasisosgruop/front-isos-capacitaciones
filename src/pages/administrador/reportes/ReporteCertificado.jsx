@@ -21,7 +21,7 @@ import {
   getCapacitaciones,
   getFirmaCertificado,
 } from "../../../services/capacitacion";
-import { PDFViewer } from "@react-pdf/renderer";
+import { PDFViewer, pdf } from "@react-pdf/renderer";
 
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
@@ -90,10 +90,7 @@ const ReporteCertificado = () => {
 
         Promise.all(array).then((res) => {
           res.map((empresa, index) => {
-            const nombreTrabajador = `
-            ${data[index].trabajador.nombres} 
-            ${data[index].trabajador.apellidoPaterno} 
-            ${data[index].trabajador.apellidoMaterno}`;
+            const nombreTrabajador = `${data[index].trabajador.nombres} ${data[index].trabajador.apellidoPaterno} ${data[index].trabajador.apellidoMaterno}`;
 
             const fechaExamen = data[index].examen.fechadeExamen;
             const d = new Date(fechaExamen);
@@ -213,15 +210,18 @@ const ReporteCertificado = () => {
 
   const descargaCertificado = async (data) => {
     const empresaTrabajador = data.trabajador.empresaId;
+
     const promesas = [
       getImgs(empresaTrabajador, "logo"),
       getImgs(empresaTrabajador, "certificado"),
       getFirmaCertificado(data.capacitacionId),
     ];
+
     Promise.all(promesas.map((prom) => prom.then((res) => res))).then((res) => {
       const srcLogo = URL.createObjectURL(new Blob([res[0].data]));
       const srcCertificado = URL.createObjectURL(new Blob([res[1].data]));
       const srcFirma = URL.createObjectURL(new Blob([res[2].data]));
+
       const imagenes = { srcLogo, srcCertificado, srcFirma };
       const horasCapacitacion = data.capacitacion.horas;
       data["imagenes"] = imagenes;
@@ -233,14 +233,67 @@ const ReporteCertificado = () => {
     });
   };
 
+  const fetchCertificados = async (dataReporte) => {
+    try {
+      const empresaId = dataReporte.trabajador.empresaId;
+
+      const logo = await getImgs(empresaId, "logo");
+      const certificado = await getImgs(empresaId, "certificado");
+      const firma = await getFirmaCertificado(dataReporte.capacitacionId);
+
+      const srcLogo = URL.createObjectURL(new Blob([logo.data]));
+      const srcCertificado = URL.createObjectURL(new Blob([certificado.data]));
+      const srcFirma = URL.createObjectURL(new Blob([firma.data]));
+
+      const imagenes = { srcLogo, srcCertificado, srcFirma };
+      const horasCapacitacion = dataReporte.capacitacion.horas;
+      dataReporte["imagenes"] = imagenes;
+      dataReporte["fechaCapacitacion"] = formatDateDb(dataReporte.createdAt);
+      dataReporte["horasCapacitacion"] =
+        horasCapacitacion < 10 ? "0" + horasCapacitacion : horasCapacitacion;
+
+      return { ...dataReporte };
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+      return { empresas: null, cargo: null };
+    }
+  };
+
+  const descargarCertificados = async () => {
+    try {
+      const resultados = await Promise.all(
+        rowData.map(async (reporte) => {
+          const data = await fetchCertificados(reporte);
+          return data;
+        })
+      );
+      handleDownload();
+      // Aquí puedes procesar los resultados obtenidos para cada trabajador
+    } catch (error) {
+      console.error("Error al obtener los datos:", error);
+    }
+  };
+
+  const handleDownload = () => {
+    rowData.forEach(async (data) => {
+      const link = document.createElement("a");
+      const pdfBlob = await pdf(<Certificado data={data} />).toBlob(); // Función para generar el blob del PDF
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      link.href = pdfUrl;
+      link.target = "_blank";
+      link.download = `Certificado-${data.nombreTrabajador}.pdf`;
+      link.click();
+    });
+  };
+
   return (
     <div className="">
       <div className="bg-white p-3">
         <h2 className="font-bold text-2xl mb-3 block">
           Reporte de certificados
         </h2>
-        <div className="flex justify-between gap-3 mb-2">
-          <div>
+        <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
+          <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
             <select
               className="select select-bordered select-sm"
               id="searchSelect"
@@ -289,11 +342,19 @@ const ReporteCertificado = () => {
               })}
             </select>
           </div>
-          <Button
-            description="Exportar"
-            event={crearExcel}
-            icon={faFileExport}
-          />
+          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-2/5">
+            <Button
+              description="Exportar"
+              event={crearExcel}
+              icon={faFileExport}
+            />
+            <button
+              className="btn btn-sm btn-outline btn-error"
+              onClick={descargarCertificados}
+            >
+              Descargar PDFS
+            </button>
+          </div>
         </div>
 
         <div style={containerStyle}>

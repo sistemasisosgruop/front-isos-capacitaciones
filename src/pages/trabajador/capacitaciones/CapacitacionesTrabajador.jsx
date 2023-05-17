@@ -22,6 +22,7 @@ import { months } from "../../../config";
 import getYearsBefore from "../../../utils/yearsBefore";
 import { getExamen } from "../../../services/examenes";
 import { initialFormPreguntas } from "./config";
+import { hideLoader, showLoader } from "../../../utils/loader";
 
 const CapacitacionesTrabajador = () => {
   const [selectMonth, setSelectMonth] = useState("");
@@ -32,6 +33,7 @@ const CapacitacionesTrabajador = () => {
   const [dataCertificado, setDataCertificado] = useState("");
   const [years, setYears] = useState([]);
   const [reFetchData, setReFetchData] = useState(true);
+  const [descripcionModal, setDescripcionModal] = useState('')
 
   const [isOpen, openModal, closeModal] = useModals();
   const [isOpenCerti, openModalCerti, closeModalCerti] = useModals();
@@ -118,7 +120,9 @@ const CapacitacionesTrabajador = () => {
   };
 
   const verPreguntas = (capacitacion) => {
+    setDescripcionModal(capacitacion.capacitacion.nombre)
     openModal();
+    showLoader();
     const capacitacionId = capacitacion.capacitacion.id;
     getPreguntas(capacitacionId).then(({ data }) => {
       const newData = data.preguntas.map((pregunta) => {
@@ -141,6 +145,7 @@ const CapacitacionesTrabajador = () => {
       newDataFormPreguntas.capacitacionId = capacitacionId;
       newDataFormPreguntas.preguntas = newData;
       setFormPreguntas(newDataFormPreguntas);
+      hideLoader();
     });
   };
 
@@ -180,6 +185,7 @@ const CapacitacionesTrabajador = () => {
             position: "bottom-right",
           });
           setReFetchData(!reFetchData);
+          closeModal();
         } else {
           toast.error(message, {
             position: "bottom-right",
@@ -268,13 +274,12 @@ const CapacitacionesTrabajador = () => {
             <SinRegistros />
           )}
         </div>
-
         <Modal
           isOpen={isOpen}
           openModal={openModal}
           closeModal={closeModal}
           size={"modal-md"}
-          title="Dar evaluación"
+          title={descripcionModal}
         >
           {formPreguntas.preguntas.map((objPregunta, index) => {
             return (
