@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 
-import { AuthContext } from "../../context/auth/authContext";
+import { AuthContext } from "../../context/auth/AuthContext";
 import { useForm } from "../../hooks/useForms";
 import validate from "./validateForm";
 import { postAuth } from "../../services/auth";

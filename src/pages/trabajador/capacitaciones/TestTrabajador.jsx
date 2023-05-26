@@ -9,7 +9,7 @@ import { months } from "../../../config";
 import getYearsBefore from "../../../utils/yearsBefore";
 import { getTests } from "../../../services/test";
 import { getTrabajador } from "../../../services/trabajador";
-import { AuthContext } from "../../../context/auth/authContext";
+import { AuthContext } from "../../../context/auth/AuthContext";
 import { useContext } from "react";
 
 const TestTrabajador = () => {

@@ -1,7 +1,7 @@
 import { Navigate } from "react-router";
 import { useLoaderData } from "react-router-dom";
 import { useContext } from "react";
-import { AuthContext } from "../context/auth/authContext.jsx";
+import { AuthContext } from "../context/auth/AuthContext.jsx";
 import { validToken } from "../services/auth.js";
 
 const ProtectedRoute =  ({ expectedRoles, children }) => {

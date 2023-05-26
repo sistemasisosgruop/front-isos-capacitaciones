@@ -15,7 +15,7 @@ import Button from "../../../components/Button";
 import randomArray from "../../../utils/randomArray";
 import { toast } from "react-toastify";
 import { getReporte, patchDarExamen } from "../../../services/reportes";
-import { AuthContext } from "../../../context/auth/authContext";
+import { AuthContext } from "../../../context/auth/AuthContext";
 import { formatDateDb, formatDateYMD } from "../../../utils/formtDate";
 import { getImgs } from "../../../services/empresa";
 import { months } from "../../../config";

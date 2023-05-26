@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 
 import { RouterProvider } from "react-router";
 import router from "./routes/RouterConfig";
-import AuthProvider from "./context/auth/authProvider";
+import AuthProvider from "./context/auth/AuthProvider";
 import { ProSidebarProvider } from "react-pro-sidebar";
 
 import { ToastContainer } from "react-toastify";

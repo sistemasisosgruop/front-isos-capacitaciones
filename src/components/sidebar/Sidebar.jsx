@@ -7,7 +7,7 @@ import {
 import logoIsos from "../../assets/img/logoIsos.svg";
 import NavBar from "../NavBar";
 import ItemsAdmin from "./ItemsAdmin";
-import { AuthContext } from "../../context/auth/authContext";
+import { AuthContext } from "../../context/auth/AuthContext";
 import { useContext } from "react";
 import ItemsTrabajador from "./ItemsTrabajador";
 
