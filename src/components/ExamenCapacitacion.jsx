@@ -21,19 +21,19 @@ const styles = StyleSheet.create({
     padding: "8px",
   },
   title: {
-    fontSize: "25pt",
+    fontSize: "20pt",
     textTransform: "uppercase",
   },
   subtitle: {
-    fontSize: "16pt",
+    fontSize: "11pt",
     textTransform: "uppercase",
     marginBottom:'3px'
   },
   descripcion: {
-    fontSize: "13pt",
+    fontSize: "9pt",
   },
   descripcionSelect: {
-    fontSize: "13pt",
+    fontSize: "11pt",
     backgroundColor:'#BACAC4'
   },
 });
@@ -76,7 +76,7 @@ const ExamenCapacitacion = ({ data }) => {
               <Text style={styles.subtitle}>Edad</Text>
               <Text
                 style={styles.descripcion}
-              >{`${data.trabajador.cargo}`}</Text>
+              >{`${data.trabajador.edad}`}</Text>
             </View>
             <View style={styles.dataList}>
               <Text style={styles.subtitle}>Sexo</Text>
