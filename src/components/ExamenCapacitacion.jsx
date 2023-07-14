@@ -1,10 +1,4 @@
-import {
-  Page,
-  Text,
-  View,
-  Document,
-  StyleSheet,
-} from "@react-pdf/renderer";
+import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
 
 const styles = StyleSheet.create({
   page: {
@@ -21,20 +15,20 @@ const styles = StyleSheet.create({
     padding: "8px",
   },
   title: {
-    fontSize: "20pt",
+    fontSize: "18pt",
     textTransform: "uppercase",
   },
   subtitle: {
     fontSize: "11pt",
     textTransform: "uppercase",
-    marginBottom:'3px'
+    marginBottom: "3px",
   },
   descripcion: {
     fontSize: "9pt",
   },
   descripcionSelect: {
     fontSize: "11pt",
-    backgroundColor:'#BACAC4'
+    backgroundColor: "#BACAC4",
   },
 });
 
@@ -49,12 +43,33 @@ const ExamenCapacitacion = ({ data }) => {
       <Page size="A4" orientation="portrait" style={styles.page}>
         <View style={styles.container}>
           <View style={styles.main}>
-            <View style={styles.dataList}>
-              <Text style={styles.title}>{data.nombreCapacitacion}</Text>
+            <View
+              style={[
+                styles.dataList,
+                {
+                  display: "flex",
+                  justifyContent: "space-between",
+                  flexDirection: "row",
+                },
+              ]}
+            >
+              <View
+                style={{ width: "90%" }}
+              >
+                <Text style={styles.title}>{data.nombreCapacitacion}</Text>
+              </View>
+              <View
+                style={{ width: "5%" }}
+              >
+                <Text style={{textAlign:"center", fontSize: 8}}>NOTA</Text>
+                <Text style={{textAlign:"center", fontSize: 12}}>{data?.notaExamen}</Text>
+              </View>
             </View>
             <View style={styles.dataList}>
               <Text style={styles.subtitle}>DNI</Text>
-              <Text style={styles.descripcion}>{`${data.trabajador?.dni}`}</Text>
+              <Text
+                style={styles.descripcion}
+              >{`${data.trabajador?.dni}`}</Text>
             </View>
             <View style={styles.dataList}>
               <Text style={styles.subtitle}>apellidos y nombres</Text>
@@ -88,23 +103,53 @@ const ExamenCapacitacion = ({ data }) => {
               return (
                 <View key={index} style={styles.dataList}>
                   <Text style={styles.subtitle}>{pregunta.texto}</Text>
-                  <Text style={pregunta.respuestaTrabajador === 1 ? styles.descripcionSelect : styles.descripcion }>
-                   - {pregunta.opcion1}
-                   </Text>
-                  <Text style={pregunta.respuestaTrabajador === 2 ? styles.descripcionSelect : styles.descripcion }>
-                   - {pregunta.opcion2}
-                   </Text>
-                  <Text style={pregunta.respuestaTrabajador === 3 ? styles.descripcionSelect : styles.descripcion }>
-                   - {pregunta.opcion3}
-                   </Text>
-                  <Text style={pregunta.respuestaTrabajador === 4 ? styles.descripcionSelect : styles.descripcion }>
-                   - {pregunta.opcion4}
-                   </Text>
-                  <Text style={pregunta.respuestaTrabajador === 5 ? styles.descripcionSelect : styles.descripcion }>
-                   - {pregunta.opcion5}
-                   </Text>
+                  <Text
+                    style={
+                      pregunta.respuestaTrabajador === 1
+                        ? styles.descripcionSelect
+                        : styles.descripcion
+                    }
+                  >
+                    - {pregunta.opcion1}
+                  </Text>
+                  <Text
+                    style={
+                      pregunta.respuestaTrabajador === 2
+                        ? styles.descripcionSelect
+                        : styles.descripcion
+                    }
+                  >
+                    - {pregunta.opcion2}
+                  </Text>
+                  <Text
+                    style={
+                      pregunta.respuestaTrabajador === 3
+                        ? styles.descripcionSelect
+                        : styles.descripcion
+                    }
+                  >
+                    - {pregunta.opcion3}
+                  </Text>
+                  <Text
+                    style={
+                      pregunta.respuestaTrabajador === 4
+                        ? styles.descripcionSelect
+                        : styles.descripcion
+                    }
+                  >
+                    - {pregunta.opcion4}
+                  </Text>
+                  <Text
+                    style={
+                      pregunta.respuestaTrabajador === 5
+                        ? styles.descripcionSelect
+                        : styles.descripcion
+                    }
+                  >
+                    - {pregunta.opcion5}
+                  </Text>
                 </View>
-              );  
+              );
             })}
           </View>
         </View>

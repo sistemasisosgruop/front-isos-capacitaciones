@@ -57,6 +57,7 @@ const ReporteCertificado = () => {
   const initColumDefs = [
     { field: "trabajadorId", headerName: "# trabajador" },
     { field: "nombreTrabajador", headerName: "Nombre trabajador" },
+    { field: "mesExamen", hide:true},
     { field: "nombreCapacitacion", headerName: "Capacitación" },
     { field: "nombreEmpresa" },
     { field: "fechaExamen", headerName: "Fecha de examen" },
@@ -77,40 +78,21 @@ const ReporteCertificado = () => {
       minWidth: 100,
     };
   }, []);
-
+  const getReportes = async () => {
+    const response = await getReporte();
+    console.log(response);
+    if (response.status === 200) {
+      setDataReporte(response.data);
+      setRowData(response.data);
+    } else {
+      toast.error("Ocurrio un error en el servidor", {
+        position: "bottom-right",
+      });
+    }
+  };
   //cargar la informacion de la tabla
   const onGridReady = useCallback((params) => {
-    getReporte().then(({ data }) => {
-      if (data) {
-        const array = [];
-
-        data.forEach((e) => {
-          array.push(getEmpresa(e.trabajador.empresaId));
-        });
-
-        Promise.all(array).then((res) => {
-          res.map((empresa, index) => {
-            const nombreTrabajador = `${data[index].trabajador.nombres} ${data[index].trabajador.apellidoPaterno} ${data[index].trabajador.apellidoMaterno}`;
-
-            const fechaExamen = data[index].examen.fechadeExamen;
-            const d = new Date(fechaExamen);
-            let month = d.getMonth() + 1;
-
-            data[index].nombreEmpresa = empresa.data.nombreEmpresa;
-            data[index].nombreCapacitacion = data[index].capacitacion.nombre;
-            data[index].nombreTrabajador = nombreTrabajador;
-            data[index].fechaExamen = fechaExamen;
-            data[index].mesExamen = month;
-          });
-          setDataReporte(data);
-          setRowData(data);
-        });
-      } else {
-        toast.error("Ocurrio un error en el servidor", {
-          position: "bottom-right",
-        });
-      }
-    });
+    getReportes()
   }, []);
 
   useEffect(() => {
@@ -277,7 +259,9 @@ const ReporteCertificado = () => {
   const handleDownload = () => {
     rowData.forEach(async (data) => {
       const link = document.createElement("a");
-      const pdfBlob = await pdf(<Certificado data={data} />).toBlob(); // Función para generar el blob del PDF
+      const srcLogo = URL.createObjectURL(new Blob([data.logo]));
+      console.log(srcLogo);
+      const pdfBlob = await pdf(<Certificado data={data} logo={srcLogo} />).toBlob(); // Función para generar el blob del PDF
       const pdfUrl = URL.createObjectURL(pdfBlob);
       link.href = pdfUrl;
       link.target = "_blank";

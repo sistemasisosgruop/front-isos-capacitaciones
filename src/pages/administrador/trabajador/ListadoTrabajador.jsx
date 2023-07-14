@@ -92,6 +92,7 @@ const ListadoTrabajador = () => {
     { field: "dni", headerName: "DNI" },
     { field: "edad", headerName: "Edad" },
     { field: "areadetrabajo", headerName: "Area" },
+    { field: "celular", headerName: "Celular" },
     { field: "cargo", headerName: "Cargo" },
     { field: "nombreEmpresa", headerName: "Empresa" },
     {
@@ -135,7 +136,6 @@ const ListadoTrabajador = () => {
     const arrayItems = [data];
     gridRef.current.api.applyTransaction({ remove: arrayItems });
   }, []);
-
   //cargar la informacion de la tabla
   const onGridReady = useCallback(
     (params) => {

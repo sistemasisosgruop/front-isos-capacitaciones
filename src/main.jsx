@@ -12,7 +12,8 @@ import { ToastContainer } from "react-toastify";
 import "./styles/global.css";
 import 'react-toastify/dist/ReactToastify.css';
 import Loader from "./components/loader/Loader";
-
+import ReactModal from 'react-modal';
+ReactModal.setAppElement('#root');
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider>

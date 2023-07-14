@@ -71,7 +71,7 @@ const SidebarCustom = ({ children }) => {
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
-      <Sidebar breakPoint="md" width="200px" backgroundColor="#ffff">
+      <Sidebar breakPoint="md" width="230px" backgroundColor="#ffff">
         <Menu menuItemStyles={menuItemStyles}>
           <div className="flex justify-center">
             <div className="w-24 h-24 bg-white flex justify-center items-center rounded-full p-5">

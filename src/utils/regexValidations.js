@@ -4,5 +4,6 @@ export default {
   ruc: /^\d{11}$/,
   number:/^\d+(\.\d+)?$/,
   dni:/\b\d{8}\b/,
-  url:/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/
+  url:/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/,
+  celular:/^\d{9}$/
 }

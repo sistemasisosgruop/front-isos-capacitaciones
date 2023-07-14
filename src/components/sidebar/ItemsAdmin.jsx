@@ -43,6 +43,12 @@ const ItemsAdmin = () => {
       >
         Reportes
       </MenuItem>
+      <MenuItem
+        component={<Link to="./admin/constancia/opciones" />}
+        icon={<FontAwesomeIcon icon={faFileInvoice} />}
+      >
+        Constancia de EMO
+      </MenuItem>
     </>
   );
 };

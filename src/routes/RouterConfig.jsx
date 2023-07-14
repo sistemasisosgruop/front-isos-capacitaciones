@@ -17,6 +17,7 @@ import ReporteExameAsistencia from "../pages/administrador/reportes/ReporteExame
 import ReporteCertificado from "../pages/administrador/reportes/ReporteCertificado";
 import TestTrabajador from "../pages/trabajador/capacitaciones/TestTrabajador";
 import validateToken from "./validateToken";
+import OpcionesEmos from "../pages/administrador/emos/opcionesReportes"
 
 const router = createBrowserRouter([
   {
@@ -82,6 +83,13 @@ const router = createBrowserRouter([
                 ),
               },
               { path: "certificados", element: <ReporteCertificado /> },
+            ],
+          },
+          {
+            path: "constancia",
+            element: <Outlet />,
+            children: [
+              { path: "opciones", element: <OpcionesEmos /> },
             ],
           },
           { path: "*", element: <Navigate to="/menu/admin/opciones" /> },

@@ -4,14 +4,15 @@ const initialForm = {
   apellidoPaterno: "",
   apellidoMaterno: "",
   dni: "",
-  genero: "",
   edad: "",
-  areadetrabajo: "",
+  area: "",
   cargo: "",
-  fechadenac: "",
-  password: "",
-  empresa: "",
-  celular: ""
+  nombreEmpresa: "",
+  fecha_examen: "",
+  condicion: "",
+  clinica: "",
+  lectura_emo: ""
+
 };
 
 const initialFormImport = {

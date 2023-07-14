@@ -36,6 +36,7 @@ const FormularioTrabajador = ({
     fechadenac,
     password,
     empresa,
+    celular,
 
     nombresValid,
     apellidoPaternoValid,
@@ -48,7 +49,7 @@ const FormularioTrabajador = ({
     fechadenacValid,
     passwordValid,
     empresaValid,
-
+    celularValid,
     formState,
     isFormValid,
     onInputChange,
@@ -240,8 +241,25 @@ const FormularioTrabajador = ({
             <p className="text-sm text-red-700">{edadValid}</p>
           )}
         </div>
+
       </div>
       <div className="flex flex-col md:flex-row  gap-3 mb-2">
+      <div className="w-full md:w-1/3">
+          <label htmlFor="edad" className="font-semibold">
+            Celular
+          </label>
+          <input
+            type="number"
+            name="celular"
+            id="celular"
+            className="input input-bordered input-sm w-full"
+            value={celular}
+            onChange={onInputChange}
+          />
+          {!!celularValid && formSubmitted && (
+            <p className="text-sm text-red-700">{celularValid}</p>
+          )}
+        </div>
         <div className="w-full md:w-1/3">
           <label htmlFor="areadetrabajo" className="font-semibold">
             Área de trabajo
