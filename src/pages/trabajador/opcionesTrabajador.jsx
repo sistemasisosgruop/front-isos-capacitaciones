@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faListOl,
-  faChalkboardTeacher,
+  faChalkboardTeacher,faDownload
 } from "@fortawesome/free-solid-svg-icons";
 
 const opcionesTrabajador = () => {
@@ -18,8 +18,8 @@ const opcionesTrabajador = () => {
             <FontAwesomeIcon icon={faListOl} size="3x" />
         </Link>
         <Link to="../evaluacion" className="bg-white text-center p-5 rounded-2xl shadow-xl w-3/4 md:w-1/2">
-            <h3 className="font-bold text-lg mb-3">Descarga Evaluación medica</h3>
-            <FontAwesomeIcon icon={faListOl} size="3x" />
+            <h3 className="font-bold text-lg mb-3">Evaluación médica</h3>
+            <FontAwesomeIcon icon={faDownload} size="3x" />
         </Link>
       </div>
     </div>

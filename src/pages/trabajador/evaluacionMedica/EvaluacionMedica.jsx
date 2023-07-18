@@ -28,7 +28,7 @@ const EvaluacionMedica = () => {
         <div className="flex flex-grow justify-center items-center" >
           <div className="bg-white text-center p-5 rounded-2xl shadow-xl w-full md:w-1/4" style={{cursor:"pointer"}} onClick={openModal}>
             <h3 className="font-bold text-lg mb-3">
-              Descargar Evaluación Medica
+              Descargar Evaluación Médica
             </h3>
             <FontAwesomeIcon icon={faDownload} size="3x" />
           </div>

@@ -23,7 +23,7 @@ const ItemsTrabajador = () => {
         component={<Link to="./trabajador/evaluacion" />}
         icon={<FontAwesomeIcon icon={faListOl} />}
       >
-        Evaluación medica
+        Evaluación médica
       </MenuItem>
     </>
   );
