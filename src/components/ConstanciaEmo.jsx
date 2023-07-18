@@ -51,7 +51,7 @@ const ConstanciaEmo = ({ data, logo }) => {
       fontSize: 12,
     },
     table: {
-      fontSize: 14,
+      fontSize: 12,
     },
     paragraph1: {
       textAlign: "justify",
@@ -104,7 +104,7 @@ const ConstanciaEmo = ({ data, logo }) => {
         <View style={styles.container}>
           <View style={styles.header}>
             <View>
-              <Image src={logo} style={{ width: "120px", height: "50px" }} />
+              <Image src={logo} style={{ width: "100px", height: "70px" }} />
             </View>
             <View>
               <Text>{data.nombreEmpresa}</Text>
@@ -119,57 +119,118 @@ const ConstanciaEmo = ({ data, logo }) => {
               <Text style={[styles.paragraph2, { fontWeight: "bold" }]}>
                 Yo, {data.apellidoMaterno} {data.apellidoPaterno} {data.nombres}
                 , identificado (a) con DNI Nº {data.dni}, quien ocupa el cargo
-                de:
-                {data.cargo} mediante el presente documento dejo constancia de
-                haber recibido, de manera personalizada y por parte del médico
-                ocupacional de la empresa el informe médico de los resultados
-                del Examen Médico Ocupacional (EMO) de tipo: Que me fue
-                realizado por mi empleador EPSEMHCO S.A. en la fecha:
+                de: {data.cargo} mediante el presente documento dejo constancia
+                de haber recibido, de manera personalizada y por parte del
+                médico ocupacional de la empresa el informe médico de los
+                resultados del Examen Médico Ocupacional (EMO) de tipo: Que me
+                fue realizado por mi empleador EPSEMHCO S.A. en la fecha:
                 {data.fecha_examen} en la clínica {data.clinica}.
               </Text>
 
-              <Text style={styles.title2}>CONDICIÓN DE APTITUD:</Text>
-              <View style={[styles.table, { marginTop: 10 }]}>
-                <View style={styles.row}>
-                  <View style={[styles.tableBorder1, { width: "5%" }]}>
-                    <Text style={{ width: "100%", textAlign:"center" }}>
+              <View style={{ marginTop: 20 }}>
+                <Text style={{ fontSize: 12 }}>CONDICIÓN DE APTITUD:</Text>
+
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    marginTop: "20px",
+                    textAlign: "center",
+                  }}
+                >
+                  <View
+                    style={{
+                      borderWidth: 1,
+                      borderColor: "black",
+                      width: "40px",
+                    }}
+                  >
+                    {" "}
+                    <Text>
                       {data.condicion_aptitud === "APTO" ? "X" : ""}
-                    </Text>
+                    </Text>{" "}
                   </View>
-                  <View style={styles.tableBorder}>
+                  <View
+                    style={{
+                      borderWidth: 1,
+                      borderLeftWidth: "none",
+                      borderColor: "black",
+                      width: "200px",
+                      textAlign: "center",
+                    }}
+                  >
                     <Text>APTO</Text>
                   </View>
                 </View>
-              </View>
-              <View style={styles.table}>
-                <View style={[styles.row, {borderColor: "red", borderWidth:1}]}>
-                  <View style={[styles.tableBorder1, { width: "10%" }]}>
-                    <Text style={{ width: "100%", textAlign:"center" }}>
-                     
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    textAlign: "center",
+                  }}
+                >
+                  <View
+                    style={{
+                      borderWidth: 1,
+                      borderColor: "black",
+                      width: "40px",
+                      borderTopWidth: "none",
+                    }}
+                  >
+                    {" "}
+                    <Text>
                       {data.condicion_aptitud === "APTO CON RESTRICCIONES"
                         ? "X"
                         : ""}
-                    </Text>
+                    </Text>{" "}
                   </View>
-                  <View style={styles.tableBorder}>
+                  <View
+                    style={{
+                      borderWidth: 1,
+                      borderColor: "black",
+                      width: "200px",
+                      textAlign: "center",
+                      borderTopWidth: "none",
+                      borderLeftWidth: "none",
+                    }}
+                  >
                     <Text>APTO CON RESTRICCIONES</Text>
                   </View>
                 </View>
-              </View>
-              <View style={styles.table}>
-                <View style={styles.row}>
-                  <View style={[styles.tableBorder1, { width: "10%" }]}>
-                    <Text style={{ width: "100%", textAlign:"center" }}>
-                      
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    textAlign: "center",
+                  }}
+                >
+                  <View
+                    style={{
+                      borderWidth: 1,
+                      borderColor: "black",
+                      width: "40px",
+                      borderTopWidth: "none",
+                    }}
+                  >
+                    {" "}
+                    <Text>
                       {data.condicion_aptitud === "NO APTO" ? "X" : ""}
-                    </Text>
+                    </Text>{" "}
                   </View>
-                  <View style={styles.tableBorder}>
+                  <View
+                    style={{
+                      borderWidth: 1,
+                      borderColor: "black",
+                      width: "200px",
+                      textAlign: "center",
+                      borderTopWidth: "none",
+                      borderLeftWidth: "none",
+                    }}
+                  >
                     <Text>NO APTO</Text>
                   </View>
                 </View>
               </View>
-
               <View>
                 <Text style={styles.paragraph2}>
                   Así mismo, he sido informado(a) sobre los hallazgos, se me ha
@@ -204,22 +265,6 @@ const ConstanciaEmo = ({ data, logo }) => {
               </View>
               <View style={{ marginTop: "5px" }}>
                 <Text>DNI -- {data.dni}</Text>
-              </View>
-            </View>
-
-            <View
-              style={[
-                styles.footerContainer,
-                {
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                },
-              ]}
-            >
-              <View style={styles.huella}></View>
-              <View style={{ marginTop: "5px" }}>
-                <Text>HUELLA DIGITAL</Text>
               </View>
             </View>
           </View>

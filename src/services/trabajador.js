@@ -13,6 +13,7 @@ const postImportar = (id, data) => {
     .catch(objErrorApi);
 };
 
+
 const patchTrabajador = (data) => {
   const { id, habilitado, reporte, nombreEmpresa, ...dataFormat } = data;
   return baseApi(stepApi)

@@ -18,9 +18,14 @@ const initialFormImport = {
   excel: "",
   empresa: "",
 };
+const initialFormEmo = {
+  pdf: "",
+  empresa: "",
+};
 
 
 export {
   initialForm,
-  initialFormImport
+  initialFormImport,
+  initialFormEmo
 }

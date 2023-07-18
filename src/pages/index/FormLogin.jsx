@@ -39,6 +39,7 @@ const FormLogin = () => {
         if (status === 200) {
           const rol = data.user.rol;
           const token = data.token;
+          const dni = data.user.dni;
           let idUsuario = null;
           let rutaInicio = "";
 
@@ -47,13 +48,13 @@ const FormLogin = () => {
             const apellidoPaterno = "";
             rutaInicio = "/menu/admin/opciones";
             idUsuario = data.admin.id;
-            login({ nombres, apellidoPaterno, token, idUsuario, rol });
+            login({ nombres, apellidoPaterno, token, idUsuario, rol, dni });
           } else {
             const nombres = data.worker.nombres;
             const apellidoPaterno = data.worker.apellidoPaterno;
             idUsuario = data.worker.id;
             rutaInicio = "/menu/trabajador/opciones";
-            login({ nombres, apellidoPaterno, token, idUsuario, rol });
+            login({ nombres, apellidoPaterno, token, idUsuario, rol, dni });
           }
           setTimeout(() => {
             navigate(rutaInicio, {
@@ -88,7 +89,9 @@ const FormLogin = () => {
         className="input input-bordered input-sm w-full"
         onChange={onInputChange}
       />
-      {!!userValid && formSubmitted && <p className="text-sm text-red-700">{userValid}</p>}
+      {!!userValid && formSubmitted && (
+        <p className="text-sm text-red-700">{userValid}</p>
+      )}
 
       <label>Contraseña</label>
       <input
@@ -98,8 +101,9 @@ const FormLogin = () => {
         className="input input-bordered input-sm w-full mb-3"
         onChange={onInputChange}
       />
-      {!!passwordValid && formSubmitted && 
-        <p className="text-sm text-red-700">{passwordValid}</p>}
+      {!!passwordValid && formSubmitted && (
+        <p className="text-sm text-red-700">{passwordValid}</p>
+      )}
 
       <div className="text-center">
         <Button description="Iniciar sesion" />

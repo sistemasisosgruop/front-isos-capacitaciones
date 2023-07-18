@@ -9,8 +9,8 @@ const formatDateYMD = (date) => {
   return [
     dateFormat.getFullYear(),
     padTo2Digits(dateFormat.getMonth() + 1),
-    padTo2Digits(dateFormat.getDate() + 1),
-  ].join("/");
+    padTo2Digits(dateFormat.getDate()),
+  ].join("-");
 };
 
 const formatDateDb = (date) => {

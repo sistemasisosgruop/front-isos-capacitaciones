@@ -5,7 +5,6 @@ import authReducer from "./authReducer";
 
 const getUserLocalStorage = () => {
   const user = JSON.parse(localStorage.getItem("userIsos"));
-  console.log(user);
   const userFormat = user
     ? { logged: true, user: user }
     : { logged: false, user: {} };
@@ -21,10 +20,12 @@ const AuthProvider = ({ children }) => {
   );
 
   const login = (user = {}) => {
+    console.log(user);
     const action = {
       type: types.login,
       payload: user,
     };
+    console.log("Este es user:" + user);
     localStorage.setItem("userIsos", JSON.stringify(user));
     dispatch(action);
   };
@@ -35,6 +36,7 @@ const AuthProvider = ({ children }) => {
       payload: {},
     };
     localStorage.removeItem("userIsos");
+
     dispatch(action);
   };
 

@@ -17,6 +17,10 @@ const opcionesTrabajador = () => {
             <h3 className="font-bold text-lg mb-3">TEST</h3>
             <FontAwesomeIcon icon={faListOl} size="3x" />
         </Link>
+        <Link to="../evaluacion" className="bg-white text-center p-5 rounded-2xl shadow-xl w-3/4 md:w-1/2">
+            <h3 className="font-bold text-lg mb-3">Descarga Evaluación medica</h3>
+            <FontAwesomeIcon icon={faListOl} size="3x" />
+        </Link>
       </div>
     </div>
   );

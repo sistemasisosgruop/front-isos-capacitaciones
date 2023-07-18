@@ -128,17 +128,7 @@ const VisualizarRegistroEmo = () => {
     {
       field: "fecha_examen",
       headerName: "FECHA EXAMEN MÉDICO",
-      // center: true,
-      // valueFormatter: (params) => {
-      //   // Obtener la fecha original del valor de la celda
-      //   const fechaOriginal = params.value;
-
-      //   // Utilizar Day.js para formatear la fecha al formato deseado
-      //   const fechaFormateada = dayjs(fechaOriginal, ["DD-MM-YYYY", "YYYY-MM-DD"]).format("DD/MM/YYYY");
-
-      //   // Devolver la fecha formateada para mostrarla en la celda
-      //   return fechaFormateada;
-      // },
+      center: true,
     },
     {
       field: "condicion_aptitud",
@@ -164,8 +154,8 @@ const VisualizarRegistroEmo = () => {
     gridRef.current.api.setQuickFilter(e.target.value);
   }, []);
 
-  const handleDownload = async (data) => {
-    if (data) {
+  const handleDownload = async (data)=> {
+
       const logo = await getImgs(data.empresa_id, "logo");
       const srcLogo = URL.createObjectURL(new Blob([logo.data]));
       const link = document.createElement("a");
@@ -177,35 +167,33 @@ const VisualizarRegistroEmo = () => {
       link.target = "_blank";
       link.download = `Constancia-${data.nombres}.pdf`;
       link.click();
+  }
+
+  const handleDownloadMulitple = async (data) => {
+
+    const filterData = rowData.filter(
+      (item) => item.nombreEmpresa === selectFilter
+    );
+    if (filterData.length > 0) {
+      const logo = await getImgs(filterData[0].empresa_id, "logo");
+      const srcLogo = URL.createObjectURL(new Blob([logo.data]));
+      filterData.forEach(async (data) => {
+        const link = document.createElement("a");
+        const pdfBlob = await pdf(
+          <ConstanciaEmo data={data} logo={srcLogo} />
+        ).toBlob();
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        link.href = pdfUrl;
+        link.target = "_blank";
+        link.download = `Constancia-${
+          data.apellidoMaterno + " " + data.apellidoPaterno + " " + data.nombres
+        }.pdf`;
+        link.click();
+      });
     } else {
-      const filterData = rowData.filter(
-        (item) => item.nombreEmpresa === selectFilter
-      );
-      if (filterData.length > 0) {
-        const logo = await getImgs(filterData[0].empresa_id, "logo");
-        const srcLogo = URL.createObjectURL(new Blob([logo.data]));
-        filterData.slice(0, 1).forEach(async (data) => {
-          const link = document.createElement("a");
-          const pdfBlob = await pdf(
-            <ConstanciaEmo data={data} logo={srcLogo} />
-          ).toBlob();
-          const pdfUrl = URL.createObjectURL(pdfBlob);
-          link.href = pdfUrl;
-          link.target = "_blank";
-          link.download = `Constancia-${
-            data.apellidoMaterno +
-            " " +
-            data.apellidoPaterno +
-            " " +
-            data.nombres
-          }.pdf`;
-          link.click();
-        });
-      } else {
-        toast.error("Seleccione una empresa para descargar el pdf.", {
-          position: "bottom-right",
-        });
-      }
+      toast.error("Seleccione una empresa para descargar el pdf.", {
+        position: "bottom-right",
+      });
     }
   };
 
@@ -248,7 +236,7 @@ const VisualizarRegistroEmo = () => {
           />
           <button
             className="btn btn-sm btn-outline btn-error"
-            onClick={handleDownload}
+            onClick={handleDownloadMulitple}
           >
             Descargar
           </button>
@@ -299,6 +287,7 @@ const VisualizarRegistroEmo = () => {
           setRefetchData={setRefetchData}
           closeModal={closeModalImport}
           empresas={empresas}
+          actualizar={onGridReady}
         />
       </Modal>
     </div>

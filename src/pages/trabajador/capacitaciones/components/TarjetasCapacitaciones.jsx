@@ -2,6 +2,8 @@ const TarjetasCapacitaciones = ({ data, verPreguntas, verCertificado }) => {
   let backgroundEstado = null;
   let descripcionEstado = null;
 
+  
+
   if (!data.asistenciaExamen) {
     descripcionEstado = "Pendiente";
     backgroundEstado = " rgb(148 163 184)";

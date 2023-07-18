@@ -20,9 +20,26 @@ const getTrabajadorEmo = () => {
     .catch(objErrorApi);
 };
 
-const postImportarExcel = (id, data) => {
+const getDescargaEmo = (id, ) => {
+  return baseApi(stepApi)
+    .get(`/descargar/${id}`)
+    .catch(objErrorApi);
+};
+
+const getReporteEmo = () => {
+  return baseApi(stepApi)
+    .get("/reporte")
+    .catch(objErrorApi);
+};
+
+const postImportarExcel = (data) => {
   return baseApi(stepApi)
     .post(`/excel`, data)
+    .catch(objErrorApi);
+};
+const postEmo = (id, data) => {
+  return baseApi(stepApi)
+    .post(`/subir/${id}`, data)
     .catch(objErrorApi);
 };
 const updateTrabajadorEmo = (id, data) => {
@@ -43,4 +60,4 @@ const updateTrabajadorEmo = (id, data) => {
 //     .catch(objErrorApi);
 // };
 
-export { getTrabajadorEmo, postImportarExcel, updateTrabajadorEmo };
+export { getTrabajadorEmo, postImportarExcel, updateTrabajadorEmo, postEmo, getReporteEmo, getDescargaEmo };

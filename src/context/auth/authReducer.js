@@ -9,6 +9,7 @@ const authReducer = (state = {}, action) => {
         user: {
           ...action.payload
         },
+        
       };
       break;
 

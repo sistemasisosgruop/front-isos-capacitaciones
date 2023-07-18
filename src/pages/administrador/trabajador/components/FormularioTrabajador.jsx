@@ -68,7 +68,7 @@ const FormularioTrabajador = ({
     const newFormDate = formatDateYMD(newFormat.fechadenac);
 
     jsonData.empresaId = empresa;
-    jsonData.fechadenac = newFormDate;
+    // jsonData.fechadenac = newFormDate;
     
     if (action === "ADD") {
       //reset 

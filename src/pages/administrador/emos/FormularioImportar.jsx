@@ -8,7 +8,7 @@ import { initialFormImport } from "../trabajador/config";
 import { postImportarExcel } from "../../../services/emo";
 import { initialForm } from "./config";
 
-const FormularioImportar = ({ empresas, closeModal, setRefetchData }) => {
+const FormularioImportar = ({ empresas, closeModal, setRefetchData,actualizar }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
   const {
@@ -28,7 +28,7 @@ const FormularioImportar = ({ empresas, closeModal, setRefetchData }) => {
     data.append("file", excel);
 
     showLoader();
-    postImportarExcel(empresa, data).then(({ data, message = null }) => {
+    postImportarExcel(data).then(({ data, message = null }) => {
       if (data) {
         toast.success(message || "Agregado con exito", {
           position: "bottom-right",
@@ -43,7 +43,6 @@ const FormularioImportar = ({ empresas, closeModal, setRefetchData }) => {
   };
   return (
     <form onSubmit={handleForm}>
-
       <input
         type="file"
         name="excel"

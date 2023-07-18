@@ -27,10 +27,13 @@ import {
   faFileExport,
   faCheckCircle,
   faTimesCircle,
+  faCheck,
+  faClose,
 } from "@fortawesome/free-solid-svg-icons";
 import FormularioImportar from "./components/FormularioImportar";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import FormularioEmo from "./components/FormularioEmo";
 
 const ListadoTrabajador = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
@@ -46,6 +49,7 @@ const ListadoTrabajador = () => {
   const [empresas, setEmpresas] = useState([]);
   const [refetchData, setRefetchData] = useState(false);
   const [descripcionModal, setDescripcionModal] = useState("");
+  const [modalEmo, setModalEmo] = useState(false);
   const gridRef = useRef();
 
   useEffect(() => {
@@ -74,13 +78,29 @@ const ListadoTrabajador = () => {
 
   const renderButtonsEstado = ({ data }) => {
     return (
-      <label className="cursor-pointer" onClick={() => openConfirm(data, "UPDATE")}>
-          {data.habilitado ? (
-            <div className="badge bg-red-500">Deshabilitar</div>
-          ) : (
-            <div className="badge bg-teal-700">Habilitar</div>
-          )}
-        </label>
+      <label
+        className="cursor-pointer"
+        onClick={() => openConfirm(data, "UPDATE")}
+      >
+        {data.habilitado ? (
+          <div className="badge bg-red-500">Deshabilitar</div>
+        ) : (
+          <div className="badge bg-teal-700">Habilitar</div>
+        )}
+      </label>
+    );
+  };
+
+  const renderButtonEmo = ({ data }) => {
+    return (
+      <label className="cursor-pointer" onClick={() => cargarEmoPdf(data)}>
+        EMO{" "}
+        {data.emoPdf !== null ? (
+          <FontAwesomeIcon style={{ color: "green" }} icon={faCheck} />
+        ) : (
+          <FontAwesomeIcon style={{ color: "red" }} icon={faClose} />
+        )}
+      </label>
     );
   };
 
@@ -94,9 +114,16 @@ const ListadoTrabajador = () => {
     { field: "areadetrabajo", headerName: "Area" },
     { field: "celular", headerName: "Celular" },
     { field: "cargo", headerName: "Cargo" },
-    { field: "nombreEmpresa", headerName: "Empresa" },
+    { field: "empresa.nombreEmpresa", headerName: "Empresa" },
     {
-      headerName: "Habil/deshab", minWidth:150,
+      field: "emoPdf",
+      headerName: "EMO",
+      cellStyle: { textAlign: "center" },
+      cellRenderer: renderButtonEmo,
+    },
+    {
+      headerName: "Habil/deshab",
+      minWidth: 150,
       cellStyle: { textAlign: "center" },
       cellRenderer: renderButtonsEstado,
     },
@@ -136,37 +163,33 @@ const ListadoTrabajador = () => {
     const arrayItems = [data];
     gridRef.current.api.applyTransaction({ remove: arrayItems });
   }, []);
-  //cargar la informacion de la tabla
-  const onGridReady = useCallback(
-    (params) => {
-      getTrabajadores().then(({ data, message = null }) => {
-        if (data) {
-          const newData = data.map(function (obj) {
-            const { empresa, ...resObj } = obj;
-            resObj["nombreEmpresa"] = empresa.nombreEmpresa;
-            return resObj;
-          });
-          setRowData(newData);
-        } else {
-          toast.error("Ocurrio un error en el servidor", {
-            position: "bottom-right",
-          });
-        }
-      });
-    },
-    []
-  );
-  useEffect(() => {
-    
-    onGridReady();
 
-  }, [refetchData])
-  
+  const getDataTrabajador = async()=>{
+
+    const response = await getTrabajadores()
+    if(response.status === 200){
+      setRowData(response.data)
+    }
+  }
+  //cargar la informacion de la tabla
+  const onGridReady = useCallback(async(params) => {
+    await getDataTrabajador()
+  }, []);
+  useEffect(() => {
+    onGridReady();
+  }, [refetchData]);
 
   const openAddModal = () => {
     setDescripcionModal("Agregar trabajador");
     openModal1();
     setdataForm(initialForm);
+  };
+
+  const cargarEmoPdf = (data) => {
+    setDescripcionModal("SUBIR EMO DE TRABAJADOR");
+    setModalEmo(true);
+    setdataForm(data);
+    // setdataForm(initialForm);
   };
 
   const updateButton = (data) => {
@@ -236,6 +259,10 @@ const ListadoTrabajador = () => {
     }
     gridRef.current.api.setQuickFilter(e.target.value);
   }, []);
+
+  const closeModalEmo = () =>{
+    setModalEmo(false)
+  }
 
   //excel
   const crearExcel = async () => {
@@ -359,6 +386,22 @@ const ListadoTrabajador = () => {
             empresas={empresas}
           />
         </Modal>
+        <Modal
+          isOpen={modalEmo}
+          openModal={modalEmo}
+          closeModal={closeModalEmo}
+          size={"modal-sm"}
+          title={descripcionModal}
+        >
+          <FormularioEmo
+            initialForm={dataForm}
+            closeModal={closeModalEmo}
+            addItem={addItem}
+            updateRow={updateRow}
+            empresas={empresas}
+            setRefetchData={setRefetchData}
+          />
+        </Modal>
 
         <Modal
           isOpen={isOpenImport}
@@ -371,6 +414,7 @@ const ListadoTrabajador = () => {
             setRefetchData={setRefetchData}
             closeModal={closeModalImport}
             empresas={empresas}
+            actualizar = {getDataTrabajador}
           />
         </Modal>
 

@@ -27,8 +27,8 @@ const styles = StyleSheet.create({
   },
   logo: {
     position: "absolute",
-    top: "20px",
-    left: "20px",
+    top: "30px",
+    left: "700px",
     width: "140px",
     height: "auto",
   },

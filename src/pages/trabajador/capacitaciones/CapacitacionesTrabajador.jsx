@@ -23,6 +23,7 @@ import getYearsBefore from "../../../utils/yearsBefore";
 import { getExamen } from "../../../services/examenes";
 import { initialFormPreguntas } from "./config";
 import { hideLoader, showLoader } from "../../../utils/loader";
+import { pdf } from "@react-pdf/renderer";
 
 const CapacitacionesTrabajador = () => {
   const [selectMonth, setSelectMonth] = useState("");
@@ -42,7 +43,6 @@ const CapacitacionesTrabajador = () => {
   useEffect(() => {
     setYears(getYearsBefore(10));
   }, []);
-
   const filter = (obj) => {
     const [day, month, year] = formatDateDb(obj.createdAt);
     if (selectMonth !== "" && selectYear !== "") {
@@ -77,41 +77,20 @@ const CapacitacionesTrabajador = () => {
     filterData();
   }, [selectMonth, selectYear]);
 
+  const getData = async () =>{
+    const dni =JSON.parse(localStorage.getItem("userIsos")).dni;
+    const response = await getExamen(dni)
+    if(response){
+      setDataInit(response.data)
+      setData(response.data)
+    }
+
+  }
+
   useEffect(() => {
-    getReporte().then(({ data }) => {
-      const dataTrabajador = data.filter(
-        (capacitacion) =>
-          capacitacion.trabajadorId === authState.user.idUsuario &&
-          capacitacion.capacitacion.habilitado
-      );
-      const newData = dataTrabajador.map((capacitacion) => {
-        capacitacion["fechaCapacitacion"] = formatDateYMD(
-          capacitacion.createdAt
-        );
-        return capacitacion;
-      });
+    getData()
+  }, []);
 
-      const array = [];
-
-      newData.forEach((e) => {
-        array.push(getExamen(e.examen.id));
-      });
-
-      Promise.all(array).then((res) => {
-        res.map((examen, index) => {
-          newData[index]["maximaNotaExamen"] = examen.data.pregunta.reduce(
-            (acumulador, pregunta) => {
-              return acumulador + pregunta.puntajeDePregunta;
-            },
-            0
-          );
-          return examen;
-        });
-        setDataInit(newData);
-        setData(newData);
-      });
-    });
-  }, [reFetchData]);
 
   const handleFormChange = (index, event) => {
     let data = { ...formPreguntas };
@@ -186,6 +165,7 @@ const CapacitacionesTrabajador = () => {
           });
           setReFetchData(!reFetchData);
           closeModal();
+          getData()
         } else {
           toast.error(message, {
             position: "bottom-right",
@@ -194,7 +174,6 @@ const CapacitacionesTrabajador = () => {
       }
     );
   };
-
   const verCertificado = async (data) => {
     const empresaTrabajador = data.trabajador.empresaId;
     const promesas = [
@@ -202,21 +181,35 @@ const CapacitacionesTrabajador = () => {
       getImgs(empresaTrabajador, "certificado"),
       getFirmaCertificado(data.capacitacionId),
     ];
-
-    Promise.all(promesas.map((prom) => prom.then((res) => res))).then((res) => {
-      const srcLogo = URL.createObjectURL(new Blob([res[0].data]));
-      const srcCertificado = URL.createObjectURL(new Blob([res[1].data]));
-      const srcFirma = URL.createObjectURL(new Blob([res[2].data]));
-      const imagenes = { srcLogo, srcCertificado, srcFirma };
-      const horasCapacitacion = data.capacitacion.horas;
-      data["imagenes"] = imagenes;
-      data["fechaCapacitacion"] = formatDateDb(data.createdAt);
-      data["horasCapacitacion"] =
-        horasCapacitacion < 10 ? "0" + horasCapacitacion : horasCapacitacion;
-      setDataCertificado(data);
-      openModalCerti();
-    });
+  
+    Promise.all(promesas.map((prom) => prom.then((res) => new Blob([res.data]))))
+      .then((logos) => {
+        const srcLogo = URL.createObjectURL(logos[0]);
+        const srcCertificado = URL.createObjectURL(logos[1]);
+        const srcFirma = URL.createObjectURL(logos[2]);
+        const imagenes = { srcLogo, srcCertificado, srcFirma };
+        const horasCapacitacion = data.capacitacion.horas;
+        data["imagenes"] = imagenes;
+        data["fechaCapacitacion"] = formatDateDb(data.createdAt);
+        data["horasCapacitacion"] =
+          horasCapacitacion < 10 ? "0" + horasCapacitacion : horasCapacitacion;
+  
+        // create PDF
+        createPDF(data);
+      })
+      .catch((error) => console.error(error));
   };
+  
+  const createPDF = async (data) => {
+    const link = document.createElement("a");
+    const pdfBlob = await pdf(<Certificado data={data} />).toBlob();
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    link.href = pdfUrl;
+    link.target = "_blank";
+    link.download = `Certificado.pdf`;
+    link.click();
+  };
+  
   return (
     <div className="">
       <div className="bg-white p-3">
