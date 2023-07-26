@@ -14,6 +14,7 @@ const formatDateYMD = (date) => {
 };
 
 const formatDateDb = (date) => {
+  console.log(date);
   const fechaJs = new Date(date);
   const dia = fechaJs.getDate();
   const mes = months[fechaJs.getMonth()].descripcion;

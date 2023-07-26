@@ -96,7 +96,7 @@ const Certificado = ({ data }) => {
       <Page size="A4" orientation="landscape" style={styles.page}>
         <View style={styles.container}>
           <Image style={styles.background} src={data.imagenes.srcCertificado} />
-          <Image src={data.imagenes.srcLogo} style={styles.logo} />
+          {/* <Image src={data.imagenes.srcLogo} style={styles.logo} /> */}
           <View style={styles.main}>
             <View style={styles.submain}>
               <Text style={styles.title}>Titulo de la constancia</Text>

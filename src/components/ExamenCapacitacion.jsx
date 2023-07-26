@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
     padding: "8px",
   },
   title: {
-    fontSize: "18pt",
+    fontSize: "16pt",
     textTransform: "uppercase",
   },
   subtitle: {
@@ -56,97 +56,97 @@ const ExamenCapacitacion = ({ data }) => {
               <View
                 style={{ width: "90%" }}
               >
-                <Text style={styles.title}>{data.nombreCapacitacion}</Text>
+                <Text style={styles.title}>{data?.nombreCapacitacion}</Text>
               </View>
               <View
                 style={{ width: "5%" }}
               >
                 <Text style={{textAlign:"center", fontSize: 8}}>NOTA</Text>
-                <Text style={{textAlign:"center", fontSize: 12}}>{data?.notaExamen}</Text>
+                <Text style={{textAlign:"center", fontSize: 10}}>{data?.notaExamen}</Text>
               </View>
             </View>
             <View style={styles.dataList}>
               <Text style={styles.subtitle}>DNI</Text>
               <Text
                 style={styles.descripcion}
-              >{`${data.trabajador?.dni}`}</Text>
+              >{`${data?.trabajador?.dni}`}</Text>
             </View>
             <View style={styles.dataList}>
               <Text style={styles.subtitle}>apellidos y nombres</Text>
               <Text
                 style={styles.descripcion}
-              >{`${data.trabajador.apellidoPaterno} ${data.trabajador.apellidoMaterno} ${data.trabajador.nombres}`}</Text>
+              >{`${data?.trabajador?.apellidoPaterno} ${data?.trabajador?.apellidoMaterno} ${data?.trabajador?.nombres}`}</Text>
             </View>
             <View style={styles.dataList}>
               <Text style={styles.subtitle}>cargo</Text>
               <Text
                 style={styles.descripcion}
-              >{`${data.trabajador.cargo}`}</Text>
+              >{`${data?.trabajador?.cargo}`}</Text>
             </View>
             <View style={styles.dataList}>
               <Text style={styles.subtitle}>Empresa</Text>
-              <Text style={styles.descripcion}>{`${data.nombreEmpresa}`}</Text>
+              <Text style={styles.descripcion}>{`${data?.nombreEmpresa}`}</Text>
             </View>
             <View style={styles.dataList}>
               <Text style={styles.subtitle}>Edad</Text>
               <Text
                 style={styles.descripcion}
-              >{`${data.trabajador.edad}`}</Text>
+              >{`${data?.trabajador?.edad}`}</Text>
             </View>
             <View style={styles.dataList}>
               <Text style={styles.subtitle}>Sexo</Text>
               <Text
                 style={styles.descripcion}
-              >{`${data.trabajador.genero}`}</Text>
+              >{`${data?.trabajador?.genero}`}</Text>
             </View>
-            {data.preguntas.map((pregunta, index) => {
+            {data?.preguntas?.map((pregunta, index) => {
               return (
                 <View key={index} style={styles.dataList}>
-                  <Text style={styles.subtitle}>{pregunta.texto}</Text>
+                  <Text style={styles.subtitle}>{pregunta?.texto}</Text>
                   <Text
                     style={
-                      pregunta.respuestaTrabajador === 1
+                      pregunta?.respuestaTrabajador === 1
                         ? styles.descripcionSelect
                         : styles.descripcion
                     }
                   >
-                    - {pregunta.opcion1}
+                    - {pregunta?.opcion1}
                   </Text>
                   <Text
                     style={
-                      pregunta.respuestaTrabajador === 2
+                      pregunta?.respuestaTrabajador === 2
                         ? styles.descripcionSelect
                         : styles.descripcion
                     }
                   >
-                    - {pregunta.opcion2}
+                    - {pregunta?.opcion2}
                   </Text>
                   <Text
                     style={
-                      pregunta.respuestaTrabajador === 3
+                      pregunta?.respuestaTrabajador === 3
                         ? styles.descripcionSelect
                         : styles.descripcion
                     }
                   >
-                    - {pregunta.opcion3}
+                    - {pregunta?.opcion3}
                   </Text>
                   <Text
                     style={
-                      pregunta.respuestaTrabajador === 4
+                      pregunta?.respuestaTrabajador === 4
                         ? styles.descripcionSelect
                         : styles.descripcion
                     }
                   >
-                    - {pregunta.opcion4}
+                    - {pregunta?.opcion4}
                   </Text>
                   <Text
                     style={
-                      pregunta.respuestaTrabajador === 5
+                      pregunta?.respuestaTrabajador === 5
                         ? styles.descripcionSelect
                         : styles.descripcion
                     }
                   >
-                    - {pregunta.opcion5}
+                    - {pregunta?.opcion5}
                   </Text>
                 </View>
               );

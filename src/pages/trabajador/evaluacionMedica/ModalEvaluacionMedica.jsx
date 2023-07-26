@@ -57,7 +57,7 @@ const ModalEvaluacionMedica = ({ closeModal }) => {
         {" "}
         <strong>DECLARACIÓN JURADA</strong>{" "}
       </h2>
-      <p style={{ marginTop: "30px", textAlign: "justify" }}>
+      <p style={{ marginTop: "30px", textAlign: "justify", padding:"15px" }}>
         Yo,{" "}
         <strong>
           {trabajador?.apellidoPaterno +
@@ -69,7 +69,7 @@ const ModalEvaluacionMedica = ({ closeModal }) => {
         con documento de identidad N° <strong>{trabajador?.dni} </strong>,
         trabajador de la empresa{" "}
         <strong>{trabajador?.empresa?.nombreEmpresa} </strong>, Declaro bajo
-        juramento que: - Acepto que mediante esta plataforma me entregaron los
+        juramento que: <br /> - Acepto que mediante esta plataforma me entregaron los
         resultados de mi examen médico ocupacional y que estos son de carácter
         personal y confidencial, esto en cumplimiento de la normativa legal
         vigente en Seguridad y Salud en el Trabajo. (Ley 29783, DS 005-2012 TR Y

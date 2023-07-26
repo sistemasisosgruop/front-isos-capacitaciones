@@ -7,7 +7,7 @@ import { getCapacitaciones } from "../../../services/capacitacion";
 import { Modal } from "../../../components/modal/Modal";
 import useModals from "../../../hooks/useModal";
 import ExamenCapacitacion from "../../../components/ExamenCapacitacion";
-import { getExamen } from "../../../services/examenes";
+import { getExamen, getExamenCapacitacion } from "../../../services/examenes";
 import { months } from "../../../config";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -21,14 +21,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import {
-  BlobProvider,
-  Document,
-  PDFViewer,
-  Page,
-  Text,
-  pdf,
-} from "@react-pdf/renderer";
+import { Link, PDFViewer, pdf } from "@react-pdf/renderer";
 
 const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
@@ -102,7 +95,6 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   }, []);
   const getReportes = async () => {
     const response = await getReporte();
-    console.log(response);
     if (response.status === 200) {
       setDataReporte(response.data);
       setRowData(response.data);
@@ -212,53 +204,62 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     });
   };
 
-  const descargaExamen = (dataRow) => {
+  const descargaExamen = async (dataRow) => {
     const arrayRespuestas = [
-      dataRow.rptpregunta1,
-      dataRow.rptpregunta2,
-      dataRow.rptpregunta3,
-      dataRow.rptpregunta4,
-      dataRow.rptpregunta5,
+      dataRow?.reporte?.rptpregunta1,
+      dataRow?.reporte?.rptpregunta2,
+      dataRow?.reporte?.rptpregunta3,
+      dataRow?.reporte?.rptpregunta4,
+      dataRow?.reporte?.rptpregunta5,
     ];
 
-    getExamen(dataRow.examenId).then(({ data }) => {
-      const newData = data.pregunta.map((pregunta, index) => {
-        pregunta["respuestaTrabajador"] = arrayRespuestas[index];
-        return pregunta;
-      });
-      dataRow["preguntas"] = newData;
-      setDataExamen(dataRow);
-      openModal();
+    const newDataPreguntas = dataRow.pregunta.map((pregunta, index) => {
+      pregunta["respuestaTrabajador"] = arrayRespuestas[index];
+      return pregunta;
     });
+    dataRow["preguntas"] = newDataPreguntas;
+
+    console.log(dataRow);
+    if(dataRow){
+      const link = document.createElement("a");
+      const pdfBlob = await pdf(<ExamenCapacitacion data={dataRow} />).toBlob();
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      link.href = pdfUrl;
+      link.target = "_blank";
+      link.download = `Examen-${dataRow.nombreTrabajador}.pdf`;
+      link.click();
+    }
   };
 
   const descargarExamenes = () => {
-    const arrayTrabajadores = rowData.map((e) => getExamen(e.examenId));
-    Promise.all(arrayTrabajadores).then((res) => {
-      const newData = rowData.map((TrabajadorRep, index) => {
+    const arrayTrabajadores = rowData
+      .filter((data) => data.asistenciaExamen === true)
+      .map((TrabajadorRep, index) => {
         const arrayRespuestas = [
-          TrabajadorRep.rptpregunta1,
-          TrabajadorRep.rptpregunta2,
-          TrabajadorRep.rptpregunta3,
-          TrabajadorRep.rptpregunta4,
-          TrabajadorRep.rptpregunta5,
+          TrabajadorRep?.reporte?.rptpregunta1,
+          TrabajadorRep?.reporte?.rptpregunta2,
+          TrabajadorRep?.reporte?.rptpregunta3,
+          TrabajadorRep?.reporte?.rptpregunta4,
+          TrabajadorRep?.reporte?.rptpregunta5,
         ];
 
-        const newDataPreguntas = res[index].data.pregunta.map(
+        const newDataPreguntas = TrabajadorRep.pregunta.map(
           (pregunta, index) => {
             pregunta["respuestaTrabajador"] = arrayRespuestas[index];
             return pregunta;
           }
         );
+
         TrabajadorRep["preguntas"] = newDataPreguntas;
         return TrabajadorRep;
       });
-      handleDownload();
-    });
+      console.log(arrayTrabajadores);
+    handleDownload(arrayTrabajadores);
   };
 
-  const handleDownload = () => {
-    rowData.forEach(async (data) => {
+  const handleDownload = async (array) => {
+    for(let i = 0; i < array.length; i++) {
+      const data = array[i];
       const link = document.createElement("a");
       const pdfBlob = await pdf(<ExamenCapacitacion data={data} />).toBlob();
       const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -266,8 +267,10 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       link.target = "_blank";
       link.download = `Examen-${data.nombreTrabajador}.pdf`;
       link.click();
-    });
+      await new Promise(resolve => setTimeout(resolve, 500)); // esperar 1 segundo antes de la próxima descarga
+    }
   };
+  
 
   return (
     <div className="">
@@ -356,8 +359,9 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
         openModal={openModal}
         closeModal={closeModal}
         size={"modal-lg"}
+        title="Reporte de examen"
       >
-        <PDFViewer width={"100%"} height={"454px"}>
+        <PDFViewer width={"100%"} height={"600px"}>
           <ExamenCapacitacion data={dataExamen} />
         </PDFViewer>
       </Modal>

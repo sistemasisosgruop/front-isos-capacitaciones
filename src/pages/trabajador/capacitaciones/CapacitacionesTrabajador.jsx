@@ -20,7 +20,7 @@ import { formatDateDb, formatDateYMD } from "../../../utils/formtDate";
 import { getImgs } from "../../../services/empresa";
 import { months } from "../../../config";
 import getYearsBefore from "../../../utils/yearsBefore";
-import { getExamen } from "../../../services/examenes";
+import {  getExamenCapacitacion } from "../../../services/examenes";
 import { initialFormPreguntas } from "./config";
 import { hideLoader, showLoader } from "../../../utils/loader";
 import { pdf } from "@react-pdf/renderer";
@@ -79,7 +79,7 @@ const CapacitacionesTrabajador = () => {
 
   const getData = async () =>{
     const dni =JSON.parse(localStorage.getItem("userIsos")).dni;
-    const response = await getExamen(dni)
+    const response = await getExamenCapacitacion(dni)
     if(response){
       setDataInit(response.data)
       setData(response.data)

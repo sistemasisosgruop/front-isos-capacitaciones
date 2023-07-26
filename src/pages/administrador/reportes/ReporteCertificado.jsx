@@ -57,7 +57,7 @@ const ReporteCertificado = () => {
   const initColumDefs = [
     { field: "trabajadorId", headerName: "# trabajador" },
     { field: "nombreTrabajador", headerName: "Nombre trabajador" },
-    { field: "mesExamen", hide:true},
+    { field: "mesExamen", hide: true },
     { field: "nombreCapacitacion", headerName: "Capacitación" },
     { field: "nombreEmpresa" },
     { field: "fechaExamen", headerName: "Fecha de examen" },
@@ -92,7 +92,7 @@ const ReporteCertificado = () => {
   };
   //cargar la informacion de la tabla
   const onGridReady = useCallback((params) => {
-    getReportes()
+    getReportes();
   }, []);
 
   useEffect(() => {
@@ -191,8 +191,8 @@ const ReporteCertificado = () => {
   };
 
   const descargaCertificado = async (data) => {
-    const empresaTrabajador = data.trabajador.empresaId;
-
+    const empresaTrabajador = data.empresaId;
+    console.log(data);
     const promesas = [
       getImgs(empresaTrabajador, "logo"),
       getImgs(empresaTrabajador, "certificado"),
@@ -207,7 +207,7 @@ const ReporteCertificado = () => {
       const imagenes = { srcLogo, srcCertificado, srcFirma };
       const horasCapacitacion = data.capacitacion.horas;
       data["imagenes"] = imagenes;
-      data["fechaCapacitacion"] = formatDateDb(data.createdAt);
+      data["fechaCapacitacion"] = formatDateDb(data.capacitacion.createdAt);
       data["horasCapacitacion"] =
         horasCapacitacion < 10 ? "0" + horasCapacitacion : horasCapacitacion;
       setDataCertificado(data);
@@ -215,22 +215,32 @@ const ReporteCertificado = () => {
     });
   };
 
-  const fetchCertificados = async (dataReporte) => {
+  const fetchImgsEmpresa = async (data) => {
     try {
-      const empresaId = dataReporte.trabajador.empresaId;
-
-      const logo = await getImgs(empresaId, "logo");
-      const certificado = await getImgs(empresaId, "certificado");
-      const firma = await getFirmaCertificado(dataReporte.capacitacionId);
+      const logo = await getImgs(data.empresaId, "logo");
+      const certificado = await getImgs(data.empresaId, "certificado");
+      const firma = await getFirmaCertificado(data.capacitacionId);
 
       const srcLogo = URL.createObjectURL(new Blob([logo.data]));
       const srcCertificado = URL.createObjectURL(new Blob([certificado.data]));
       const srcFirma = URL.createObjectURL(new Blob([firma.data]));
 
-      const imagenes = { srcLogo, srcCertificado, srcFirma };
+      return { srcLogo, srcCertificado, srcFirma };
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+      return { srcLogo: null, srcCertificado: null, srcFirma: null };
+    }
+  };
+
+  const fetchCertificados = async (dataReporte, imagenesEmpresa) => {
+    try {
+      console.log(dataReporte);
       const horasCapacitacion = dataReporte.capacitacion.horas;
-      dataReporte["imagenes"] = imagenes;
-      dataReporte["fechaCapacitacion"] = formatDateDb(dataReporte.createdAt);
+
+      dataReporte["imagenes"] = imagenesEmpresa;
+      dataReporte["fechaCapacitacion"] = formatDateDb(
+        dataReporte.capacitacion.fechaInicio
+      );
       dataReporte["horasCapacitacion"] =
         horasCapacitacion < 10 ? "0" + horasCapacitacion : horasCapacitacion;
 
@@ -243,31 +253,47 @@ const ReporteCertificado = () => {
 
   const descargarCertificados = async () => {
     try {
+      // Obtener el primer trabajador para obtener la empresaId
+      console.log(rowData);
+      const primerTrabajador = rowData[0];
+      // Descargar las imágenes de la empresa solo una vez
+      const imagenesEmpresa = await fetchImgsEmpresa(primerTrabajador);
+
       const resultados = await Promise.all(
-        rowData.map(async (reporte) => {
-          const data = await fetchCertificados(reporte);
-          return data;
-        })
+        rowData
+          .filter(
+            (data) =>
+              data.reporte.asistenciaExamen === true &&
+              data.reporte.notaExamen > 10
+          )
+          .map(async (reporte) => {
+            const data = await fetchCertificados(reporte, imagenesEmpresa);
+            return data;
+          })
       );
-      handleDownload();
+
+      handleDownload(resultados);
       // Aquí puedes procesar los resultados obtenidos para cada trabajador
     } catch (error) {
       console.error("Error al obtener los datos:", error);
     }
   };
 
-  const handleDownload = () => {
-    rowData.forEach(async (data) => {
+  const handleDownload = async (list) => {
+    for (let i = 0; i < list.length; i++) {
+      const data = list[i];
       const link = document.createElement("a");
-      const srcLogo = URL.createObjectURL(new Blob([data.logo]));
-      console.log(srcLogo);
-      const pdfBlob = await pdf(<Certificado data={data} logo={srcLogo} />).toBlob(); // Función para generar el blob del PDF
+      const srcLogo = data.imagenes.srcLogo;
+      const pdfBlob = await pdf(
+        <Certificado data={data} logo={srcLogo} />
+      ).toBlob();
       const pdfUrl = URL.createObjectURL(pdfBlob);
       link.href = pdfUrl;
       link.target = "_blank";
       link.download = `Certificado-${data.nombreTrabajador}.pdf`;
       link.click();
-    });
+      await new Promise((resolve) => setTimeout(resolve, 500)); // esperar 1 segundo antes de la próxima descarga
+    }
   };
 
   return (

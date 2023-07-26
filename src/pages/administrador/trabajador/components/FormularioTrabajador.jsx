@@ -85,9 +85,11 @@ const FormularioTrabajador = ({
 
   const update = (dataForm) => {
     showLoader();
+    delete dataForm.emoPdf
     patchTrabajador(dataForm).then(({data, message=null}) => {
       if (data) {
         const { createdAt, ...newRowData } = data;
+
         getTrabajador(dataForm.id).then(({ data }) => {
           data["nombreEmpresa"] = data.empresa.nombreEmpresa;
           updateRow(data);
@@ -110,6 +112,7 @@ const FormularioTrabajador = ({
   const add = (dataForm) => {
     showLoader();
     const { id, ...newData } = dataForm;
+    delete dataForm.emoPdf
     postTrabajador(newData).then(({data, message=null}) => {
       if (data) {
         const { createdAt, ...newrowData } = data;
