@@ -27,6 +27,7 @@ const ConstanciaEmo = ({ data, logo }) => {
       paddingRight: 50,
       paddingTop: 30,
       paddingBottom: 20,
+      fontFamily: "Times-Roman",
     },
     header: {
       display: "flex",
@@ -117,17 +118,19 @@ const ConstanciaEmo = ({ data, logo }) => {
             </Text>
             <View style={styles.content}>
               <Text style={[styles.paragraph2, { fontWeight: "bold" }]}>
-                Yo, {data.apellidoMaterno} {data.apellidoPaterno} {data.nombres}
+                Yo, {data.apellidoPaterno} {data.apellidoMaterno} {data.nombres}
                 , identificado (a) con DNI Nº {data.dni}, quien ocupa el cargo
                 de: {data.cargo} mediante el presente documento dejo constancia
                 de haber recibido, de manera personalizada y por parte del
                 médico ocupacional de la empresa el informe médico de los
-                resultados del Examen Médico Ocupacional (EMO) de tipo: Que me
-                fue realizado por mi empleador {data.nombreEmpresa} en la fecha:
-                {data.fecha_examen} en la clínica {data.clinica}.
+                resultados del Examen Médico Ocupacional (EMO).
+              </Text>
+              <Text style={[styles.paragraph2, { fontWeight: "bold", marginTop:"10px" }]}>
+                Que me fue realizado por mi empleador {data.nombreEmpresa} en la
+                fecha: {data.fecha_examen} en la clínica {data.clinica}.
               </Text>
 
-              <View style={{ marginTop: 20 }}>
+              <View style={{ marginTop: 15 }}>
                 <Text style={{ fontSize: 12 }}>CONDICIÓN DE APTITUD:</Text>
 
                 <View
@@ -146,7 +149,7 @@ const ConstanciaEmo = ({ data, logo }) => {
                     }}
                   >
                     <Text>
-                      {data.condicion_aptitud === "APTO" ? "X" : ""}
+                      {data.condicion_aptitud.trim() === "APTO" ? "X" : ""}
                     </Text>
                   </View>
                   <View
@@ -177,7 +180,8 @@ const ConstanciaEmo = ({ data, logo }) => {
                     }}
                   >
                     <Text>
-                      {data.condicion_aptitud === "APTO CON RESTRICCIONES"
+                      {data.condicion_aptitud.trim() ===
+                      "APTO CON RESTRICCIONES"
                         ? "X"
                         : ""}
                     </Text>
@@ -211,7 +215,7 @@ const ConstanciaEmo = ({ data, logo }) => {
                     }}
                   >
                     <Text>
-                      {data.condicion_aptitud === "NO APTO" ? "X" : ""}
+                      {data.condicion_aptitud.trim() === "NO APTO" ? "X" : ""}
                     </Text>
                   </View>
                   <View
