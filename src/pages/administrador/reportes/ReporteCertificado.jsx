@@ -80,7 +80,6 @@ const ReporteCertificado = () => {
   }, []);
   const getReportes = async () => {
     const response = await getReporte();
-    console.log(response);
     if (response.status === 200) {
       setDataReporte(response.data);
       setRowData(response.data);

@@ -123,7 +123,7 @@ const ConstanciaEmo = ({ data, logo }) => {
                 de haber recibido, de manera personalizada y por parte del
                 médico ocupacional de la empresa el informe médico de los
                 resultados del Examen Médico Ocupacional (EMO) de tipo: Que me
-                fue realizado por mi empleador EPSEMHCO S.A. en la fecha:
+                fue realizado por mi empleador {data.nombreEmpresa} en la fecha:
                 {data.fecha_examen} en la clínica {data.clinica}.
               </Text>
 
@@ -145,10 +145,9 @@ const ConstanciaEmo = ({ data, logo }) => {
                       width: "40px",
                     }}
                   >
-                    {" "}
                     <Text>
                       {data.condicion_aptitud === "APTO" ? "X" : ""}
-                    </Text>{" "}
+                    </Text>
                   </View>
                   <View
                     style={{
@@ -177,12 +176,11 @@ const ConstanciaEmo = ({ data, logo }) => {
                       borderTopWidth: "none",
                     }}
                   >
-                    {" "}
                     <Text>
                       {data.condicion_aptitud === "APTO CON RESTRICCIONES"
                         ? "X"
                         : ""}
-                    </Text>{" "}
+                    </Text>
                   </View>
                   <View
                     style={{
@@ -212,10 +210,9 @@ const ConstanciaEmo = ({ data, logo }) => {
                       borderTopWidth: "none",
                     }}
                   >
-                    {" "}
                     <Text>
                       {data.condicion_aptitud === "NO APTO" ? "X" : ""}
-                    </Text>{" "}
+                    </Text>
                   </View>
                   <View
                     style={{

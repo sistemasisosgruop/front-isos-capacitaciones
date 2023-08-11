@@ -59,6 +59,7 @@ const styles = StyleSheet.create({
     fontSize: "25pt",
     textTransform: "uppercase",
     marginBottom: "15px",
+    marginTop: "20px"
   },
   otorgado: {
     fontSize: "20pt",
@@ -99,15 +100,15 @@ const Certificado = ({ data }) => {
           {/* <Image src={data.imagenes.srcLogo} style={styles.logo} /> */}
           <View style={styles.main}>
             <View style={styles.submain}>
-              <Text style={styles.title}>Titulo de la constancia</Text>
+              <Text style={styles.title}>Certificado</Text>
               <Text style={styles.otorgado}>Otorgado a:</Text>
               <Text style={styles.persona}>{
-                `${data.trabajador.apellidoPaterno} ${data.trabajador.apellidoMaterno} ${data.trabajador.nombres}`}
+                `${data.trabajador.apellidoPaterno.trim()} ${data.trabajador.apellidoMaterno.trim()} ${data.trabajador.nombres.trim()}`}
                 </Text>
               <Text style={styles.descripcion}>
                 Por haber asistido al curso "
                 <Text>{data.capacitacion.nombre}</Text>" celebrado
-                el día <Text>{`${data.fechaCapacitacion[0]} de ${data.fechaCapacitacion[1]}`}</Text>, con una duracion total de <Text>{data.horasCapacitacion}</Text>  horas.
+                el día <Text>{`${data.fechaCapacitacion[0]} de ${data.fechaCapacitacion[1]}`}</Text>, con una duración total de <Text>{data.horasCapacitacion}</Text>  horas.
               </Text>
               <Text style={styles.fecha}>Arequipa, {`${data.fechaCapacitacion[1]} ${data.fechaCapacitacion[2]}`}</Text>
               <Image src={data.imagenes.srcFirma} style={styles.firma}/>

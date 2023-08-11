@@ -164,9 +164,23 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
 
   const crearExcel = async () => {
     const workbook = new ExcelJS.Workbook();
-
     //Agregar una hoja de trabajo
     const worksheet = workbook.addWorksheet("Hoja 1");
+
+    const format = rowData.map(item =>{
+
+      return{
+        trabajadorId: item.trabajadorId,
+        nombreTrabajador: item.nombreTrabajador,
+        dni: item.trabajador.dni,
+        cargo: item.trabajador.cargo,
+        nombreCapacitacion: item.nombreCapacitacion,
+        nombreEmpresa: item.nombreEmpresa,
+        notaExamen: item.notaExamen,
+        asistenciaExamen: item.asistenciaExamen,
+        fechaExamen: item.fechaExamen
+      }
+    })
 
     // establecemos las filas
     worksheet.columns = [
@@ -177,6 +191,8 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
         color: "D58144",
       },
       { header: "Nombre trabajador ", key: "nombreTrabajador", width: 50 },
+      { header: "DNI", key: "dni", width: 20 },
+      { header: "Cargo", key: "cargo", width: 30 },
       { header: "Nombre Capacitación", key: "nombreCapacitacion", width: 50 },
       { header: "Nombre empresa", key: "nombreEmpresa", width: 50 },
       { header: "Nota examen", key: "notaExamen", width: 10 },
@@ -193,7 +209,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       pattern: "solid",
       fgColor: { argb: "16A971" },
     };
-    worksheet.addRows(rowData);
+    worksheet.addRows(format);
 
     // Descarga el archivo Excel en el navegador
     workbook.xlsx.writeBuffer().then(function (buffer) {

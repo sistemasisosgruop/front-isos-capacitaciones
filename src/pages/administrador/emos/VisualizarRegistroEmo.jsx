@@ -72,7 +72,7 @@ const VisualizarRegistroEmo = () => {
 
   const getRowId = useMemo(() => {
     return (params) => {
-      return params.data.id;
+      return params.data.nro;
     };
   }, []);
   const defaultColDef = useMemo(() => {
@@ -105,91 +105,122 @@ const VisualizarRegistroEmo = () => {
     setdataForm(data);
   };
 
-  useEffect(() => {}, []);
   const [columnDefs, setColumnDefs] = useState([
-    { field: "id", hide: true },
+    { field: "nro", hide: true },
     {
       field: "apellidoPaterno",
       headerName: "APELLIDO PATERNO",
       minWidth: 200,
-      center: true,
     },
     {
       field: "apellidoMaterno",
       headerName: "APELLIDO MATERNO",
       minWidth: 200,
-      center: true,
     },
-    { field: "nombres", headerName: "NOMBRES", minWidth: 200, center: true },
-    { field: "dni", headerName: "DNI", width: 110, center: true },
-    { field: "edad", headerName: "EDAD", width: 80, center: true },
+    { field: "nombres", headerName: "NOMBRES", minWidth: 200 },
+    { field: "dni", headerName: "DNI", width: 110 },
+    { field: "edad", headerName: "EDAD", width: 80 },
     { field: "area", headerName: "AREA" },
     { field: "cargo", headerName: "PUESTO LABORAL" },
     {
       field: "fecha_examen",
       headerName: "FECHA EXAMEN MÉDICO",
-      center: true,
     },
     {
       field: "condicion_aptitud",
       headerName: "CONDICIÓN DE APTITUD",
-      center: true,
     },
-    { field: "clinica", headerName: "CLÍNICA", center: true },
+    { field: "clinica", headerName: "CLÍNICA" },
     {
       field: "fecha_lectura",
       headerName: "FECHA DE LECTURA EMO",
-      center: true,
     },
     { field: "acciones", cellRenderer: renderButtons, width: 100 },
-    { field: "nombreEmpresa", hide: true },
+    { field: "nombreEmpresa", hide: true, filter: true },
   ]);
   const onFilterTextBoxChanged = useCallback((e, isSelect) => {
     if (isSelect) {
-      setSelectFilter(e.target.value);
-      document.getElementById("searchInput").value = "";
+      const empresaNombre = e.target.value;
+      setSelectFilter(empresaNombre);
+  
+      if (empresaNombre !== "") {
+        gridRef.current.api.setFilterModel({
+          nombreEmpresa: {
+            type: "contains",
+            filter: empresaNombre,
+          },
+        });
+      } else {
+        gridRef.current.api.setFilterModel(null);
+      }
     } else {
+      // Cuando se comienza a escribir en el input, borramos la selección del select
       document.getElementById("searchSelect").value = "";
+      setSelectFilter("");
+  
+      // Reiniciamos el filtro de la empresa
+      gridRef.current.api.setFilterModel(null);
+  
+      const input = e.target.value;
+      gridRef.current.api.setQuickFilter(input);
     }
-    gridRef.current.api.setQuickFilter(e.target.value);
   }, []);
+  
+  
 
-  const handleDownload = async (data)=> {
 
-      const logo = await getImgs(data.empresa_id, "logo");
-      const srcLogo = URL.createObjectURL(new Blob([logo.data]));
-      const link = document.createElement("a");
-      const pdfBlob = await pdf(
-        <ConstanciaEmo data={data} logo={srcLogo} />
-      ).toBlob();
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      link.href = pdfUrl;
-      link.target = "_blank";
-      link.download = `Constancia-${data.nombres}.pdf`;
-      link.click();
-  }
+  const handleDownload = async (data) => {
+    const logo = await getImgs(data.empresa_id, "logo");
+    const srcLogo = URL.createObjectURL(new Blob([logo.data]));
+    const link = document.createElement("a");
+    const pdfBlob = await pdf(
+      <ConstanciaEmo data={data} logo={srcLogo} />
+    ).toBlob();
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    link.href = pdfUrl;
+    link.target = "_blank";
+    link.download = `Constancia-${data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres}.pdf`;
+    link.click();
+  };
 
   const handleDownloadMulitple = async (data) => {
 
-    const filterData = rowData.filter(
-      (item) => item.nombreEmpresa === selectFilter
-    );
-    if (filterData.length > 0) {
+
+    if (selectFilter !== "") {
+
+      const filterData = rowData.filter(
+        (item) =>
+          item.nombreEmpresa === selectFilter &&
+          item.fecha_examen !== "" &&
+          item.clinica !== "" &&
+          item.fecha_lectura !== "" &&
+          item.condicion_aptitud !== ""
+      );
+  
+      if(filterData.length === 0){
+
+        return toast.error("No se encontro ningun registro completo para descargar la constancia.", {
+          position: "bottom-right",
+        });
+      }
+
+
       const logo = await getImgs(filterData[0].empresa_id, "logo");
       const srcLogo = URL.createObjectURL(new Blob([logo.data]));
-      filterData.forEach(async (data) => {
+      for (let i = 0; i < filterData.length; i++) {
+        const data = filterData[i];
         const link = document.createElement("a");
-        const pdfBlob = await pdf(
-          <ConstanciaEmo data={data} logo={srcLogo} />
-        ).toBlob();
+        const pdfBlob = await pdf(<ConstanciaEmo data={data} logo={srcLogo} />).toBlob();
         const pdfUrl = URL.createObjectURL(pdfBlob);
         link.href = pdfUrl;
         link.target = "_blank";
-        link.download = `Constancia-${
-          data.apellidoMaterno + " " + data.apellidoPaterno + " " + data.nombres
-        }.pdf`;
+        link.download = `Constancia-${data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres}.pdf`;
         link.click();
-      });
+      
+        // Agregamos el 'setTimeout' aquí
+        await new Promise((resolve) => setTimeout(resolve, 500)); 
+      
+      };
     } else {
       toast.error("Seleccione una empresa para descargar el pdf.", {
         position: "bottom-right",
