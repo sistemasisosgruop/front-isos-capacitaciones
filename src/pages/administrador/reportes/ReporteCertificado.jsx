@@ -206,7 +206,7 @@ const ReporteCertificado = () => {
       const imagenes = { srcLogo, srcCertificado, srcFirma };
       const horasCapacitacion = data.capacitacion.horas;
       data["imagenes"] = imagenes;
-      data["fechaCapacitacion"] = formatDateDb(data.capacitacion.createdAt);
+      data["fechaCapacitacion"] = formatDateDb(data.capacitacion.fechaInicio);
       data["horasCapacitacion"] =
         horasCapacitacion < 10 ? "0" + horasCapacitacion : horasCapacitacion;
       setDataCertificado(data);
@@ -253,7 +253,6 @@ const ReporteCertificado = () => {
   const descargarCertificados = async () => {
     try {
       // Obtener el primer trabajador para obtener la empresaId
-      console.log(rowData);
       const primerTrabajador = rowData[0];
       // Descargar las imágenes de la empresa solo una vez
       const imagenesEmpresa = await fetchImgsEmpresa(primerTrabajador);

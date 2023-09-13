@@ -88,6 +88,7 @@ const styles = StyleSheet.create({
 });
 
 const Certificado = ({ data }) => {
+
   if (data === '') {
     return <Document></Document>;
   }

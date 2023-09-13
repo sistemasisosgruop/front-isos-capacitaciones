@@ -190,7 +190,7 @@ const CapacitacionesTrabajador = () => {
         const imagenes = { srcLogo, srcCertificado, srcFirma };
         const horasCapacitacion = data.capacitacion.horas;
         data["imagenes"] = imagenes;
-        data["fechaCapacitacion"] = formatDateDb(data.createdAt);
+        data["fechaCapacitacion"] = formatDateDb(data?.fechaCapacitacion);
         data["horasCapacitacion"] =
           horasCapacitacion < 10 ? "0" + horasCapacitacion : horasCapacitacion;
   
@@ -225,7 +225,7 @@ const CapacitacionesTrabajador = () => {
               value={selectYear}
             >
               <option value={""}>Año</option>
-              {years.map((year, index) => {
+              {years?.map((year, index) => {
                 return (
                   <option key={index} value={year}>
                     {year}
@@ -240,7 +240,7 @@ const CapacitacionesTrabajador = () => {
               value={selectMonth}
             >
               <option value={""}>Mes</option>
-              {months.map((month, index) => {
+              {months?.map((month, index) => {
                 return (
                   <option key={index} value={month.descripcion}>
                     {month.descripcion}
@@ -252,8 +252,8 @@ const CapacitacionesTrabajador = () => {
         </div>
 
         <div className="flex flex-col gap-3">
-          {data.length !== 0 ? (
-            data.map((card, index) => {
+          {data?.length !== 0 ? (
+            data?.map((card, index) => {
               return (
                 <TarjetasCapacitaciones
                   key={index}
@@ -274,7 +274,7 @@ const CapacitacionesTrabajador = () => {
           size={"modal-md"}
           title={descripcionModal}
         >
-          {formPreguntas.preguntas.map((objPregunta, index) => {
+          {formPreguntas?.preguntas?.map((objPregunta, index) => {
             return (
               <Pregunta
                 key={objPregunta.id}

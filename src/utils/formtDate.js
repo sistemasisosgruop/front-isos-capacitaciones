@@ -16,9 +16,14 @@ const formatDateYMD = (date) => {
 const formatDateDb = (date) => {
   console.log(date);
   const fechaJs = new Date(date);
-  const dia = fechaJs.getDate();
-  const mes = months[fechaJs.getMonth()].descripcion;
-  const anio = fechaJs.getFullYear();
+  
+  // Establecer la zona horaria a UTC antes de obtener el día
+  fechaJs.setUTCHours(0, 0, 0, 0);
+  
+  const dia = fechaJs.getUTCDate();
+  const mes = months[fechaJs.getUTCMonth()].descripcion;
+  const anio = fechaJs.getUTCFullYear();
+  
   return [dia, mes, anio];
 };
 export { formatDateYMD, formatDateDb };
