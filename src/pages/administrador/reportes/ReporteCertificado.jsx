@@ -116,6 +116,8 @@ const ReporteCertificado = () => {
   };
 
   const handleSelectChange = (value, filtro) => {
+    console.log(value);
+    console.log(filtro);
     //cambiamos estado
     switch (filtro) {
       case "EMPRESA":
@@ -233,7 +235,6 @@ const ReporteCertificado = () => {
 
   const fetchCertificados = async (dataReporte, imagenesEmpresa) => {
     try {
-      console.log(dataReporte);
       const horasCapacitacion = dataReporte.capacitacion.horas;
 
       dataReporte["imagenes"] = imagenesEmpresa;
@@ -336,7 +337,7 @@ const ReporteCertificado = () => {
             </select>
             <select
               className="select select-bordered select-sm"
-              id="searchSelect"
+              // id="searchSelect"
               onChange={(e) => handleSelectChange(e.target.value, "MES")}
               value={selectMes}
             >
@@ -350,7 +351,7 @@ const ReporteCertificado = () => {
               })}
             </select>
           </div>
-          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-2/5">
+          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-1/5">
             <Button
               description="Exportar"
               event={crearExcel}

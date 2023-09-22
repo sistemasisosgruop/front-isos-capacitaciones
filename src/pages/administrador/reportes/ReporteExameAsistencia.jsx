@@ -342,7 +342,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
           </div>
-          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-2/5">
+          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-1/5">
             <Button
               description="Exportar"
               event={crearExcel}
