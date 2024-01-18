@@ -22,13 +22,15 @@
     "file-saver": "^2.0.5",
     "react": "^18.2.0",
     "react-bootstrap-sweetalert": "^5.2.0",
+    "react-data-table-component": "^7.6.2",
     "react-dom": "^18.2.0",
     "react-modal": "^3.16.1",
     "react-pro-sidebar": "^1.0.0",
     "react-router-dom": "^6.4.2",
     "react-select": "^5.7.2",
     "react-step-wizard": "^5.3.11",
-    "react-toastify": "^9.1.2"
+    "react-toastify": "^9.1.2",
+    "styled-components": "^5.3.3"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",

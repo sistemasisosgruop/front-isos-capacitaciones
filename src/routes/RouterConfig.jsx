@@ -20,6 +20,7 @@ import validateToken from "./validateToken";
 import OpcionesEmos from "../pages/administrador/emos/opcionesReportes"
 import EvaluacionMedica from "../pages/trabajador/evaluacionMedica/EvaluacionMedica";
 import ReporteEmo from "../pages/administrador/reportes/ReporteEmo";
+import CompararTrabajadores from "../pages/administrador/ListaTrabajadores/CompararTrabajadores";
 
 const router = createBrowserRouter([
   {
@@ -62,6 +63,8 @@ const router = createBrowserRouter([
           { path: "empresas", element: <ListadoEmpresa /> },
           { path: "capacitaciones", element: <ListaCapacitaciones /> },
           { path: "test", element: <ListadoTest /> },
+          { path: "lista", element: <CompararTrabajadores /> },
+
           {
             path: "reportes",
             element: <Outlet />,

@@ -28,10 +28,16 @@ const patchEstado = (data) => {
     .catch(objErrorApi);
 };
 
-const getTrabajadores = () => {
-  return baseApi(stepApi)
-    .get("/")
-    .catch(objErrorApi);
+const getTrabajadores = (page, limit, empresa, search) => {
+  let url = `${stepApi}?page=${page}&limit=${limit}`;
+
+  if (empresa) {
+    url += `&nombreEmpresa=${empresa}`;
+  }
+  if (search) {
+    url += `&search=${search}`;
+  }
+  return baseApi(url).get().catch(objErrorApi);
 };
 
 const getTrabajador = (id) => {

@@ -26,10 +26,16 @@ const getDescargaEmo = (id, ) => {
     .catch(objErrorApi);
 };
 
-const getReporteEmo = () => {
-  return baseApi(stepApi)
-    .get("/reporte")
-    .catch(objErrorApi);
+const getReporteEmo = (page,limit, empresa, search) => {
+  let url = `${stepApi}?page=${page}&limit=${limit}`;
+
+  if (empresa) {
+    url += `&nombreEmpresa=${empresa}`;
+  }
+  if (search) {
+    url += `&search=${search}`;
+  }
+  return baseApi(url).get("").catch(objErrorApi);
 };
 
 const postImportarExcel = (data) => {

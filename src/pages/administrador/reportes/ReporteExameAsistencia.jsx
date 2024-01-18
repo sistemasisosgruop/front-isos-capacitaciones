@@ -22,9 +22,15 @@ import {
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { Link, PDFViewer, pdf } from "@react-pdf/renderer";
-
+import { GridApi } from "ag-grid-community";
+import DataTable from "react-data-table-component";
+import styled from "styled-components";
+const StyledDataTable = styled(DataTable)`
+  border: 1px solid lightgrey;
+  border-radius: 5px;
+`;
 const ReporteExameAsistencia = ({ titulo, esExamen }) => {
-  const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
+  const containerStyle = useMemo(() => ({ width: "100%", height: "80%" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [rowData, setRowData] = useState([]);
   const [empresas, setEmpresas] = useState([]);
@@ -34,78 +40,97 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   const [selectMes, setSelectMes] = useState("");
   const [dataReporte, setDataReporte] = useState([]);
   const [dataExamen, setDataExamen] = useState("");
-
+  const [perPage, setPerPage] = useState(15);
+  const [totalRows, setTotalRows] = useState(0);
   const [isOpenModal, openModal, closeModal] = useModals();
 
-  //configuracion de la tabla
-  const renderButtons = ({ data }) => {
-    return (
-      <>
-        <label className="cursor-pointer" onClick={() => descargaExamen(data)}>
+  const columns = [
+    {
+      name: "# trabajador",
+      selector: (row) => row.trabajadorId,
+      sortable: true,
+      width: "120px",
+      center: true,
+    },
+    {
+      name: "Nombre",
+      selector: (row) => row.nombreTrabajador.toUpperCase(),
+      sortable: true,
+      center: true,
+    },
+    {
+      name: "Capacitación",
+      selector: (row) => row.nombreCapacitacion,
+      sortable: true,
+      center: true,
+    },
+    {
+      name: "Nota examen",
+      selector: (row) => row.notaExamen,
+      sortable: true,
+      center: true,
+    },
+    {
+      name: "Asistencia examen",
+      button: true,
+      cell: (e) => (
+        <label className="cursor-pointer">
+          {e.asistenciaExamen ? (
+            <FontAwesomeIcon icon={faCheckCircle} size="1x" color="green" />
+          ) : (
+            <FontAwesomeIcon icon={faTimesCircle} size="1x" color="red" />
+          )}
+        </label>
+      ),
+      center: true,
+    },
+    {
+      name: "Fecha examen",
+      selector: (row) => row.fechaExamen,
+      sortable: true,
+      center: true,
+    },
+    {
+      name: "Opciones",
+      button: true,
+      cell: (e) => (
+        <label className="cursor-pointer" onClick={() => descargaExamen(e)}>
           <FontAwesomeIcon icon={faArrowAltCircleDown} />
         </label>
-      </>
-    );
-  };
-
-  const renderEstado = ({ data }) => {
-    return (
-      <label className="cursor-pointer">
-        {data.asistenciaExamen ? (
-          <FontAwesomeIcon icon={faCheckCircle} size="1x" color="green" />
-        ) : (
-          <FontAwesomeIcon icon={faTimesCircle} size="1x" color="red" />
-        )}
-      </label>
-    );
-  };
-
-  const initColumDefs = [
-    { field: "trabajadorId", headerName: "# trabajador" },
-    { field: "nombreTrabajador", headerName: "Nombre trabajador" },
-    { field: "nombreCapacitacion", headerName: "Capacitación" },
-    { field: "nombreEmpresa" },
-    { field: "notaExamen", headerName: "Nota examen" },
-    {
-      field: "asistenciaExamen",
-      cellRenderer: renderEstado,
-      cellStyle: { textAlign: "center" },
+      ),
+      center: true,
+      omit: esExamen ? false : true,
     },
-    { field: "fechaExamen", headerName: "Fecha de examen" },
-    { field: "mesExamen", hide: true },
   ];
 
-  if (esExamen) {
-    initColumDefs.push({
-      field: "Opciones",
-      cellRenderer: renderButtons,
-      cellStyle: { textAlign: "center" },
-    });
-  }
-
-  const [columnDefs, setColumnDefs] = useState(initColumDefs);
-
-  const defaultColDef = useMemo(() => {
-    return {
-      sortable: true,
-      resizable: true,
-      flex: 1,
-      minWidth: 100,
-    };
-  }, []);
-  const getReportes = async () => {
-    const response = await getReporte();
-    if (response.status === 200) {
-      setDataReporte(response.data);
-      setRowData(response.data);
-    } else {
-      toast.error("Ocurrio un error en el servidor", {
-        position: "bottom-right",
-      });
+  const getReportes = async (page, empresa, capacitacion, mes) => {
+    if (page !== undefined) {
+      const response = await getReporte(page, perPage, empresa, capacitacion, mes);
+      if (response.status === 200) {
+        setDataReporte(response?.data?.data);
+        setRowData(response?.data?.data);
+        setTotalRows(response?.data?.pageInfo?.total);
+      } else {
+        toast.error("Ocurrio un error en el servidor", {
+          position: "bottom-right",
+        });
+      }
     }
   };
-  //cargar la informacion de la tabla
-  const onGridReady = useCallback((params) => {
+  const handlePageChange = (page) => {
+    console.log(page);
+    getReportes(page, selectEmpresa, selectCapacitacion, selectMes);
+  };
+
+  const handlePerRowsChange = async (newPerPage, page) => {
+    const response = await getReporte(page, newPerPage);
+    if (response.status === 200) {
+      setRowData(response.data.data);
+      setPerPage(newPerPage);
+    }
+  };
+
+  useEffect(() => {
     getReportes();
   }, []);
 
@@ -120,15 +145,6 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       setCapacitaciones(data);
     });
   }, []);
-
-  const filtrarDatos = (filtros, datos) => {
-    return datos.filter((dato) => {
-      return filtros.every((filtro) => {
-        const { propiedad, value } = filtro;
-        return dato[propiedad] === value;
-      });
-    });
-  };
 
   const handleSelectChange = (value, filtro) => {
     //cambiamos estado
@@ -146,20 +162,8 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
         break;
     }
   };
-
   useEffect(() => {
-    const filtrosSelect = [
-      { propiedad: "nombreEmpresa", value: selectEmpresa },
-      { propiedad: "nombreCapacitacion", value: selectCapacitacion },
-      { propiedad: "mesExamen", value: selectMes },
-    ].filter((select) => select.value !== "");
-
-    if (filtrosSelect.length <= 0) {
-      setRowData(dataReporte);
-    } else {
-      const dataFiltrada = filtrarDatos(filtrosSelect, dataReporte);
-      setRowData(dataFiltrada);
-    }
+    getReportes(1, selectEmpresa, selectCapacitacion, selectMes);
   }, [selectEmpresa, selectCapacitacion, selectMes]);
 
   const crearExcel = async () => {
@@ -167,9 +171,8 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     //Agregar una hoja de trabajo
     const worksheet = workbook.addWorksheet("Hoja 1");
 
-    const format = rowData.map(item =>{
-
-      return{
+    const format = rowData.map((item) => {
+      return {
         trabajadorId: item.trabajadorId,
         nombreTrabajador: item.nombreTrabajador,
         dni: item.trabajador.dni,
@@ -178,9 +181,9 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
         nombreEmpresa: item.nombreEmpresa,
         notaExamen: item.notaExamen,
         asistenciaExamen: item.asistenciaExamen,
-        fechaExamen: item.fechaExamen
-      }
-    })
+        fechaExamen: item.fechaExamen,
+      };
+    });
 
     // establecemos las filas
     worksheet.columns = [
@@ -235,8 +238,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     });
     dataRow["preguntas"] = newDataPreguntas;
 
-    console.log(dataRow);
-    if(dataRow){
+    if (dataRow) {
       const link = document.createElement("a");
       const pdfBlob = await pdf(<ExamenCapacitacion data={dataRow} />).toBlob();
       const pdfUrl = URL.createObjectURL(pdfBlob);
@@ -269,12 +271,12 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
         TrabajadorRep["preguntas"] = newDataPreguntas;
         return TrabajadorRep;
       });
-      console.log(arrayTrabajadores);
+    console.log(arrayTrabajadores);
     handleDownload(arrayTrabajadores);
   };
 
   const handleDownload = async (array) => {
-    for(let i = 0; i < array.length; i++) {
+    for (let i = 0; i < array.length; i++) {
       const data = array[i];
       const link = document.createElement("a");
       const pdfBlob = await pdf(<ExamenCapacitacion data={data} />).toBlob();
@@ -283,19 +285,24 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       link.target = "_blank";
       link.download = `Examen-${data.nombreTrabajador}.pdf`;
       link.click();
-      await new Promise(resolve => setTimeout(resolve, 500)); // esperar 1 segundo antes de la próxima descarga
+      await new Promise((resolve) => setTimeout(resolve, 500)); // esperar 1 segundo antes de la próxima descarga
     }
   };
-  
-
+  const paginationComponentOptions = {
+    rowsPerPageText: "Filas por página",
+    rangeSeparatorText: "de",
+    rowsPerPage: 50,
+    selectAllRowsItem: true,
+    selectAllRowsItemText: "Todos",
+  };
   return (
     <div className="">
       <div className="bg-white p-3">
         <h2 className="font-bold text-2xl mb-3 block">{titulo}</h2>
         <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
-          <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
+          <div className="flex flex-col md:flex-row w-full lg:w-auto gap-3">
             <select
-              className="select select-bordered select-sm"
+              className="select select-bordered select-sm w-1/4"
               id="searchSelect"
               onChange={(e) => handleSelectChange(e.target.value, "EMPRESA")}
               value={selectEmpresa}
@@ -310,7 +317,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
             <select
-              className="select select-bordered select-sm"
+              className="select select-bordered select-sm w-1/3"
               id="searchSelect"
               onChange={(e) =>
                 handleSelectChange(e.target.value, "CAPACITACION")
@@ -327,7 +334,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
             <select
-              className="select select-bordered select-sm"
+              className="select select-bordered select-sm w-1/5"
               id="searchSelect"
               onChange={(e) => handleSelectChange(e.target.value, "MES")}
               value={selectMes}
@@ -342,7 +349,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
           </div>
-          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-1/5">
+          <div className="flex flex-col md:flex-row justify-end  gap-3 w-1/2 lg:w-1/2">
             <Button
               description="Exportar"
               event={crearExcel}
@@ -359,14 +366,23 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
 
         <div style={containerStyle}>
           <div style={gridStyle} className="ag-theme-alpine">
-            <AgGridReact
-              rowData={rowData}
-              columnDefs={columnDefs}
-              defaultColDef={defaultColDef}
-              pagination={true}
-              onGridReady={onGridReady}
-              rowHeight="34"
-            ></AgGridReact>
+            <StyledDataTable
+              columns={columns}
+              data={rowData}
+              dense
+              paginationPerPage={15}
+              paginationRowsPerPageOptions={[15, 30, 45, 60]}
+              paginationComponentOptions={paginationComponentOptions}
+              rows
+              striped
+              highlightOnHover
+              responsive
+              pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
+            />
           </div>
         </div>
       </div>

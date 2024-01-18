@@ -86,7 +86,7 @@ const CapacitacionesTrabajador = () => {
     }
 
   }
-
+  console.log(dataInit);
   useEffect(() => {
     getData()
   }, []);

@@ -25,9 +25,14 @@ import { PDFViewer, pdf } from "@react-pdf/renderer";
 
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-
+import DataTable from "react-data-table-component";
+import styled from "styled-components";
+const StyledDataTable = styled(DataTable)`
+  border: 1px solid lightgrey;
+  border-radius: 5px;
+`;
 const ReporteCertificado = () => {
-  const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
+  const containerStyle = useMemo(() => ({ width: "100%", height: "75vh" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [rowData, setRowData] = useState([]);
   const [empresas, setEmpresas] = useState([]);
@@ -37,67 +42,86 @@ const ReporteCertificado = () => {
   const [selectMes, setSelectMes] = useState("");
   const [dataCertificado, setDataCertificado] = useState("");
   const [dataReporte, setDataReporte] = useState([]);
-
+  const [perPage, setPerPage] = useState(15);
+  const [totalRows, setTotalRows] = useState(0);
   const [isOpenModal, openModal, closeModal] = useModals();
 
-  //configuracion de la tabla
-  const renderButtons = ({ data }) => {
-    return (
-      <label
-        className="cursor-pointer"
-        onClick={() => descargaCertificado(data)}
-      >
-        {data.asistenciaExamen && (
-          <FontAwesomeIcon icon={faArrowAltCircleDown} />
-        )}
-      </label>
-    );
-  };
 
-  const initColumDefs = [
-    { field: "trabajadorId", headerName: "# trabajador" },
-    { field: "nombreTrabajador", headerName: "Nombre trabajador" },
-    { field: "mesExamen", hide: true },
-    { field: "nombreCapacitacion", headerName: "Capacitación" },
-    { field: "nombreEmpresa" },
-    { field: "fechaExamen", headerName: "Fecha de examen" },
+
+  const columns = [
     {
-      field: "Opciones",
-      cellRenderer: renderButtons,
-      cellStyle: { textAlign: "center" },
+      name: "# trabajador",
+      selector: (row) => row.trabajadorId,
+      sortable: true,
+    },
+    {
+      name: "Nombre",
+      selector: (row) => row.nombreTrabajador,
+      sortable: true,
+      center: true,
+    },
+    {
+      name: "Capacitación",
+      selector: (row) => row.nombreCapacitacion,
+      sortable: true,
+      center: true,
+    },
+    {
+      name: "Fecha examen",
+      selector: (row) => row.fechaExamen,
+      sortable: true,
+      center: true,
+    },
+    {
+      name: "Opciones",
+      sortable: true,
+      center: true,
+      cell: (e) => (
+        <label
+          className="cursor-pointer"
+          onClick={() => descargaCertificado(e)}
+        >
+          {e.asistenciaExamen && (
+            <FontAwesomeIcon icon={faArrowAltCircleDown} />
+          )}
+        </label>
+      ),
+      center: true,
     },
   ];
 
-  const [columnDefs, setColumnDefs] = useState(initColumDefs);
-
-  const defaultColDef = useMemo(() => {
-    return {
-      sortable: true,
-      resizable: true,
-      flex: 1,
-      minWidth: 100,
-    };
-  }, []);
-  const getReportes = async () => {
-    const response = await getReporte();
-    if (response.status === 200) {
-      setDataReporte(response.data);
-      setRowData(response.data);
-    } else {
-      toast.error("Ocurrio un error en el servidor", {
-        position: "bottom-right",
-      });
+  const getReportes = async (page, empresa, capacitacion, mes) => {
+    if (page !== undefined) {
+      const response = await getReporte(page, perPage,  empresa, capacitacion, mes);
+      if (response.status === 200) {
+        setDataReporte(response?.data?.data);
+        setRowData(response?.data?.data);
+        setTotalRows(response?.data?.pageInfo?.total);
+      } else {
+        toast.error("Ocurrio un error en el servidor", {
+          position: "bottom-right",
+        });
+      }
     }
   };
-  //cargar la informacion de la tabla
-  const onGridReady = useCallback((params) => {
-    getReportes();
-  }, []);
+  const handlePageChange = (page) => {
+    getReportes(page, selectEmpresa, selectCapacitacion, selectMes);
+  };
+
+  const handlePerRowsChange = async (newPerPage, page) => {
+    const response = await getReporte(page, newPerPage);
+    if (response.status === 200) {
+      setRowData(response.data.data);
+      setPerPage(newPerPage);
+    }
+  };
 
   useEffect(() => {
     getEmpresas().then(({ data }) => {
       setEmpresas(data);
     });
+
+    getReportes();
   }, []);
 
   useEffect(() => {
@@ -135,18 +159,8 @@ const ReporteCertificado = () => {
   };
 
   useEffect(() => {
-    const filtrosSelect = [
-      { propiedad: "nombreEmpresa", value: selectEmpresa },
-      { propiedad: "nombreCapacitacion", value: selectCapacitacion },
-      { propiedad: "mesExamen", value: selectMes },
-    ].filter((select) => select.value !== "");
+    getReportes(1, selectEmpresa, selectCapacitacion, selectMes);
 
-    if (filtrosSelect.length <= 0) {
-      setRowData(dataReporte);
-    } else {
-      const dataFiltrada = filtrarDatos(filtrosSelect, dataReporte);
-      setRowData(dataFiltrada);
-    }
   }, [selectEmpresa, selectCapacitacion, selectMes]);
 
   const crearExcel = async () => {
@@ -294,7 +308,13 @@ const ReporteCertificado = () => {
       await new Promise((resolve) => setTimeout(resolve, 500)); // esperar 1 segundo antes de la próxima descarga
     }
   };
-
+  const paginationComponentOptions = {
+    rowsPerPageText: "Filas por página",
+    rangeSeparatorText: "de",
+    rowsPerPage: 50,
+    selectAllRowsItem: true,
+    selectAllRowsItemText: "Todos",
+  };
   return (
     <div className="">
       <div className="bg-white p-3">
@@ -319,7 +339,7 @@ const ReporteCertificado = () => {
               })}
             </select>
             <select
-              className="select select-bordered select-sm"
+              className="select select-bordered select-sm w-1/2"
               id="searchSelect"
               onChange={(e) =>
                 handleSelectChange(e.target.value, "CAPACITACION")
@@ -368,14 +388,23 @@ const ReporteCertificado = () => {
 
         <div style={containerStyle}>
           <div style={gridStyle} className="ag-theme-alpine">
-            <AgGridReact
-              rowData={rowData}
-              columnDefs={columnDefs}
-              defaultColDef={defaultColDef}
-              pagination={true}
-              onGridReady={onGridReady}
-              rowHeight="34"
-            ></AgGridReact>
+            <StyledDataTable
+              columns={columns}
+              data={rowData}
+              dense
+              paginationPerPage={15}
+              paginationRowsPerPageOptions={[15, 30, 45, 60]}
+              paginationComponentOptions={paginationComponentOptions}
+              rows
+              striped
+              highlightOnHover
+              responsive
+              pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
+            />
           </div>
         </div>
       </div>

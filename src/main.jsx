@@ -18,9 +18,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider>
         <ProSidebarProvider>
-
           <RouterProvider router={router} />
-
         </ProSidebarProvider>
       <ToastContainer autoClose={2000}/>
       <Loader/>

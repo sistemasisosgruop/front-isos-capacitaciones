@@ -12,6 +12,9 @@ import SweetAlert from "react-bootstrap-sweetalert";
 import { getEmpresas } from "../../../services/empresa";
 import { useRef } from "react";
 import { toast } from "react-toastify";
+import DataTable from "react-data-table-component";
+import styled from "styled-components";
+
 import {
   deleteTrabajador,
   getTrabajador,
@@ -34,10 +37,13 @@ import FormularioImportar from "./components/FormularioImportar";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import FormularioEmo from "./components/FormularioEmo";
-
+const StyledDataTable = styled(DataTable)`
+  border: 1px solid lightgrey;
+  border-radius: 5px;
+`;
 const ListadoTrabajador = () => {
-  const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
-  const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
+  const containerStyle = useMemo(() => ({ width: "100%", }), []);
+  const gridStyle = useMemo(() => ({  width: "100%" }), []);
   const [dataForm, setdataForm] = useState(initialForm);
   const [sweetAlert, setSweetAlert] = useState(false);
   const [sweetAlertState, setSweetAlertState] = useState(false);
@@ -50,100 +56,134 @@ const ListadoTrabajador = () => {
   const [refetchData, setRefetchData] = useState(false);
   const [descripcionModal, setDescripcionModal] = useState("");
   const [modalEmo, setModalEmo] = useState(false);
+  const [perPage, setPerPage] = useState(15);
+  const [totalRows, setTotalRows] = useState(0);
+  const [pageCount, setPageCount] = useState(1);
+  const [search, setSearch] = useState("");
+  const [empresaData, setEmpresaData] = useState("");
+
   const gridRef = useRef();
 
   useEffect(() => {
     getEmpresas().then((res) => setEmpresas(res.data));
   }, []);
 
-  //configuracion de la tabla
-  const renderButtons = ({ data }) => {
-    return (
-      <>
-        <label
-          onClick={() => updateButton(data)}
-          className="cursor-pointer mr-2"
-        >
-          <FontAwesomeIcon icon={faEdit} />
+  const columns = [
+    {
+      name: "Id",
+      selector: (row) => row.id,
+      sortable: true,
+      width: "80px",
+    },
+    {
+      name: "Apellido paterno",
+      selector: (row) => row.apellidoPaterno.toUpperCase(),
+      sortable: true,
+    },
+    {
+      name: "Apellido materno",
+      selector: (row) => row.apellidoMaterno.toUpperCase(),
+      sortable: true,
+    },
+    {
+      name: "Nombres",
+      selector: (row) =>
+        row.nombres.toUpperCase(),
+      sortable: true,
+    },
+
+
+    {
+      name: "DNI",
+      selector: (row) => row.dni,
+      center: true,
+    },
+    {
+      name: "Edad",
+      selector: (row) => row.edad,
+      center: true,
+    },
+    {
+      name: "Área",
+      selector: (row) => row.areadetrabajo,
+      center: true,
+    },
+    {
+      name: "Celular",
+      selector: (row) => row.celular,
+      center: true,
+    },
+    {
+      name: "Cargo",
+      selector: (row) => row.cargo,
+      center: true,
+    },
+    {
+      name: "Empresa",
+      selector: (row) => row?.empresa?.nombreEmpresa,
+      sortable: true,
+      center: true,
+    },
+    {
+      name: "Supervisor",
+      selector: (row) => row?.supervisor,
+      center: true,
+    },
+    {
+      name: "EMO",
+      button: true,
+      cell: (e) => (
+        <label className="cursor-pointer" onClick={() => cargarEmoPdf(e)}>
+          EMO{" "}
+          {e.emoPdf !== null ? (
+            <FontAwesomeIcon style={{ color: "green" }} icon={faCheck} />
+          ) : (
+            <FontAwesomeIcon style={{ color: "red" }} icon={faClose} />
+          )}
         </label>
+      ),
+      center: true,
+    },
+    {
+      name: "Habil/desab",
+      button: true,
+      cell: (e) => (
         <label
           className="cursor-pointer"
-          onClick={() => openConfirm(data, "DELETE")}
+          onClick={() => openConfirm(e, "UPDATE")}
         >
-          <FontAwesomeIcon icon={faTrashAlt} />
+          {e.habilitado ? (
+            <div className="badge bg-red-500">Deshabilitar</div>
+          ) : (
+            <div className="badge bg-teal-700">Habilitar</div>
+          )}
         </label>
-      </>
-    );
-  };
-
-  const renderButtonsEstado = ({ data }) => {
-    return (
-      <label
-        className="cursor-pointer"
-        onClick={() => openConfirm(data, "UPDATE")}
-      >
-        {data.habilitado ? (
-          <div className="badge bg-red-500">Deshabilitar</div>
-        ) : (
-          <div className="badge bg-teal-700">Habilitar</div>
-        )}
-      </label>
-    );
-  };
-
-  const renderButtonEmo = ({ data }) => {
-    return (
-      <label className="cursor-pointer" onClick={() => cargarEmoPdf(data)}>
-        EMO{" "}
-        {data.emoPdf !== null ? (
-          <FontAwesomeIcon style={{ color: "green" }} icon={faCheck} />
-        ) : (
-          <FontAwesomeIcon style={{ color: "red" }} icon={faClose} />
-        )}
-      </label>
-    );
-  };
-
-  const [columnDefs, setColumnDefs] = useState([
-    { field: "id", hide: true },
-    { field: "apellidoPaterno", headerName: "Apellido paterno" },
-    { field: "apellidoMaterno", headerName: "Apellido materno" },
-    { field: "nombres", headerName: "Nombres" },
-    { field: "dni", headerName: "DNI" },
-    { field: "edad", headerName: "Edad" },
-    { field: "areadetrabajo", headerName: "Area" },
-    { field: "celular", headerName: "Celular" },
-    { field: "cargo", headerName: "Cargo" },
-    { field: "empresa.nombreEmpresa", headerName: "Empresa" },
-    {
-      field: "emoPdf",
-      headerName: "EMO",
-      cellStyle: { textAlign: "center" },
-      cellRenderer: renderButtonEmo,
+      ),
+      center: true,
     },
+
     {
-      headerName: "Habil/deshab",
-      minWidth: 150,
-      cellStyle: { textAlign: "center" },
-      cellRenderer: renderButtonsEstado,
+      name: "Opciones",
+      button: true,
+      cell: (e) => (
+        <>
+          <label
+            onClick={() => updateButton(e)}
+            className="cursor-pointer mr-2"
+          >
+            <FontAwesomeIcon icon={faEdit} />
+          </label>
+          <label
+            className="cursor-pointer"
+            onClick={() => openConfirm(e, "DELETE")}
+          >
+            <FontAwesomeIcon icon={faTrashAlt} />
+          </label>
+        </>
+      ),
+      center: true,
     },
-    { field: "Opciones", cellRenderer: renderButtons },
-  ]);
-
-  const defaultColDef = useMemo(() => {
-    return {
-      sortable: true,
-      resizable: true,
-      flex: 1,
-      minWidth: 100,
-    };
-  }, []);
-
-  const getRowId = useMemo(() => {
-    return (params) => {
-      return params.data.id;
-    };
-  }, []);
+  ];
 
   //funciones para refrescar la tabla
   const addItem = useCallback((addIndex, newRow) => {
@@ -164,20 +204,46 @@ const ListadoTrabajador = () => {
     gridRef.current.api.applyTransaction({ remove: arrayItems });
   }, []);
 
-  const getDataTrabajador = async()=>{
-
-    const response = await getTrabajadores()
-    if(response.status === 200){
-      setRowData(response.data)
+  const getDataTrabajador = async (page, empresa,search) => {
+    if (page !== undefined) {
+      const response = await getTrabajadores(page, perPage, empresa, search);
+      if (response.status === 200) {
+        setRowData(response.data.data);
+        setTotalRows(response.data.pageInfo.total);
+      }
     }
-  }
-  //cargar la informacion de la tabla
-  const onGridReady = useCallback(async(params) => {
-    await getDataTrabajador()
-  }, []);
+  };
   useEffect(() => {
-    onGridReady();
-  }, [refetchData]);
+    getDataTrabajador();
+  }, []);
+  const onFilterTextBoxChanged = async (e, isSelect) => {
+    if(isSelect){
+
+      setEmpresaData(e.target.value);
+    }else{
+      setSearch(e.target.value)
+    }
+    await getDataTrabajador(1, empresaData, search);
+  };
+
+  const handlePageChange = (page) => {
+    setPageCount(page);
+    if (empresaData || search) {
+      getDataTrabajador(page, empresaData, search);
+    } else {
+      getDataTrabajador(page);
+    }
+  };
+
+  const handlePerRowsChange = async (newPerPage, page) => {
+    const response = await getTrabajadores(page, newPerPage);
+    if (response.status === 200) {
+      setRowData(response.data.data);
+      setPerPage(newPerPage);
+    }
+  };
+
+
 
   const openAddModal = () => {
     setDescripcionModal("Agregar trabajador");
@@ -189,6 +255,7 @@ const ListadoTrabajador = () => {
     setDescripcionModal("SUBIR EMO DE TRABAJADOR");
     setModalEmo(true);
     setdataForm(data);
+    handlePageChange();
     // setdataForm(initialForm);
   };
 
@@ -249,20 +316,17 @@ const ListadoTrabajador = () => {
     });
   };
 
-  //filtro de la tabla
-  const onFilterTextBoxChanged = useCallback((e, isSelect) => {
-    if (isSelect) {
-      setSelectFilter(e.target.value);
-      document.getElementById("searchInput").value = "";
-    } else {
-      document.getElementById("searchSelect").value = "";
-    }
-    gridRef.current.api.setQuickFilter(e.target.value);
-  }, []);
 
-  const closeModalEmo = () =>{
-    setModalEmo(false)
-  }
+  const closeModalEmo = () => {
+    setModalEmo(false);
+  };
+  const paginationComponentOptions = {
+    rowsPerPageText: "Filas por página",
+    rangeSeparatorText: "de",
+    rowsPerPage: 50,
+    selectAllRowsItem: true,
+    selectAllRowsItemText: "Todos",
+  };
 
   //excel
   const crearExcel = async () => {
@@ -305,8 +369,8 @@ const ListadoTrabajador = () => {
     });
   };
   return (
-    <div className="">
-      <div className="bg-white p-3">
+    <div className="" style={{ width:"100%", padding:"20px", height:"20% !important"}}>
+      <div className="bg-white p-3 ">
         <div className="flex justify-between gap-3">
           <h2 className="font-bold text-2xl mb-3">Trabajadores</h2>
         </div>
@@ -316,7 +380,7 @@ const ListadoTrabajador = () => {
               className="select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => onFilterTextBoxChanged(e, true)}
-              value={selectFilter}
+              value={empresaData}
             >
               <option value={""}>Seleccione una empresa</option>
               {empresas.map((empresa) => {
@@ -357,17 +421,23 @@ const ListadoTrabajador = () => {
 
         <div style={containerStyle}>
           <div style={gridStyle} className="ag-theme-alpine">
-            <AgGridReact
-              rowData={rowData}
-              columnDefs={columnDefs}
-              defaultColDef={defaultColDef}
-              rowGroupPanelShow={"always"}
-              pagination={true}
-              onGridReady={onGridReady}
-              rowHeight="34"
-              ref={gridRef}
-              getRowId={getRowId}
-            ></AgGridReact>
+            <StyledDataTable
+              columns={columns}
+              data={rowData}
+              dense
+              paginationPerPage={15}
+              paginationRowsPerPageOptions={[30, 60, 90, 120]}
+              paginationComponentOptions={paginationComponentOptions}
+              rows
+              striped
+              highlightOnHover
+              responsive            
+              pagination
+              paginationServer
+              paginationTotalRows={totalRows}
+              onChangeRowsPerPage={handlePerRowsChange}
+              onChangePage={handlePageChange}
+            />
           </div>
         </div>
 
@@ -414,7 +484,7 @@ const ListadoTrabajador = () => {
             setRefetchData={setRefetchData}
             closeModal={closeModalImport}
             empresas={empresas}
-            actualizar = {getDataTrabajador}
+            actualizar={getDataTrabajador}
           />
         </Modal>
 

@@ -70,8 +70,8 @@ const SidebarCustom = ({ children }) => {
   const { collapseSidebar, collapsed, broken, toggleSidebar } = useProSidebar();
 
   return (
-    <div style={{ display: "flex", height: "100vh" }}>
-      <Sidebar breakPoint="md" width="230px" backgroundColor="#ffff">
+    <div style={{ display: "flex", height: "100vh", width:"100%" }}>
+      <Sidebar breakPoint="md" width="13%" backgroundColor="#ffff">
         <Menu menuItemStyles={menuItemStyles}>
           <div className="flex justify-center">
             <div className="w-24 h-24 bg-white flex justify-center items-center rounded-full p-5">
@@ -95,7 +95,7 @@ const SidebarCustom = ({ children }) => {
         </div>
       </Sidebar>
 
-      <main className="w-full bg-slate-100">
+      <main className=" bg-slate-100" style={{width: "87%"}}>
         <NavBar broken={broken} toggleSidebar={toggleSidebar} />
         <div className="px-3">{children}</div>
       </main>
