@@ -10,6 +10,7 @@ import ItemsAdmin from "./ItemsAdmin";
 import { AuthContext } from "../../context/auth/AuthContext";
 import { useContext } from "react";
 import ItemsTrabajador from "./ItemsTrabajador";
+import ItemSupervisor from "./ItemSupervisor";
 
 const menuItemStyles = {
   root: {
@@ -64,23 +65,26 @@ const menuItemStyles2 = {
  */
 
 const SidebarCustom = ({ children }) => {
-
   const { authState } = useContext(AuthContext);
   const rolUser = authState.user.rol;
   const { collapseSidebar, collapsed, broken, toggleSidebar } = useProSidebar();
 
   return (
-    <div style={{ display: "flex", height: "100vh", width:"100%" }}>
-      <Sidebar breakPoint="md" width="13%" backgroundColor="#ffff">
+    <div style={{ display: "flex", height: "100vh", width: "100%" }}>
+      <Sidebar breakPoint="md" width="240px" backgroundColor="#ffff">
         <Menu menuItemStyles={menuItemStyles}>
           <div className="flex justify-center">
             <div className="w-24 h-24 bg-white flex justify-center items-center rounded-full p-5">
               <img src={logoIsos} className="w-16" />
             </div>
           </div>
-          {
-            rolUser === 'Trabajador' ? <ItemsTrabajador/> : <ItemsAdmin />
-          }
+          {rolUser === "Trabajador" ? (
+            <ItemsTrabajador />
+          ) : rolUser === "Supervisor" ? (
+            <ItemSupervisor />
+          ) : (
+            <ItemsAdmin />
+          )}
         </Menu>
         <div className="text-center absolute bottom-0 right-0">
           {!collapsed ? (
@@ -95,7 +99,14 @@ const SidebarCustom = ({ children }) => {
         </div>
       </Sidebar>
 
-      <main className=" bg-slate-100" style={{width: "87%"}}>
+      <main
+        className=" bg-slate-100"
+        style={{
+          flexGrow: 1,
+          backgroundColor: "bg-slate-100",
+          width: "calc(100% - 240px)",
+        }}
+      >
         <NavBar broken={broken} toggleSidebar={toggleSidebar} />
         <div className="px-3">{children}</div>
       </main>

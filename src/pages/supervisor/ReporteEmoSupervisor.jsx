@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { getEmpresas } from "../../../services/empresa";
+import { getEmpresas } from "../../services/empresa";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -18,8 +18,8 @@ import {
   faCheck,
   faClose,
 } from "@fortawesome/free-solid-svg-icons";
-import Button from "../../../components/Button";
-import { getReporteEmo } from "../../../services/emo";
+import Button from "../../components/Button";
+import { getReporteEmo } from "../../services/emo";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import DataTable from "react-data-table-component";
@@ -99,10 +99,24 @@ const ReporteEmo = () => {
   };
 
   useEffect(() => {
-    getDataReporte(1, perPage, empresaData, search);
-  }, [page, empresaData, search]);
+    const userIsosString = localStorage.getItem("userIsos");
+    const userIsosObject = JSON.parse(userIsosString);
+    const empresaId = userIsosObject ? userIsosObject.empresaId : null;
+
+    const empresaObj = empresas.find((item) => item.id == empresaId);
+    const empresaNombre = empresaObj ? empresaObj.nombreEmpresa : null;
+    if (empresaNombre) {
+      getDataReporte(1, perPage, empresaNombre, search);
+    }
+  }, [page, empresas, empresaData, search]);
   const descargarDocumento = async (tipo) => {
-    const response = await getReporteEmo(page, perPage, empresaData, search, true);
+    const response = await getReporteEmo(
+      page,
+      perPage,
+      empresaData,
+      search,
+      true
+    );
     if (response.status === 200) {
       crearExcel(response.data.data); // Llamar a la función para generar Excel
     }
@@ -164,21 +178,6 @@ const ReporteEmo = () => {
         </div>
         <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
           <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
-            <select
-              className="select select-bordered select-sm"
-              id="searchSelect"
-              onChange={(e) => setEmpresaData(e.target.value)}
-              value={empresaData}
-            >
-              <option value={""}>Seleccione una empresa</option>
-              {empresas.map((empresa) => {
-                return (
-                  <option key={empresa.id} value={empresa.nombreEmpresa}>
-                    {empresa.nombreEmpresa}
-                  </option>
-                );
-              })}
-            </select>
             <input
               type="text"
               name="empresa"

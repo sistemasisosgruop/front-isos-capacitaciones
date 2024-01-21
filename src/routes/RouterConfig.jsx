@@ -17,24 +17,71 @@ import ReporteExameAsistencia from "../pages/administrador/reportes/ReporteExame
 import ReporteCertificado from "../pages/administrador/reportes/ReporteCertificado";
 import TestTrabajador from "../pages/trabajador/capacitaciones/TestTrabajador";
 import validateToken from "./validateToken";
-import OpcionesEmos from "../pages/administrador/emos/opcionesReportes"
+import OpcionesEmos from "../pages/administrador/emos/opcionesReportes";
 import EvaluacionMedica from "../pages/trabajador/evaluacionMedica/EvaluacionMedica";
 import ReporteEmo from "../pages/administrador/reportes/ReporteEmo";
 import CompararTrabajadores from "../pages/administrador/ListaTrabajadores/CompararTrabajadores";
+import OpcionesSupervisor from "../pages/supervisor/OpcionesSupervisor";
+import ReporteExameAsistenciaSupervisor from "../pages/supervisor/ReporteExameAsistenciaSupervisor";
+import ReporteCertificadoSupervisor from "../pages/supervisor/ReporteExameAsistenciaSupervisor";
+import ReporteEmoSupervisor from "../pages/supervisor/ReporteEmoSupervisor";
 
 const router = createBrowserRouter([
   {
     path: "/menu",
-    loader:validateToken,
+    loader: validateToken,
     element: (
-      <ProtectedRoute expectedRoles={[userRoles.ADMIN, userRoles.EMPLOYEE]}>
+      <ProtectedRoute
+        expectedRoles={[
+          userRoles.ADMIN,
+          userRoles.EMPLOYEE,
+          userRoles.SUPERVISOR,
+        ]}
+      >
         <Menu />
       </ProtectedRoute>
     ),
     children: [
       {
+        path: "supervisor",
+        loader: validateToken,
+        element: (
+          <ProtectedRoute expectedRoles={[userRoles.SUPERVISOR]}>
+            <Outlet />
+          </ProtectedRoute>
+        ),
+        children: [
+          { path: "opciones", element: <OpcionesTrabajador /> },
+          { path: "capacitaciones", element: <CapacitacionesTrabajador /> },
+          { path: "test", element: <TestTrabajador /> },
+          { path: "evaluacion", element: <EvaluacionMedica /> },
+          {
+            path: "reportes",
+            element: <Outlet />,
+            children: [
+              { path: "opciones", element: <OpcionesSupervisor /> },
+              {
+                path: "examenes",
+                element: (
+                  <ReporteExameAsistenciaSupervisor
+                    titulo={"Reporte de examenes"}
+                    esExamen={true}
+                  />
+                ),
+              },
+              {
+                path: "certificados",
+                element: <ReporteCertificadoSupervisor />,
+              },
+              { path: "emos", element: <ReporteEmoSupervisor /> },
+            ],
+          },
+          { path: "*", element: <Navigate to="/menu/supervisor/opciones" /> },
+        ],
+      },
+      {
         path: "trabajador",
-        loader:validateToken,
+        loader: validateToken,
         element: (
           <ProtectedRoute expectedRoles={[userRoles.EMPLOYEE]}>
             <Outlet />
@@ -43,15 +90,15 @@ const router = createBrowserRouter([
         children: [
           { path: "opciones", element: <OpcionesTrabajador /> },
           { path: "capacitaciones", element: <CapacitacionesTrabajador /> },
-          { path: "test", element: <TestTrabajador/> },
-          { path: "evaluacion", element: <EvaluacionMedica/> },
+          { path: "test", element: <TestTrabajador /> },
+          { path: "evaluacion", element: <EvaluacionMedica /> },
           { path: "*", element: <Navigate to="/menu/trabajador/opciones" /> },
         ],
       },
       { path: "*", element: <Navigate to="/menu" /> },
       {
         path: "admin",
-        loader:validateToken,
+        loader: validateToken,
         element: (
           <ProtectedRoute expectedRoles={[userRoles.ADMIN]}>
             <Outlet />
@@ -95,9 +142,7 @@ const router = createBrowserRouter([
           {
             path: "constancia",
             element: <Outlet />,
-            children: [
-              { path: "opciones", element: <OpcionesEmos /> },
-            ],
+            children: [{ path: "opciones", element: <OpcionesEmos /> }],
           },
           { path: "*", element: <Navigate to="/menu/admin/opciones" /> },
         ],

@@ -49,7 +49,16 @@ const FormLogin = () => {
             rutaInicio = "/menu/admin/opciones";
             idUsuario = data.admin.id;
             login({ nombres, apellidoPaterno, token, idUsuario, rol, dni });
-          } else {
+          }
+          if (rol === "Supervisor") {
+            const nombres = data.supervisor.nombres;
+            const apellidoPaterno = data.supervisor.apellidoPaterno;
+            idUsuario = data.supervisor.id;
+            const empresaId = data.supervisor.empresaId
+            rutaInicio = "/menu/supervisor/opciones";
+            login({ nombres, apellidoPaterno, token, idUsuario, rol, dni, empresaId });
+          }
+          if (rol === "Trabajador") {
             const nombres = data.worker.nombres;
             const apellidoPaterno = data.worker.apellidoPaterno;
             idUsuario = data.worker.id;

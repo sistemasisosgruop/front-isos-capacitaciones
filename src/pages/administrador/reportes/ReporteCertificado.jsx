@@ -45,8 +45,7 @@ const ReporteCertificado = () => {
   const [perPage, setPerPage] = useState(15);
   const [totalRows, setTotalRows] = useState(0);
   const [isOpenModal, openModal, closeModal] = useModals();
-
-
+  const [page, setPage] = useState(1);
 
   const columns = [
     {
@@ -90,29 +89,22 @@ const ReporteCertificado = () => {
     },
   ];
 
-  const getReportes = async (page, empresa, capacitacion, mes) => {
-    if (page !== undefined) {
-      const response = await getReporte(page, perPage,  empresa, capacitacion, mes);
-      if (response.status === 200) {
-        setDataReporte(response?.data?.data);
-        setRowData(response?.data?.data);
-        setTotalRows(response?.data?.pageInfo?.total);
-      } else {
-        toast.error("Ocurrio un error en el servidor", {
-          position: "bottom-right",
-        });
-      }
-    }
-  };
-  const handlePageChange = (page) => {
-    getReportes(page, selectEmpresa, selectCapacitacion, selectMes);
-  };
-
-  const handlePerRowsChange = async (newPerPage, page) => {
-    const response = await getReporte(page, newPerPage);
+  const getReportes = async (page, perPage, empresa, capacitacion, mes) => {
+    const response = await getReporte(
+      page,
+      perPage,
+      empresa,
+      capacitacion,
+      mes
+    );
     if (response.status === 200) {
-      setRowData(response.data.data);
-      setPerPage(newPerPage);
+      setDataReporte(response?.data?.data);
+      setRowData(response?.data?.data);
+      setTotalRows(response?.data?.pageInfo?.total);
+    } else {
+      toast.error("Ocurrio un error en el servidor", {
+        position: "bottom-right",
+      });
     }
   };
 
@@ -120,50 +112,36 @@ const ReporteCertificado = () => {
     getEmpresas().then(({ data }) => {
       setEmpresas(data);
     });
-
-    getReportes();
   }, []);
+
+  useEffect(() => {
+    getReportes(1, perPage, selectEmpresa, selectCapacitacion, selectMes);
+  }, [page, selectEmpresa, selectCapacitacion, selectMes]);
 
   useEffect(() => {
     getCapacitaciones().then(({ data }) => {
       setCapacitaciones(data);
     });
   }, []);
-
-  const filtrarDatos = (filtros, datos) => {
-    return datos.filter((dato) => {
-      return filtros.every((filtro) => {
-        const { propiedad, value } = filtro;
-        return dato[propiedad] === value;
-      });
-    });
-  };
-
-  const handleSelectChange = (value, filtro) => {
-    console.log(value);
-    console.log(filtro);
-    //cambiamos estado
-    switch (filtro) {
-      case "EMPRESA":
-        setSelectEmpresa(value);
-        break;
-      case "CAPACITACION":
-        setSelectCapacitacion(value);
-        break;
-      case "MES":
-        setSelectMes(value === "" ? value : Number(value));
-        break;
-      default:
-        break;
+  const descargarDocumento = async (tipo) => {
+    const response = await getReporte(
+      page,
+      perPage,
+      selectEmpresa,
+      selectCapacitacion,
+      selectMes,
+      true
+    );
+    if (response.status === 200) {
+      if (tipo === "excel") {
+        crearExcel(response.data.data); // Llamar a la función para generar Excel
+      }
+      if (tipo === "pdf") {
+        descargarCertificados(response.data.data); // Llamar a la función para generar Excel
+      }
     }
   };
-
-  useEffect(() => {
-    getReportes(1, selectEmpresa, selectCapacitacion, selectMes);
-
-  }, [selectEmpresa, selectCapacitacion, selectMes]);
-
-  const crearExcel = async () => {
+  const crearExcel = async (data) => {
     const workbook = new ExcelJS.Workbook();
 
     //Agregar una hoja de trabajo
@@ -194,7 +172,7 @@ const ReporteCertificado = () => {
       pattern: "solid",
       fgColor: { argb: "16A971" },
     };
-    worksheet.addRows(rowData);
+    worksheet.addRows(data);
 
     // Descarga el archivo Excel en el navegador
     workbook.xlsx.writeBuffer().then(function (buffer) {
@@ -207,7 +185,6 @@ const ReporteCertificado = () => {
 
   const descargaCertificado = async (data) => {
     const empresaTrabajador = data.empresaId;
-    console.log(data);
     const promesas = [
       getImgs(empresaTrabajador, "logo"),
       getImgs(empresaTrabajador, "certificado"),
@@ -268,12 +245,12 @@ const ReporteCertificado = () => {
   const descargarCertificados = async () => {
     try {
       // Obtener el primer trabajador para obtener la empresaId
-      const primerTrabajador = rowData[0];
+      const primerTrabajador = data[0];
       // Descargar las imágenes de la empresa solo una vez
       const imagenesEmpresa = await fetchImgsEmpresa(primerTrabajador);
 
       const resultados = await Promise.all(
-        rowData
+        data
           .filter(
             (data) =>
               data.reporte.asistenciaExamen === true &&
@@ -326,7 +303,7 @@ const ReporteCertificado = () => {
             <select
               className="select select-bordered select-sm"
               id="searchSelect"
-              onChange={(e) => handleSelectChange(e.target.value, "EMPRESA")}
+              onChange={(e) => setSelectEmpresa(e.target.value)}
               value={selectEmpresa}
             >
               <option value={""}>Empresa</option>
@@ -341,9 +318,7 @@ const ReporteCertificado = () => {
             <select
               className="select select-bordered select-sm w-1/2"
               id="searchSelect"
-              onChange={(e) =>
-                handleSelectChange(e.target.value, "CAPACITACION")
-              }
+              onChange={(e) => setSelectCapacitacion(e.target.value)}
               value={selectCapacitacion}
             >
               <option value={""}>Capacitación</option>
@@ -358,7 +333,7 @@ const ReporteCertificado = () => {
             <select
               className="select select-bordered select-sm"
               // id="searchSelect"
-              onChange={(e) => handleSelectChange(e.target.value, "MES")}
+              onChange={(e) => setSelectMes(e.target.value)}
               value={selectMes}
             >
               <option value={""}>Mes</option>
@@ -374,12 +349,12 @@ const ReporteCertificado = () => {
           <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-1/5">
             <Button
               description="Exportar"
-              event={crearExcel}
+              event={() => descargarDocumento("excel")}
               icon={faFileExport}
             />
             <button
               className="btn btn-sm btn-outline btn-error"
-              onClick={descargarCertificados}
+              onClick={() => descargarDocumento("pdf")}
             >
               Descargar PDFS
             </button>
@@ -402,8 +377,7 @@ const ReporteCertificado = () => {
               pagination
               paginationServer
               paginationTotalRows={totalRows}
-              onChangeRowsPerPage={handlePerRowsChange}
-              onChangePage={handlePageChange}
+              onChangePage={(page) => setPage(page)}
             />
           </div>
         </div>

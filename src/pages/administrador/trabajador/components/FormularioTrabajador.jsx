@@ -37,6 +37,8 @@ const FormularioTrabajador = ({
     password,
     empresa,
     celular,
+    user,
+    rol,
 
     nombresValid,
     apellidoPaternoValid,
@@ -69,15 +71,27 @@ const FormularioTrabajador = ({
 
     jsonData.empresaId = empresa;
     // jsonData.fechadenac = newFormDate;
-    
+
     if (action === "ADD") {
-      //reset 
-      jsonData.user = { username: formState.dni, contraseña: password };
-      jsonData.user = { username: formState.dni, contraseña: formState.dni };
+      //reset
+      jsonData.user = {
+        username: formState.dni,
+        contraseña: password,
+        rol: formState.supervisor === "Si" ? "Supervisor" : "Trabajador",
+      };
+      jsonData.user = {
+        username: formState.dni,
+        contraseña: formState.dni,
+        rol: formState.supervisor === "Si" ? "Supervisor" : "Trabajador",
+      };
       add(jsonData);
     } else {
-      if (password !== '') {
-        jsonData.user = { username: formState.dni, contraseña: password };
+      if (password !== "") {
+        jsonData.user = {
+          username: formState.dni,
+          contraseña: password,
+          rol: formState.supervisor === "Si" ? "Supervisor" : "Trabajador",
+        };
       }
       update(jsonData);
     }
@@ -85,8 +99,8 @@ const FormularioTrabajador = ({
 
   const update = (dataForm) => {
     showLoader();
-    delete dataForm.emoPdf
-    patchTrabajador(dataForm).then(({data, message=null}) => {
+    delete dataForm.emoPdf;
+    patchTrabajador(dataForm).then(({ data, message = null }) => {
       if (data) {
         const { createdAt, ...newRowData } = data;
 
@@ -112,8 +126,8 @@ const FormularioTrabajador = ({
   const add = (dataForm) => {
     showLoader();
     const { id, ...newData } = dataForm;
-    delete dataForm.emoPdf
-    postTrabajador(newData).then(({data, message=null}) => {
+    delete dataForm.emoPdf;
+    postTrabajador(newData).then(({ data, message = null }) => {
       if (data) {
         const { createdAt, ...newrowData } = data;
         getTrabajador(data.id).then(({ data }) => {
@@ -134,7 +148,6 @@ const FormularioTrabajador = ({
       hideLoader();
     });
   };
-
 
   return (
     <form onSubmit={(e) => handleForm(e, action)}>
@@ -244,10 +257,9 @@ const FormularioTrabajador = ({
             <p className="text-sm text-red-700">{edadValid}</p>
           )}
         </div>
-
       </div>
       <div className="flex flex-col md:flex-row  gap-3 mb-2">
-      <div className="w-full md:w-1/3">
+        <div className="w-full md:w-1/3">
           <label htmlFor="edad" className="font-semibold">
             Celular
           </label>
@@ -317,7 +329,10 @@ const FormularioTrabajador = ({
         {action === "UPDATE" ? (
           <div className="w-full md:w-1/3">
             <label htmlFor="password" className="font-semibold">
-              Contraseña <span className="text-yellow-500 text-sm">(dejar vacio para no actualizar este campo )</span> 
+              Contraseña{" "}
+              <span className="text-yellow-500 text-sm">
+                (dejar vacio para no actualizar este campo )
+              </span>
             </label>
             <input
               type="text"
@@ -359,6 +374,25 @@ const FormularioTrabajador = ({
           {!!empresaValid && formSubmitted && (
             <p className="text-sm text-red-700">{empresaValid}</p>
           )}
+        </div>
+        <div className="w-full md:w-1/3">
+          <label htmlFor="rol" className="font-semibold">
+            Supervisor
+          </label>
+          <select
+            className="select select-bordered select-sm block w-full"
+            id="rol"
+            name="rol"
+            onChange={onInputChange}
+            value={rol}
+          >
+            <option value="" selected>
+              {" "}
+              Seleccione una opción{" "}
+            </option>
+            <option value="Si">Si</option>
+            <option value="No">No</option>
+          </select>
         </div>
       </div>
       <div className="flex justify-end">

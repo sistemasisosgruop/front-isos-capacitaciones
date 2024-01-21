@@ -26,14 +26,17 @@ const getDescargaEmo = (id, ) => {
     .catch(objErrorApi);
 };
 
-const getReporteEmo = (page,limit, empresa, search) => {
-  let url = `${stepApi}?page=${page}&limit=${limit}`;
+const getReporteEmo = (page,limit, empresa, search,all) => {
+  let url = `${stepApi}/reporte?page=${page}&limit=${limit}`;
 
   if (empresa) {
     url += `&nombreEmpresa=${empresa}`;
   }
   if (search) {
     url += `&search=${search}`;
+  }
+  if (all) {
+    url += `&all=${all}`;
   }
   return baseApi(url).get("").catch(objErrorApi);
 };

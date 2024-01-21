@@ -1,14 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { getEmpresa, getEmpresas } from "../../../services/empresa";
-import Button from "../../../components/Button";
+import { getEmpresa, getEmpresas } from "../../services/empresa";
+import Button from "../../components/Button";
 import { toast } from "react-toastify";
-import { getReporte } from "../../../services/reportes";
-import { getCapacitaciones } from "../../../services/capacitacion";
-import { Modal } from "../../../components/modal/Modal";
-import useModals from "../../../hooks/useModal";
-import ExamenCapacitacion from "../../../components/ExamenCapacitacion";
-import { getExamen, getExamenCapacitacion } from "../../../services/examenes";
-import { months } from "../../../config";
+import { getReporte } from "../../services/reportes";
+import { getCapacitaciones } from "../../services/capacitacion";
+import { Modal } from "../../components/modal/Modal";
+import useModals from "../../hooks/useModal";
+import ExamenCapacitacion from "../../components/ExamenCapacitacion";
+import { getExamen, getExamenCapacitacion } from "../../services/examenes";
+import { months } from "../../config";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -122,10 +122,18 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       });
     }
   };
-
   useEffect(() => {
-    getReportes(page, perPage, selectEmpresa, selectCapacitacion, selectMes);
-  }, [page, selectEmpresa, selectCapacitacion, selectMes]);
+    const userIsosString = localStorage.getItem("userIsos");
+    const userIsosObject = JSON.parse(userIsosString);
+    const empresaId = userIsosObject ? userIsosObject.empresaId : null;
+
+    const empresaObj = empresas.find((item) => item.id == empresaId);
+    const empresaNombre = empresaObj ? empresaObj.nombreEmpresa : null;
+
+    if (empresaNombre) {
+      getReportes(1, perPage, empresaNombre, selectCapacitacion, selectMes);
+    }
+  }, [page, perPage, empresas, selectCapacitacion, selectMes]);
 
   useEffect(() => {
     getEmpresas().then(({ data }) => {
@@ -138,10 +146,6 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       setCapacitaciones(data);
     });
   }, []);
-
-  useEffect(() => {
-    getReportes(1, perPage, selectEmpresa, selectCapacitacion, selectMes);
-  }, [page,selectEmpresa, selectCapacitacion, selectMes]);
 
   const descargarDocumento = async (tipo) => {
     const response = await getReporte(
@@ -296,7 +300,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
         <h2 className="font-bold text-2xl mb-3 block">{titulo}</h2>
         <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
           <div className="flex flex-col md:flex-row w-full lg:w-auto gap-3">
-            <select
+            {/* <select
               className="select select-bordered select-sm w-1/4"
               id="searchSelect"
               onChange={(e) => setSelectEmpresa(e.target.value)}
@@ -310,7 +314,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
                   </option>
                 );
               })}
-            </select>
+            </select> */}
             <select
               className="select select-bordered select-sm w-1/3"
               id="searchSelect"

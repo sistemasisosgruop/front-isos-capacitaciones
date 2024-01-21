@@ -1,14 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { getEmpresa, getEmpresas } from "../../../services/empresa";
-import Button from "../../../components/Button";
-import { toast } from "react-toastify";
-import { getReporte } from "../../../services/reportes";
-import { getCapacitaciones } from "../../../services/capacitacion";
 import { Modal } from "../../../components/modal/Modal";
+import Certificado from "../../../components/Certificado";
 import useModals from "../../../hooks/useModal";
-import ExamenCapacitacion from "../../../components/ExamenCapacitacion";
-import { getExamen, getExamenCapacitacion } from "../../../services/examenes";
+import { formatDateDb } from "../../../utils/formtDate";
 import { months } from "../../../config";
+import { getEmpresa, getEmpresas, getImgs } from "../../../services/empresa";
+import Button from "../../../components/Button";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -16,21 +13,26 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faFileExport,
   faArrowAltCircleDown,
-  faTimesCircle,
-  faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
+
+import { toast } from "react-toastify";
+import { getReporte } from "../../../services/reportes";
+import {
+  getCapacitaciones,
+  getFirmaCertificado,
+} from "../../../services/capacitacion";
+import { PDFViewer, pdf } from "@react-pdf/renderer";
+
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import { Link, PDFViewer, pdf } from "@react-pdf/renderer";
-import { GridApi } from "ag-grid-community";
 import DataTable from "react-data-table-component";
 import styled from "styled-components";
 const StyledDataTable = styled(DataTable)`
   border: 1px solid lightgrey;
   border-radius: 5px;
 `;
-const ReporteExameAsistencia = ({ titulo, esExamen }) => {
-  const containerStyle = useMemo(() => ({ width: "100%", height: "80%" }), []);
+const ReporteCertificado = () => {
+  const containerStyle = useMemo(() => ({ width: "100%", height: "75vh" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [rowData, setRowData] = useState([]);
   const [empresas, setEmpresas] = useState([]);
@@ -38,8 +40,8 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   const [selectEmpresa, setSelectEmpresa] = useState("");
   const [selectCapacitacion, setSelectCapacitacion] = useState("");
   const [selectMes, setSelectMes] = useState("");
+  const [dataCertificado, setDataCertificado] = useState("");
   const [dataReporte, setDataReporte] = useState([]);
-  const [dataExamen, setDataExamen] = useState("");
   const [perPage, setPerPage] = useState(15);
   const [totalRows, setTotalRows] = useState(0);
   const [isOpenModal, openModal, closeModal] = useModals();
@@ -50,12 +52,10 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       name: "# trabajador",
       selector: (row) => row.trabajadorId,
       sortable: true,
-      width: "120px",
-      center: true,
     },
     {
       name: "Nombre",
-      selector: (row) => row.nombreTrabajador.toUpperCase(),
+      selector: (row) => row.nombreTrabajador,
       sortable: true,
       center: true,
     },
@@ -66,26 +66,6 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       center: true,
     },
     {
-      name: "Nota examen",
-      selector: (row) => row.notaExamen,
-      sortable: true,
-      center: true,
-    },
-    {
-      name: "Asistencia examen",
-      button: true,
-      cell: (e) => (
-        <label className="cursor-pointer">
-          {e.asistenciaExamen ? (
-            <FontAwesomeIcon icon={faCheckCircle} size="1x" color="green" />
-          ) : (
-            <FontAwesomeIcon icon={faTimesCircle} size="1x" color="red" />
-          )}
-        </label>
-      ),
-      center: true,
-    },
-    {
       name: "Fecha examen",
       selector: (row) => row.fechaExamen,
       sortable: true,
@@ -93,14 +73,19 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     },
     {
       name: "Opciones",
-      button: true,
+      sortable: true,
+      center: true,
       cell: (e) => (
-        <label className="cursor-pointer" onClick={() => descargaExamen(e)}>
-          <FontAwesomeIcon icon={faArrowAltCircleDown} />
+        <label
+          className="cursor-pointer"
+          onClick={() => descargaCertificado(e)}
+        >
+          {e.asistenciaExamen && (
+            <FontAwesomeIcon icon={faArrowAltCircleDown} />
+          )}
         </label>
       ),
       center: true,
-      omit: esExamen ? false : true,
     },
   ];
 
@@ -124,25 +109,29 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   };
 
   useEffect(() => {
-    getReportes(page, perPage, selectEmpresa, selectCapacitacion, selectMes);
-  }, [page, selectEmpresa, selectCapacitacion, selectMes]);
-
-  useEffect(() => {
     getEmpresas().then(({ data }) => {
       setEmpresas(data);
     });
   }, []);
 
   useEffect(() => {
+    const userIsosString = localStorage.getItem("userIsos");
+    const userIsosObject = JSON.parse(userIsosString);
+    const empresaId = userIsosObject ? userIsosObject.empresaId : null;
+
+    const empresaObj = empresas.find((item) => item.id == empresaId);
+    const empresaNombre = empresaObj ? empresaObj.nombreEmpresa : null;
+    if(empresaNombre){
+
+      getReportes(1, perPage, empresaNombre, selectCapacitacion, selectMes);
+    }
+  }, [page, empresas, selectCapacitacion, selectMes]);
+
+  useEffect(() => {
     getCapacitaciones().then(({ data }) => {
       setCapacitaciones(data);
     });
   }, []);
-
-  useEffect(() => {
-    getReportes(1, perPage, selectEmpresa, selectCapacitacion, selectMes);
-  }, [page,selectEmpresa, selectCapacitacion, selectMes]);
-
   const descargarDocumento = async (tipo) => {
     const response = await getReporte(
       page,
@@ -154,32 +143,18 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     );
     if (response.status === 200) {
       if (tipo === "excel") {
-        generarExcel(response.data.data); // Llamar a la función para generar Excel
+        crearExcel(response.data.data); // Llamar a la función para generar Excel
       }
       if (tipo === "pdf") {
-        descargarExamenes(response.data.data); // Llamar a la función para generar Excel
+        descargarCertificados(response.data.data); // Llamar a la función para generar Excel
       }
     }
   };
-
-  const generarExcel = async (data) => {
+  const crearExcel = async (data) => {
     const workbook = new ExcelJS.Workbook();
+
     //Agregar una hoja de trabajo
     const worksheet = workbook.addWorksheet("Hoja 1");
-
-    const format = data.map((item) => {
-      return {
-        trabajadorId: item.trabajadorId,
-        nombreTrabajador: item.nombreTrabajador,
-        dni: item.trabajador.dni,
-        cargo: item.trabajador.cargo,
-        nombreCapacitacion: item.nombreCapacitacion,
-        nombreEmpresa: item.nombreEmpresa,
-        notaExamen: item.notaExamen,
-        asistenciaExamen: item.asistenciaExamen,
-        fechaExamen: item.fechaExamen,
-      };
-    });
 
     // establecemos las filas
     worksheet.columns = [
@@ -190,8 +165,6 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
         color: "D58144",
       },
       { header: "Nombre trabajador ", key: "nombreTrabajador", width: 50 },
-      { header: "DNI", key: "dni", width: 20 },
-      { header: "Cargo", key: "cargo", width: 30 },
       { header: "Nombre Capacitación", key: "nombreCapacitacion", width: 50 },
       { header: "Nombre empresa", key: "nombreEmpresa", width: 50 },
       { header: "Nota examen", key: "notaExamen", width: 10 },
@@ -208,79 +181,117 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       pattern: "solid",
       fgColor: { argb: "16A971" },
     };
-    worksheet.addRows(format);
+    worksheet.addRows(data);
 
     // Descarga el archivo Excel en el navegador
     workbook.xlsx.writeBuffer().then(function (buffer) {
       saveAs(
         new Blob([buffer], { type: "application/octet-stream" }),
-        "Reporte.xlsx"
+        "Reporte certificados.xlsx"
       );
     });
   };
 
-  const descargaExamen = async (dataRow) => {
-    const arrayRespuestas = [
-      dataRow?.reporte?.rptpregunta1,
-      dataRow?.reporte?.rptpregunta2,
-      dataRow?.reporte?.rptpregunta3,
-      dataRow?.reporte?.rptpregunta4,
-      dataRow?.reporte?.rptpregunta5,
+  const descargaCertificado = async (data) => {
+    const empresaTrabajador = data.empresaId;
+    const promesas = [
+      getImgs(empresaTrabajador, "logo"),
+      getImgs(empresaTrabajador, "certificado"),
+      getFirmaCertificado(data.capacitacionId),
     ];
 
-    const newDataPreguntas = dataRow.pregunta.map((pregunta, index) => {
-      pregunta["respuestaTrabajador"] = arrayRespuestas[index];
-      return pregunta;
-    });
-    dataRow["preguntas"] = newDataPreguntas;
+    Promise.all(promesas.map((prom) => prom.then((res) => res))).then((res) => {
+      const srcLogo = URL.createObjectURL(new Blob([res[0].data]));
+      const srcCertificado = URL.createObjectURL(new Blob([res[1].data]));
+      const srcFirma = URL.createObjectURL(new Blob([res[2].data]));
 
-    if (dataRow) {
-      const link = document.createElement("a");
-      const pdfBlob = await pdf(<ExamenCapacitacion data={dataRow} />).toBlob();
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      link.href = pdfUrl;
-      link.target = "_blank";
-      link.download = `Examen-${dataRow.nombreTrabajador}.pdf`;
-      link.click();
+      const imagenes = { srcLogo, srcCertificado, srcFirma };
+      const horasCapacitacion = data.capacitacion.horas;
+      data["imagenes"] = imagenes;
+      data["fechaCapacitacion"] = formatDateDb(data.capacitacion.fechaInicio);
+      data["horasCapacitacion"] =
+        horasCapacitacion < 10 ? "0" + horasCapacitacion : horasCapacitacion;
+      setDataCertificado(data);
+      openModal();
+    });
+  };
+
+  const fetchImgsEmpresa = async (data) => {
+    try {
+      const logo = await getImgs(data.empresaId, "logo");
+      const certificado = await getImgs(data.empresaId, "certificado");
+      const firma = await getFirmaCertificado(data.capacitacionId);
+
+      const srcLogo = URL.createObjectURL(new Blob([logo.data]));
+      const srcCertificado = URL.createObjectURL(new Blob([certificado.data]));
+      const srcFirma = URL.createObjectURL(new Blob([firma.data]));
+
+      return { srcLogo, srcCertificado, srcFirma };
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+      return { srcLogo: null, srcCertificado: null, srcFirma: null };
     }
   };
 
-  const descargarExamenes = (data) => {
-    const arrayTrabajadores = data
-      .filter((data) => data.asistenciaExamen === true)
-      .map((TrabajadorRep, index) => {
-        const arrayRespuestas = [
-          TrabajadorRep?.reporte?.rptpregunta1,
-          TrabajadorRep?.reporte?.rptpregunta2,
-          TrabajadorRep?.reporte?.rptpregunta3,
-          TrabajadorRep?.reporte?.rptpregunta4,
-          TrabajadorRep?.reporte?.rptpregunta5,
-        ];
+  const fetchCertificados = async (dataReporte, imagenesEmpresa) => {
+    try {
+      const horasCapacitacion = dataReporte.capacitacion.horas;
 
-        const newDataPreguntas = TrabajadorRep.pregunta.map(
-          (pregunta, index) => {
-            pregunta["respuestaTrabajador"] = arrayRespuestas[index];
-            return pregunta;
-          }
-        );
+      dataReporte["imagenes"] = imagenesEmpresa;
+      dataReporte["fechaCapacitacion"] = formatDateDb(
+        dataReporte.capacitacion.fechaInicio
+      );
+      dataReporte["horasCapacitacion"] =
+        horasCapacitacion < 10 ? "0" + horasCapacitacion : horasCapacitacion;
 
-        TrabajadorRep["preguntas"] = newDataPreguntas;
-        return TrabajadorRep;
-      });
-    handleDownload(arrayTrabajadores);
+      return { ...dataReporte };
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+      return { empresas: null, cargo: null };
+    }
   };
 
-  const handleDownload = async (array) => {
-    for (let i = 0; i < array.length; i++) {
-      const data = array[i];
+  const descargarCertificados = async () => {
+    try {
+      // Obtener el primer trabajador para obtener la empresaId
+      const primerTrabajador = data[0];
+      // Descargar las imágenes de la empresa solo una vez
+      const imagenesEmpresa = await fetchImgsEmpresa(primerTrabajador);
+
+      const resultados = await Promise.all(
+        data
+          .filter(
+            (data) =>
+              data.reporte.asistenciaExamen === true &&
+              data.reporte.notaExamen > 10
+          )
+          .map(async (reporte) => {
+            const data = await fetchCertificados(reporte, imagenesEmpresa);
+            return data;
+          })
+      );
+
+      handleDownload(resultados);
+      // Aquí puedes procesar los resultados obtenidos para cada trabajador
+    } catch (error) {
+      console.error("Error al obtener los datos:", error);
+    }
+  };
+
+  const handleDownload = async (list) => {
+    for (let i = 0; i < list.length; i++) {
+      const data = list[i];
       const link = document.createElement("a");
-      const pdfBlob = await pdf(<ExamenCapacitacion data={data} />).toBlob();
+      const srcLogo = data.imagenes.srcLogo;
+      const pdfBlob = await pdf(
+        <Certificado data={data} logo={srcLogo} />
+      ).toBlob();
       const pdfUrl = URL.createObjectURL(pdfBlob);
       link.href = pdfUrl;
       link.target = "_blank";
-      link.download = `Examen-${data.nombreTrabajador}.pdf`;
+      link.download = `Certificado-${data.nombreTrabajador}.pdf`;
       link.click();
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500)); // esperar 1 segundo antes de la próxima descarga
     }
   };
   const paginationComponentOptions = {
@@ -293,11 +304,13 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   return (
     <div className="">
       <div className="bg-white p-3">
-        <h2 className="font-bold text-2xl mb-3 block">{titulo}</h2>
+        <h2 className="font-bold text-2xl mb-3 block">
+          Reporte de certificados
+        </h2>
         <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
-          <div className="flex flex-col md:flex-row w-full lg:w-auto gap-3">
+          <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
             <select
-              className="select select-bordered select-sm w-1/4"
+              className="select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectEmpresa(e.target.value)}
               value={selectEmpresa}
@@ -312,7 +325,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
             <select
-              className="select select-bordered select-sm w-1/3"
+              className="select select-bordered select-sm w-1/2"
               id="searchSelect"
               onChange={(e) => setSelectCapacitacion(e.target.value)}
               value={selectCapacitacion}
@@ -327,8 +340,8 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
             <select
-              className="select select-bordered select-sm w-1/5"
-              id="searchSelect"
+              className="select select-bordered select-sm"
+              // id="searchSelect"
               onChange={(e) => setSelectMes(e.target.value)}
               value={selectMes}
             >
@@ -342,7 +355,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
           </div>
-          <div className="flex flex-col md:flex-row justify-end  gap-3 w-1/2 lg:w-1/2">
+          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-1/5">
             <Button
               description="Exportar"
               event={() => descargarDocumento("excel")}
@@ -382,15 +395,15 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
         isOpen={isOpenModal}
         openModal={openModal}
         closeModal={closeModal}
+        title=""
         size={"modal-lg"}
-        title="Reporte de examen"
       >
-        <PDFViewer width={"100%"} height={"600px"}>
-          <ExamenCapacitacion data={dataExamen} />
+        <PDFViewer width={"100%"} height={"454px"}>
+          <Certificado data={dataCertificado} />
         </PDFViewer>
       </Modal>
     </div>
   );
 };
 
-export default ReporteExameAsistencia;
+export default ReporteCertificado;

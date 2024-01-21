@@ -7,6 +7,11 @@ const postTrabajador = (data) => {
     .post("/", data)
     .catch(objErrorApi);
 };
+const postTrabajadorComparar = (data) => {
+  return baseApi(stepApi)
+    .post("/comparar", data)
+    .catch(objErrorApi);
+};
 const postImportar = (id, data) => {
   return baseApi(stepApi)
     .post(`/cargaexcel/${id}`, data)
@@ -28,7 +33,7 @@ const patchEstado = (data) => {
     .catch(objErrorApi);
 };
 
-const getTrabajadores = (page, limit, empresa, search) => {
+const getTrabajadores = (page, limit, empresa, search, all) => {
   let url = `${stepApi}?page=${page}&limit=${limit}`;
 
   if (empresa) {
@@ -36,6 +41,9 @@ const getTrabajadores = (page, limit, empresa, search) => {
   }
   if (search) {
     url += `&search=${search}`;
+  }
+  if (all) {
+    url += `&all=${all}`;
   }
   return baseApi(url).get().catch(objErrorApi);
 };
@@ -60,4 +68,5 @@ export {
   deleteTrabajador,
   patchEstado,
   getTrabajador,
+  postTrabajadorComparar
 };

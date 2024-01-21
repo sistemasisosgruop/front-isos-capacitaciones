@@ -42,8 +42,8 @@ const StyledDataTable = styled(DataTable)`
   border-radius: 5px;
 `;
 const ListadoTrabajador = () => {
-  const containerStyle = useMemo(() => ({ width: "100%", }), []);
-  const gridStyle = useMemo(() => ({  width: "100%" }), []);
+  const containerStyle = useMemo(() => ({ width: "100%" }), []);
+  const gridStyle = useMemo(() => ({ width: "100%" }), []);
   const [dataForm, setdataForm] = useState(initialForm);
   const [sweetAlert, setSweetAlert] = useState(false);
   const [sweetAlertState, setSweetAlertState] = useState(false);
@@ -58,9 +58,9 @@ const ListadoTrabajador = () => {
   const [modalEmo, setModalEmo] = useState(false);
   const [perPage, setPerPage] = useState(15);
   const [totalRows, setTotalRows] = useState(0);
-  const [pageCount, setPageCount] = useState(1);
   const [search, setSearch] = useState("");
   const [empresaData, setEmpresaData] = useState("");
+  const [page, setPage] = useState(1);
 
   const gridRef = useRef();
 
@@ -87,11 +87,9 @@ const ListadoTrabajador = () => {
     },
     {
       name: "Nombres",
-      selector: (row) =>
-        row.nombres.toUpperCase(),
+      selector: (row) => row.nombres.toUpperCase(),
       sortable: true,
     },
-
 
     {
       name: "DNI",
@@ -126,7 +124,7 @@ const ListadoTrabajador = () => {
     },
     {
       name: "Supervisor",
-      selector: (row) => row?.supervisor,
+      selector: (row) => row?.user?.rol === "Supervisor" ? "Si" : "No",
       center: true,
     },
     {
@@ -204,44 +202,16 @@ const ListadoTrabajador = () => {
     gridRef.current.api.applyTransaction({ remove: arrayItems });
   }, []);
 
-  const getDataTrabajador = async (page, empresa,search) => {
-    if (page !== undefined) {
-      const response = await getTrabajadores(page, perPage, empresa, search);
-      if (response.status === 200) {
-        setRowData(response.data.data);
-        setTotalRows(response.data.pageInfo.total);
-      }
+  const getDataTrabajador = async (page, perPage, empresa, search) => {
+    const response = await getTrabajadores(page, perPage, empresa, search);
+    if (response.status === 200) {
+      setRowData(response.data.data);
+      setTotalRows(response.data.pageInfo.total);
     }
   };
   useEffect(() => {
-    getDataTrabajador();
-  }, []);
-  const onFilterTextBoxChanged = async (e, isSelect) => {
-    if(isSelect){
-
-      setEmpresaData(e.target.value);
-    }else{
-      setSearch(e.target.value)
-    }
-    await getDataTrabajador(1, empresaData, search);
-  };
-
-  const handlePageChange = (page) => {
-    setPageCount(page);
-    if (empresaData || search) {
-      getDataTrabajador(page, empresaData, search);
-    } else {
-      getDataTrabajador(page);
-    }
-  };
-
-  const handlePerRowsChange = async (newPerPage, page) => {
-    const response = await getTrabajadores(page, newPerPage);
-    if (response.status === 200) {
-      setRowData(response.data.data);
-      setPerPage(newPerPage);
-    }
-  };
+    getDataTrabajador(page, perPage, empresaData, search);
+  }, [page, empresaData, search]);
 
 
 
@@ -307,6 +277,7 @@ const ListadoTrabajador = () => {
         toast.success("Actualizado con exito", {
           position: "bottom-right",
         });
+        getDataTrabajador()
       } else {
         toast.error(message, {
           position: "bottom-right",
@@ -315,7 +286,6 @@ const ListadoTrabajador = () => {
       hideLoader();
     });
   };
-
 
   const closeModalEmo = () => {
     setModalEmo(false);
@@ -330,46 +300,65 @@ const ListadoTrabajador = () => {
 
   //excel
   const crearExcel = async () => {
-    const workbook = new ExcelJS.Workbook();
-
-    //Agregar una hoja de trabajo
-    const worksheet = workbook.addWorksheet("Hoja 1");
-
-    // establecemos las filas
-    worksheet.columns = [
-      { header: "Nombre", key: "nombres", width: 32, color: "D58144" },
-      { header: "Apellido paterno", key: "apellidoPaterno", width: 32 },
-      { header: "Apellido materno", key: "apellidoMaterno", width: 32 },
-      { header: "DNI", key: "dni", width: 10 },
-      { header: "Genero", key: "genero", width: 10 },
-      { header: "Edad", key: "edad", width: 10 },
-      { header: "Area", key: "areadetrabajo", width: 32 },
-      { header: "Cargo", key: "cargo", width: 32 },
-      { header: "Empresa", key: "nombreEmpresa", width: 32 },
-    ];
-
-    // Obtener el rango correspondiente a la cabecera
-    const headerRange = worksheet.getRow(1);
-
-    // Aplicar un estilo de relleno a la cabecera
-    headerRange.fill = {
-      type: "pattern",
-      pattern: "solid",
-      fgColor: { argb: "16A971" },
-    };
-    //agrega filas
-    worksheet.addRows(rowData);
-
-    // Descarga el archivo Excel en el navegador
-    workbook.xlsx.writeBuffer().then(function (buffer) {
-      saveAs(
-        new Blob([buffer], { type: "application/octet-stream" }),
-        "trabajadores.xlsx"
-      );
-    });
+    const response = await getTrabajadores(
+      page,
+      perPage,
+      empresaData,
+      search,
+      true
+    );
+    if (response.status === 200) {
+      generarExcel(response.data.data);  // Llamar a la función para generar Excel
+    }
   };
+  
+  const generarExcel = (data) => {
+    if (data.length > 0) {
+      const workbook = new ExcelJS.Workbook();
+
+      //Agregar una hoja de trabajo
+      const worksheet = workbook.addWorksheet("Hoja 1");
+
+      // establecemos las filas
+      worksheet.columns = [
+        { header: "Nombre", key: "nombres", width: 32, color: "D58144" },
+        { header: "Apellido paterno", key: "apellidoPaterno", width: 32 },
+        { header: "Apellido materno", key: "apellidoMaterno", width: 32 },
+        { header: "DNI", key: "dni", width: 10 },
+        { header: "Genero", key: "genero", width: 10 },
+        { header: "Edad", key: "edad", width: 10 },
+        { header: "Area", key: "areadetrabajo", width: 32 },
+        { header: "Cargo", key: "cargo", width: 32 },
+        { header: "Empresa", key: "nombreEmpresa", width: 32 },
+      ];
+
+      // Obtener el rango correspondiente a la cabecera
+      const headerRange = worksheet.getRow(1);
+
+      // Aplicar un estilo de relleno a la cabecera
+      headerRange.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "16A971" },
+      };
+      //agrega filas
+      worksheet.addRows(data);
+
+      // Descarga el archivo Excel en el navegador
+      workbook.xlsx.writeBuffer().then(function (buffer) {
+        saveAs(
+          new Blob([buffer], { type: "application/octet-stream" }),
+          "trabajadores.xlsx"
+        );
+      });
+    }
+  };
+
   return (
-    <div className="" style={{ width:"100%", padding:"20px", height:"20% !important"}}>
+    <div
+      className=""
+      style={{ width: "100%", padding: "20px", height: "20% !important" }}
+    >
       <div className="bg-white p-3 ">
         <div className="flex justify-between gap-3">
           <h2 className="font-bold text-2xl mb-3">Trabajadores</h2>
@@ -379,7 +368,7 @@ const ListadoTrabajador = () => {
             <select
               className="select select-bordered select-sm"
               id="searchSelect"
-              onChange={(e) => onFilterTextBoxChanged(e, true)}
+              onChange={(e) => setEmpresaData(e.target.value)}
               value={empresaData}
             >
               <option value={""}>Seleccione una empresa</option>
@@ -396,7 +385,7 @@ const ListadoTrabajador = () => {
               name="empresa"
               placeholder="Buscar"
               id="searchInput"
-              onChange={(e) => onFilterTextBoxChanged(e, false)}
+              onChange={(e) => setSearch(e.target.value)}
               className="input input-bordered input-sm"
             />
           </div>
@@ -431,12 +420,11 @@ const ListadoTrabajador = () => {
               rows
               striped
               highlightOnHover
-              responsive            
+              responsive
               pagination
               paginationServer
               paginationTotalRows={totalRows}
-              onChangeRowsPerPage={handlePerRowsChange}
-              onChangePage={handlePageChange}
+              onChangePage={(page) => setPage(page)}
             />
           </div>
         </div>

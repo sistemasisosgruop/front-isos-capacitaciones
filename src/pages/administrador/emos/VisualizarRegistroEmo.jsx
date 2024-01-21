@@ -57,6 +57,8 @@ const VisualizarRegistroEmo = () => {
       }
     });
   }, []);
+
+  console.log(rowData);
   const addItem = useCallback((addIndex, newRow) => {
     const newItem = [newRow];
     gridRef.current.api.applyTransaction({
