@@ -8,6 +8,8 @@ import {
   faListOl,
   faChalkboardTeacher,
   faFileInvoice,
+  faNotesMedical,
+  faClipboard
 } from "@fortawesome/free-solid-svg-icons";
 
 const ItemSupervisor = () => {
@@ -27,13 +29,13 @@ const ItemSupervisor = () => {
       </MenuItem>
       <MenuItem
         component={<Link to="./supervisor/evaluacion" />}
-        icon={<FontAwesomeIcon icon={faListOl} />}
+        icon={<FontAwesomeIcon icon={faNotesMedical} />}
       >
         Evaluación médica
       </MenuItem>
       <MenuItem
         component={<Link to="./supervisor/reportes/opciones" />}
-        icon={<FontAwesomeIcon icon={faListOl} />}
+        icon={<FontAwesomeIcon icon={faClipboard} />}
       >
         Reportes
       </MenuItem>

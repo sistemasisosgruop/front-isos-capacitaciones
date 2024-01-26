@@ -25,6 +25,8 @@ import { Link, PDFViewer, pdf } from "@react-pdf/renderer";
 import { GridApi } from "ag-grid-community";
 import DataTable from "react-data-table-component";
 import styled from "styled-components";
+import noData from "../../../assets/img/no-data.png";
+
 const StyledDataTable = styled(DataTable)`
   border: 1px solid lightgrey;
   border-radius: 5px;
@@ -124,10 +126,6 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   };
 
   useEffect(() => {
-    getReportes(page, perPage, selectEmpresa, selectCapacitacion, selectMes);
-  }, [page, selectEmpresa, selectCapacitacion, selectMes]);
-
-  useEffect(() => {
     getEmpresas().then(({ data }) => {
       setEmpresas(data);
     });
@@ -140,8 +138,8 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   }, []);
 
   useEffect(() => {
-    getReportes(1, perPage, selectEmpresa, selectCapacitacion, selectMes);
-  }, [page,selectEmpresa, selectCapacitacion, selectMes]);
+    getReportes(page, perPage, selectEmpresa, selectCapacitacion, selectMes);
+  }, [page, selectEmpresa, selectCapacitacion, selectMes]);
 
   const descargarDocumento = async (tipo) => {
     const response = await getReporte(
@@ -247,8 +245,8 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
 
   const descargarExamenes = (data) => {
     const arrayTrabajadores = data
-      .filter((data) => data.asistenciaExamen === true)
-      .map((TrabajadorRep, index) => {
+      ?.filter((data) => data.asistenciaExamen === true)
+      ?.map((TrabajadorRep, index) => {
         const arrayRespuestas = [
           TrabajadorRep?.reporte?.rptpregunta1,
           TrabajadorRep?.reporte?.rptpregunta2,
@@ -257,7 +255,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
           TrabajadorRep?.reporte?.rptpregunta5,
         ];
 
-        const newDataPreguntas = TrabajadorRep.pregunta.map(
+        const newDataPreguntas = TrabajadorRep.pregunta?.map(
           (pregunta, index) => {
             pregunta["respuestaTrabajador"] = arrayRespuestas[index];
             return pregunta;
@@ -284,11 +282,8 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     }
   };
   const paginationComponentOptions = {
-    rowsPerPageText: "Filas por página",
+    noRowsPerPage: true,
     rangeSeparatorText: "de",
-    rowsPerPage: 50,
-    selectAllRowsItem: true,
-    selectAllRowsItemText: "Todos",
   };
   return (
     <div className="">
@@ -374,6 +369,11 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               paginationServer
               paginationTotalRows={totalRows}
               onChangePage={(page) => setPage(page)}
+              noDataComponent={
+                <div style={{ display: "flex", flexDirection:"column" }}>
+                  <img src={noData} alt="" width={"250px"} />
+                </div>
+              }
             />
           </div>
         </div>

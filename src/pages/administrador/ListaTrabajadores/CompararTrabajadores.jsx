@@ -9,7 +9,7 @@ import { getEmpresas } from "../../../services/empresa";
 import DataTable from "react-data-table-component";
 import styled from "styled-components";
 import FormularioImportar from "./components/FormularioImportar";
-
+import noData from "../../../assets/img/no-data.png";
 import {
   getTrabajadores,
   postTrabajador,
@@ -21,6 +21,7 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import { hideLoader, showLoader } from "../../../utils/loader";
 import { toast } from "react-toastify";
+
 const StyledDataTable = styled(DataTable)`
   border: 1px solid lightgrey;
   border-radius: 5px;
@@ -80,8 +81,8 @@ const CompararTrabajadores = () => {
     },
   ];
 
-  const getDataTrabajador = async (page, newPerPage, empresa, search) => {
-    const response = await getTrabajadores(page, perPage, empresa, search);
+  const getDataTrabajador = async () => {
+    const response = await getTrabajadores(page, perPage, empresaData);
     if (response.status === 200) {
       setRowData(response.data.data);
       setTotalRows(response.data.pageInfo.total);
@@ -89,7 +90,7 @@ const CompararTrabajadores = () => {
   };
 
   useEffect(() => {
-    getDataTrabajador(1, 15, empresaData);
+    getDataTrabajador(page, perPage, empresaData);
   }, [page, empresaData]);
 
   const matchByDni = (row, otherSet) => {
@@ -107,6 +108,13 @@ const CompararTrabajadores = () => {
     },
     {
       when: (row) => rowData.length > 0 && !matchByDni(row, rowData),
+      style: {
+        backgroundColor: "#4d871a",
+        color: "white",
+      },
+    },
+    {
+      when: (row) => rowData.length === 0,
       style: {
         backgroundColor: "#4d871a",
         color: "white",
@@ -147,9 +155,8 @@ const CompararTrabajadores = () => {
     if (combinedRecords.length > 0) {
       const response = await postTrabajadorComparar(combinedRecords);
       if (response.status === 201) {
-        empresaData("")
-        setRowData([])
-        setRowData2([])
+        setRowData2([]);
+        getDataTrabajador();
         toast.success("Cambios actualizados.", {
           position: "bottom-right",
         });
@@ -161,11 +168,8 @@ const CompararTrabajadores = () => {
     }
   };
   const paginationComponentOptions = {
-    rowsPerPageText: "Filas por página",
-    rangeSeparatorText: "de",
-    rowsPerPage: 50,
-    selectAllRowsItem: true,
-    selectAllRowsItemText: "Todos",
+    noRowsPerPage: true,    rangeSeparatorText: "de",
+
   };
 
   return (
@@ -216,8 +220,10 @@ const CompararTrabajadores = () => {
                 dense
                 paginationPerPage={15}
                 paginationRowsPerPageOptions={[15, 30, 45, 60]}
-                paginationComponentOptions={paginationComponentOptions}
-                rows
+                paginationComponentOptions={{
+                  noRowsPerPage: true,
+                  rangeSeparatorText: "de",
+                }}                  rows
                 striped
                 highlightOnHover
                 responsive
@@ -226,6 +232,11 @@ const CompararTrabajadores = () => {
                 paginationTotalRows={totalRows}
                 onChangePage={(page) => setPage(page)}
                 conditionalRowStyles={conditionalRowStyles}
+                noDataComponent={
+                  <div style={{ display: "flex", flexDirection:"column" }}>
+                    <img src={noData} alt="" width={"250px"} />
+                  </div>
+                }
               />
             </div>
           )}
@@ -237,13 +248,20 @@ const CompararTrabajadores = () => {
                 dense
                 paginationPerPage={15}
                 paginationRowsPerPageOptions={[30, 60, 90, 120]}
-                paginationComponentOptions={paginationComponentOptions}
-                rows
+                paginationComponentOptions={{
+                  noRowsPerPage: true,
+                  rangeSeparatorText: "de",
+                }}                rows
                 striped
                 highlightOnHover
                 responsive
                 pagination
                 conditionalRowStyles={conditionalRowStyles}
+                noDataComponent={
+                  <div style={{ display: "flex", flexDirection:"column" }}>
+                    <img src={noData} alt="" width={"250px"} />
+                  </div>
+                }
               />
             </div>
           )}

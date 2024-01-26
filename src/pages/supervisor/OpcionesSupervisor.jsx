@@ -31,16 +31,7 @@ const OpcionesSupervisor = () => {
             </div>
           </Link>
         </div>
-        <div className="w-25">
-          <Link to="../emos">
-            <div className="bg-white text-center p-5 rounded-2xl shadow-xl">
-              <h3 className="font-bold text-sm mb-3">
-                REPORTE DE DESCARGAS DE EMOS
-              </h3>
-              <FontAwesomeIcon icon={faClipboard} size="3x" />
-            </div>
-          </Link>
-        </div>
+
       </div>
       <Outlet />
     </>

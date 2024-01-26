@@ -23,8 +23,7 @@ import ReporteEmo from "../pages/administrador/reportes/ReporteEmo";
 import CompararTrabajadores from "../pages/administrador/ListaTrabajadores/CompararTrabajadores";
 import OpcionesSupervisor from "../pages/supervisor/OpcionesSupervisor";
 import ReporteExameAsistenciaSupervisor from "../pages/supervisor/ReporteExameAsistenciaSupervisor";
-import ReporteCertificadoSupervisor from "../pages/supervisor/ReporteExameAsistenciaSupervisor";
-import ReporteEmoSupervisor from "../pages/supervisor/ReporteEmoSupervisor";
+import ReporteCertificadoSupervisor1 from "../pages/supervisor/ReporteCertificadoSupervisor1";
 
 const router = createBrowserRouter([
   {
@@ -71,9 +70,8 @@ const router = createBrowserRouter([
               },
               {
                 path: "certificados",
-                element: <ReporteCertificadoSupervisor />,
+                element: <ReporteCertificadoSupervisor1 />,
               },
-              { path: "emos", element: <ReporteEmoSupervisor /> },
             ],
           },
           { path: "*", element: <Navigate to="/menu/supervisor/opciones" /> },

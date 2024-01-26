@@ -3,6 +3,7 @@ import objErrorApi from "./objError";
 const stepApi = "reporte";
 
 const getReporte = (page, limit, empresa, capacitacion, mes,all) => {
+  console.log(page,limit,empresa,capacitacion,mes, all);
   let url = `${stepApi}?page=${page}&limit=${limit}`;
 
   if (empresa) {

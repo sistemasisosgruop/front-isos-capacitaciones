@@ -24,6 +24,8 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import DataTable from "react-data-table-component";
 import styled from "styled-components";
+import noData from "../../assets/img/no-data.png";
+
 const StyledDataTable = styled(DataTable)`
   border: 1px solid lightgrey;
   border-radius: 5px;
@@ -106,7 +108,7 @@ const ReporteEmo = () => {
     const empresaObj = empresas.find((item) => item.id == empresaId);
     const empresaNombre = empresaObj ? empresaObj.nombreEmpresa : null;
     if (empresaNombre) {
-      getDataReporte(1, perPage, empresaNombre, search);
+      getDataReporte(page, perPage, empresaNombre, search);
     }
   }, [page, empresas, empresaData, search]);
   const descargarDocumento = async (tipo) => {
@@ -164,11 +166,8 @@ const ReporteEmo = () => {
     });
   };
   const paginationComponentOptions = {
-    rowsPerPageText: "Filas por página",
-    rangeSeparatorText: "de",
-    rowsPerPage: 50,
-    selectAllRowsItem: true,
-    selectAllRowsItemText: "Todos",
+    noRowsPerPage: true,    rangeSeparatorText: "de",
+
   };
   return (
     <div className="">
@@ -204,8 +203,10 @@ const ReporteEmo = () => {
               dense
               paginationPerPage={15}
               paginationRowsPerPageOptions={[30, 60, 90, 120]}
-              paginationComponentOptions={paginationComponentOptions}
-              rows
+              paginationComponentOptions={{
+                noRowsPerPage: true,
+                rangeSeparatorText: "de",
+              }}              rows
               striped
               highlightOnHover
               responsive
@@ -213,6 +214,11 @@ const ReporteEmo = () => {
               paginationServer
               paginationTotalRows={totalRows}
               onChangePage={(page) => setPage(page)}
+              noDataComponent={
+                <div style={{ display: "flex", flexDirection:"column" }}>
+                  <img src={noData} alt="" width={"250px"} />
+                </div>
+              }
             />
           </div>
         </div>

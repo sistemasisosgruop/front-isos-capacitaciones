@@ -17,6 +17,7 @@ const FormularioTrabajador = ({
   updateRow,
   closeModal,
   empresas,
+  updateData
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
@@ -77,12 +78,7 @@ const FormularioTrabajador = ({
       jsonData.user = {
         username: formState.dni,
         contraseña: password,
-        rol: formState.supervisor === "Si" ? "Supervisor" : "Trabajador",
-      };
-      jsonData.user = {
-        username: formState.dni,
-        contraseña: formState.dni,
-        rol: formState.supervisor === "Si" ? "Supervisor" : "Trabajador",
+        rol: formState.rol,
       };
       add(jsonData);
     } else {
@@ -90,12 +86,14 @@ const FormularioTrabajador = ({
         jsonData.user = {
           username: formState.dni,
           contraseña: password,
-          rol: formState.supervisor === "Si" ? "Supervisor" : "Trabajador",
+          rol: formState.rol ,
         };
       }
       update(jsonData);
     }
   };
+
+  console.log(formState);
 
   const update = (dataForm) => {
     showLoader();
@@ -114,6 +112,7 @@ const FormularioTrabajador = ({
         newRowData["nombreEmpresa"] = newRowData.empresa.nombreEmpresa;
         closeModal();
         setFormSubmitted(false);
+        updateData()
       } else {
         toast.error(message, {
           position: "bottom-right",
@@ -140,6 +139,7 @@ const FormularioTrabajador = ({
         closeModal();
         setFormSubmitted(false);
         onResetForm();
+        updateData()
       } else {
         toast.error(message, {
           position: "bottom-right",
@@ -386,12 +386,12 @@ const FormularioTrabajador = ({
             onChange={onInputChange}
             value={rol}
           >
-            <option value="" selected>
+            <option value="Trabajador" selected>
               {" "}
               Seleccione una opción{" "}
             </option>
-            <option value="Si">Si</option>
-            <option value="No">No</option>
+            <option value="Supervisor">Si</option>
+            <option value="Trabajador">No</option>
           </select>
         </div>
       </div>

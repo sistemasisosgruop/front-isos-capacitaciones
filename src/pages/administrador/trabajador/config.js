@@ -11,7 +11,8 @@ const initialForm = {
   fechadenac: "",
   password: "",
   empresa: "",
-  celular: ""
+  celular: "",
+  rol: ""
 };
 
 const initialFormImport = {

@@ -14,6 +14,7 @@ import { useRef } from "react";
 import { toast } from "react-toastify";
 import DataTable from "react-data-table-component";
 import styled from "styled-components";
+import noData from "../../../assets/img/no-data.png";
 
 import {
   deleteTrabajador,
@@ -202,15 +203,15 @@ const ListadoTrabajador = () => {
     gridRef.current.api.applyTransaction({ remove: arrayItems });
   }, []);
 
-  const getDataTrabajador = async (page, perPage, empresa, search) => {
-    const response = await getTrabajadores(page, perPage, empresa, search);
+  const getDataTrabajador = async () => {
+    const response = await getTrabajadores(page, perPage, empresaData, search);
     if (response.status === 200) {
       setRowData(response.data.data);
       setTotalRows(response.data.pageInfo.total);
     }
   };
   useEffect(() => {
-    getDataTrabajador(page, perPage, empresaData, search);
+    getDataTrabajador();
   }, [page, empresaData, search]);
 
 
@@ -235,6 +236,7 @@ const ListadoTrabajador = () => {
     const { createdAt, userId, empresaId: empresa, user, ...formatData } = data;
     formatData.password = "";
     formatData.empresa = empresa;
+    formatData.rol = user.rol
     setdataForm(formatData);
   };
 
@@ -242,6 +244,8 @@ const ListadoTrabajador = () => {
     setRowDelete(data);
     if (action === "DELETE") {
       setSweetAlert(true);
+      getDataTrabajador()
+
     } else {
       setSweetAlertState(true);
     }
@@ -290,13 +294,7 @@ const ListadoTrabajador = () => {
   const closeModalEmo = () => {
     setModalEmo(false);
   };
-  const paginationComponentOptions = {
-    rowsPerPageText: "Filas por página",
-    rangeSeparatorText: "de",
-    rowsPerPage: 50,
-    selectAllRowsItem: true,
-    selectAllRowsItemText: "Todos",
-  };
+
 
   //excel
   const crearExcel = async () => {
@@ -416,7 +414,7 @@ const ListadoTrabajador = () => {
               dense
               paginationPerPage={15}
               paginationRowsPerPageOptions={[30, 60, 90, 120]}
-              paginationComponentOptions={paginationComponentOptions}
+              paginationComponentOptions={{ noRowsPerPage: true, rangeSeparatorText: "de" }}
               rows
               striped
               highlightOnHover
@@ -425,6 +423,11 @@ const ListadoTrabajador = () => {
               paginationServer
               paginationTotalRows={totalRows}
               onChangePage={(page) => setPage(page)}
+              noDataComponent={
+                <div style={{ display: "flex", flexDirection:"column" }}>
+                  <img src={noData} alt="" width={"250px"} />
+                </div>
+              }
             />
           </div>
         </div>
@@ -442,6 +445,7 @@ const ListadoTrabajador = () => {
             addItem={addItem}
             updateRow={updateRow}
             empresas={empresas}
+            updateData = {getDataTrabajador}
           />
         </Modal>
         <Modal
@@ -458,6 +462,7 @@ const ListadoTrabajador = () => {
             updateRow={updateRow}
             empresas={empresas}
             setRefetchData={setRefetchData}
+            updateData = {getDataTrabajador}
           />
         </Modal>
 
@@ -473,6 +478,7 @@ const ListadoTrabajador = () => {
             closeModal={closeModalImport}
             empresas={empresas}
             actualizar={getDataTrabajador}
+            updateData = {getDataTrabajador}
           />
         </Modal>
 

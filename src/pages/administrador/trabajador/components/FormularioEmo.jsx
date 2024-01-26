@@ -11,6 +11,7 @@ const FormularioEmo = ({
   initialForm,
   closeModal,
   setRefetchData,
+  updateData
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const fileInputRef = useRef(null);
@@ -32,7 +33,7 @@ const FormularioEmo = ({
       toast.success(response.message || "Agregado con exito", {
         position: "bottom-right",
       });
-      setRefetchData((data) => !data);
+      updateData()
       // Limpiar el campo de entrada de archivos
     if (fileInputRef.current) {
       fileInputRef.current.value = null; // O fileInputRef.current.value = '';

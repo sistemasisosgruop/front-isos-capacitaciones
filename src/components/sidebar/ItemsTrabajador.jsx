@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { MenuItem, menuClasses } from "react-pro-sidebar";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUsers, faBuilding,faListOl, faChalkboardTeacher, faFileInvoice } from "@fortawesome/free-solid-svg-icons";
+import { faUsers, faBuilding,faListOl, faChalkboardTeacher, faFileInvoice, faNotesMedical } from "@fortawesome/free-solid-svg-icons";
 
 const ItemsTrabajador = () => {
   return (
@@ -21,7 +21,7 @@ const ItemsTrabajador = () => {
       </MenuItem>
       <MenuItem
         component={<Link to="./trabajador/evaluacion" />}
-        icon={<FontAwesomeIcon icon={faListOl} />}
+        icon={<FontAwesomeIcon icon={faNotesMedical} />}
       >
         Evaluación médica
       </MenuItem>

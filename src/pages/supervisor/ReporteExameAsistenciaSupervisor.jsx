@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { getEmpresa, getEmpresas } from "../../services/empresa";
+import { getEmpresa, getEmpresas, getImgs } from "../../services/empresa";
 import Button from "../../components/Button";
 import { toast } from "react-toastify";
 import { getReporte } from "../../services/reportes";
@@ -13,6 +13,7 @@ import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import noData from "../../assets/img/no-data.png";
 import {
   faFileExport,
   faArrowAltCircleDown,
@@ -25,6 +26,7 @@ import { Link, PDFViewer, pdf } from "@react-pdf/renderer";
 import { GridApi } from "ag-grid-community";
 import DataTable from "react-data-table-component";
 import styled from "styled-components";
+import ReporteExamenCapacitacion from "../../components/ReporteExamenCapacitacion";
 const StyledDataTable = styled(DataTable)`
   border: 1px solid lightgrey;
   border-radius: 5px;
@@ -44,6 +46,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   const [totalRows, setTotalRows] = useState(0);
   const [isOpenModal, openModal, closeModal] = useModals();
   const [page, setPage] = useState(1);
+  const [empresaNombre, setEmpresaNombre] = useState("");
 
   const columns = [
     {
@@ -104,13 +107,14 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     },
   ];
 
-  const getReportes = async (page, perPage, empresa, capacitacion, mes) => {
+  const getReportes = async (all) => {
     const response = await getReporte(
       page,
       perPage,
-      empresa,
-      capacitacion,
-      mes
+      empresaNombre,
+      selectCapacitacion,
+      selectMes,
+      all
     );
     if (response.status === 200) {
       setDataReporte(response?.data?.data);
@@ -128,12 +132,16 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     const empresaId = userIsosObject ? userIsosObject.empresaId : null;
 
     const empresaObj = empresas.find((item) => item.id == empresaId);
-    const empresaNombre = empresaObj ? empresaObj.nombreEmpresa : null;
+    const empresa = empresaObj ? empresaObj.nombreEmpresa : null;
+    setEmpresaNombre(empresa);
+  }, [empresas]); // Dependencias para este useEffect
 
+  // Este useEffect se encarga de llamar a getReportes cuando empresaNombre cambia
+  useEffect(() => {
     if (empresaNombre) {
-      getReportes(1, perPage, empresaNombre, selectCapacitacion, selectMes);
+      getReportes();
     }
-  }, [page, perPage, empresas, selectCapacitacion, selectMes]);
+  }, [empresaNombre, page, perPage, selectCapacitacion, selectMes]);
 
   useEffect(() => {
     getEmpresas().then(({ data }) => {
@@ -151,7 +159,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     const response = await getReporte(
       page,
       perPage,
-      selectEmpresa,
+      empresaNombre,
       selectCapacitacion,
       selectMes,
       true
@@ -162,6 +170,9 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       }
       if (tipo === "pdf") {
         descargarExamenes(response.data.data); // Llamar a la función para generar Excel
+      }
+      if (tipo === "examen") {
+        descargarReporteExamenes(response.data.data); // Llamar a la función para generar Excel
       }
     }
   };
@@ -222,7 +233,6 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       );
     });
   };
-
   const descargaExamen = async (dataRow) => {
     const arrayRespuestas = [
       dataRow?.reporte?.rptpregunta1,
@@ -248,10 +258,33 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       link.click();
     }
   };
+  const descargarReporteExamenes = async (data) => {
+    const arrayTrabajadores = data?.filter(
+      (item) => item.asistenciaExamen == true
+    );
+    if (arrayTrabajadores.length > 0) {
+      const imagenesEmpresa = await fetchImgsEmpresa(arrayTrabajadores.at(-1));
+      handleDownloadReporte(arrayTrabajadores, imagenesEmpresa);
+    } else {
+      toast.error("No hay registros con asistencia para la capacitación.", {
+        position: "bottom-right",
+      });
+    }
+  };
+  const fetchImgsEmpresa = async (data) => {
+    try {
+      const logo = await getImgs(data?.empresaId, "logo");
+      const srcLogo = URL.createObjectURL(new Blob([logo.data]));
 
+      return { srcLogo };
+    } catch (error) {
+      console.error("Error en la solicitud:", error);
+      return { srcLogo: null, srcCertificado: null, srcFirma: null };
+    }
+  };
   const descargarExamenes = (data) => {
     const arrayTrabajadores = data
-      .filter((data) => data.asistenciaExamen === true)
+      ?.filter((data) => data.asistenciaExamen === true)
       .map((TrabajadorRep, index) => {
         const arrayRespuestas = [
           TrabajadorRep?.reporte?.rptpregunta1,
@@ -273,7 +306,18 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       });
     handleDownload(arrayTrabajadores);
   };
-
+  const handleDownloadReporte = async (array, logo) => {
+    const link = document.createElement("a");
+    const pdfBlob = await pdf(
+      <ReporteExamenCapacitacion data={array} logo={logo} />
+    ).toBlob();
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    link.href = pdfUrl;
+    link.target = "_blank";
+    link.download = `Reporte-${array?.at(-1)?.nombreCapacitacion}.pdf`;
+    link.click();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  };
   const handleDownload = async (array) => {
     for (let i = 0; i < array.length; i++) {
       const data = array[i];
@@ -287,36 +331,15 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
   };
-  const paginationComponentOptions = {
-    rowsPerPageText: "Filas por página",
-    rangeSeparatorText: "de",
-    rowsPerPage: 50,
-    selectAllRowsItem: true,
-    selectAllRowsItemText: "Todos",
-  };
+
   return (
     <div className="">
       <div className="bg-white p-3">
         <h2 className="font-bold text-2xl mb-3 block">{titulo}</h2>
         <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
           <div className="flex flex-col md:flex-row w-full lg:w-auto gap-3">
-            {/* <select
-              className="select select-bordered select-sm w-1/4"
-              id="searchSelect"
-              onChange={(e) => setSelectEmpresa(e.target.value)}
-              value={selectEmpresa}
-            >
-              <option value={""}>Empresa</option>
-              {empresas.map((empresa) => {
-                return (
-                  <option key={empresa.id} value={empresa.nombreEmpresa}>
-                    {empresa.nombreEmpresa}
-                  </option>
-                );
-              })}
-            </select> */}
             <select
-              className="select select-bordered select-sm w-1/3"
+              className="select select-bordered select-sm w-full md:w-1/3"
               id="searchSelect"
               onChange={(e) => setSelectCapacitacion(e.target.value)}
               value={selectCapacitacion}
@@ -331,7 +354,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
             <select
-              className="select select-bordered select-sm w-1/5"
+              className="select select-bordered select-sm w-full md:w-1/5"
               id="searchSelect"
               onChange={(e) => setSelectMes(e.target.value)}
               value={selectMes}
@@ -346,14 +369,31 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
           </div>
-          <div className="flex flex-col md:flex-row justify-end  gap-3 w-1/2 lg:w-1/2">
+          <div className="flex flex-col md:flex-row justify-end gap-3 w-full lg:w-auto">
+            <button
+              className="btn btn-sm btn-outline btn-info w-full md:w-auto"
+              onClick={() => {
+                if (selectCapacitacion) {
+                  descargarDocumento("examen");
+                } else {
+                  toast.error(
+                    "Seleccione una capacitación para realizar la descarga.",
+                    {
+                      position: "bottom-right",
+                    }
+                  );
+                }
+              }}
+            >
+              Descargar Reporte
+            </button>
             <Button
               description="Exportar"
               event={() => descargarDocumento("excel")}
               icon={faFileExport}
             />
             <button
-              className="btn btn-sm btn-outline btn-error"
+              className="btn btn-sm btn-outline btn-error w-full md:w-auto"
               onClick={() => descargarDocumento("pdf")}
             >
               Descargar PDFS
@@ -361,26 +401,38 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
           </div>
         </div>
 
-        <div style={containerStyle}>
-          <div style={gridStyle} className="ag-theme-alpine">
-            <StyledDataTable
-              columns={columns}
-              data={rowData}
-              dense
-              paginationPerPage={15}
-              paginationRowsPerPageOptions={[15, 30, 45, 60]}
-              paginationComponentOptions={paginationComponentOptions}
-              rows
-              striped
-              highlightOnHover
-              responsive
-              pagination
-              paginationServer
-              paginationTotalRows={totalRows}
-              onChangePage={(page) => setPage(page)}
-            />
+        {rowData.length > 0 ? (
+          <div style={containerStyle}>
+            <div style={gridStyle} className="ag-theme-alpine">
+              <StyledDataTable
+                columns={columns}
+                data={rowData}
+                dense
+                paginationPerPage={15}
+                paginationRowsPerPageOptions={[15, 30, 45, 60]}
+                paginationComponentOptions={{
+                  noRowsPerPage: true,
+                  rangeSeparatorText: "de",
+                }}
+                rows
+                striped
+                highlightOnHover
+                responsive
+                pagination
+                paginationServer
+                paginationTotalRows={totalRows}
+                onChangePage={(page) => setPage(page)}
+                noDataComponent={
+                  <div style={{ display: "flex", flexDirection:"column" }}>
+                    <img src={noData} alt="" width={"250px"} />
+                  </div>
+                }
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <p>Sin registros</p>
+        )}
       </div>
       <Modal
         isOpen={isOpenModal}

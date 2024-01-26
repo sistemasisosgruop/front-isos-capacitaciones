@@ -27,11 +27,13 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import DataTable from "react-data-table-component";
 import styled from "styled-components";
+import noData from "../../assets/img/no-data.png";
+
 const StyledDataTable = styled(DataTable)`
   border: 1px solid lightgrey;
   border-radius: 5px;
 `;
-const ReporteCertificado = () => {
+const ReporteCertificadoSupervisor = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "75vh" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [rowData, setRowData] = useState([]);
@@ -115,17 +117,8 @@ const ReporteCertificado = () => {
   }, []);
 
   useEffect(() => {
-    const userIsosString = localStorage.getItem("userIsos");
-    const userIsosObject = JSON.parse(userIsosString);
-    const empresaId = userIsosObject ? userIsosObject.empresaId : null;
-
-    const empresaObj = empresas.find((item) => item.id == empresaId);
-    const empresaNombre = empresaObj ? empresaObj.nombreEmpresa : null;
-    if(empresaNombre){
-
-      getReportes(1, perPage, empresaNombre, selectCapacitacion, selectMes);
-    }
-  }, [page, empresas, selectCapacitacion, selectMes]);
+    getReportes(page, perPage, selectEmpresa, selectCapacitacion, selectMes);
+  }, [page, selectEmpresa, selectCapacitacion, selectMes]);
 
   useEffect(() => {
     getCapacitaciones().then(({ data }) => {
@@ -251,7 +244,7 @@ const ReporteCertificado = () => {
     }
   };
 
-  const descargarCertificados = async () => {
+  const descargarCertificados = async (data) => {
     try {
       // Obtener el primer trabajador para obtener la empresaId
       const primerTrabajador = data[0];
@@ -260,7 +253,7 @@ const ReporteCertificado = () => {
 
       const resultados = await Promise.all(
         data
-          .filter(
+          ?.filter(
             (data) =>
               data.reporte.asistenciaExamen === true &&
               data.reporte.notaExamen > 10
@@ -295,11 +288,8 @@ const ReporteCertificado = () => {
     }
   };
   const paginationComponentOptions = {
-    rowsPerPageText: "Filas por página",
+    noRowsPerPage: true,
     rangeSeparatorText: "de",
-    rowsPerPage: 50,
-    selectAllRowsItem: true,
-    selectAllRowsItemText: "Todos",
   };
   return (
     <div className="">
@@ -387,6 +377,11 @@ const ReporteCertificado = () => {
               paginationServer
               paginationTotalRows={totalRows}
               onChangePage={(page) => setPage(page)}
+              noDataComponent={
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <img src={noData} alt="" width={"250px"} />
+                </div>
+              }
             />
           </div>
         </div>
@@ -406,4 +401,4 @@ const ReporteCertificado = () => {
   );
 };
 
-export default ReporteCertificado;
+export default ReporteCertificadoSupervisor;

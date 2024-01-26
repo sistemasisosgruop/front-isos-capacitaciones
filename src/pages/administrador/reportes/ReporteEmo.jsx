@@ -24,6 +24,8 @@ import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import DataTable from "react-data-table-component";
 import styled from "styled-components";
+import noData from "../../../assets/img/no-data.png";
+
 const StyledDataTable = styled(DataTable)`
   border: 1px solid lightgrey;
   border-radius: 5px;
@@ -99,7 +101,7 @@ const ReporteEmo = () => {
   };
 
   useEffect(() => {
-    getDataReporte(1, perPage, empresaData, search);
+    getDataReporte(page, perPage, empresaData, search);
   }, [page, empresaData, search]);
   const descargarDocumento = async (tipo) => {
     const response = await getReporteEmo(page, perPage, empresaData, search, true);
@@ -150,11 +152,8 @@ const ReporteEmo = () => {
     });
   };
   const paginationComponentOptions = {
-    rowsPerPageText: "Filas por página",
-    rangeSeparatorText: "de",
-    rowsPerPage: 50,
-    selectAllRowsItem: true,
-    selectAllRowsItemText: "Todos",
+    noRowsPerPage: true,    rangeSeparatorText: "de",
+
   };
   return (
     <div className="">
@@ -214,6 +213,11 @@ const ReporteEmo = () => {
               paginationServer
               paginationTotalRows={totalRows}
               onChangePage={(page) => setPage(page)}
+              noDataComponent={
+                <div style={{ display: "flex", flexDirection:"column" }}>
+                  <img src={noData} alt="" width={"250px"} />
+                </div>
+              }
             />
           </div>
         </div>

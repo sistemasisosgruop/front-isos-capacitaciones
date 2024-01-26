@@ -8,6 +8,7 @@ import {
   faListOl,
   faChalkboardTeacher,
   faFileInvoice,
+  faCodeCompare,
 } from "@fortawesome/free-solid-svg-icons";
 
 const ItemsAdmin = () => {
@@ -51,7 +52,7 @@ const ItemsAdmin = () => {
       </MenuItem>
       <MenuItem
         component={<Link to="./admin/lista" />}
-        icon={<FontAwesomeIcon icon={faFileInvoice} />}
+        icon={<FontAwesomeIcon icon={faCodeCompare} />}
       >
         Lista de trabajadores
       </MenuItem>
