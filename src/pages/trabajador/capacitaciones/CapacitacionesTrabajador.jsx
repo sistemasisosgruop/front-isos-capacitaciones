@@ -62,7 +62,7 @@ const CapacitacionesTrabajador = () => {
     if (selectMonth === "" && selectYear === "") {
       return;
     }
-    var arrPorID = dataInit.filter(filter);
+    var arrPorID = dataInit?.filter(filter);
     setData(arrPorID);
   };
 

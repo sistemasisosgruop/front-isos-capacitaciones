@@ -17,7 +17,7 @@ const FormularioTrabajador = ({
   updateRow,
   closeModal,
   empresas,
-  updateData
+  updateData,
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
@@ -80,20 +80,25 @@ const FormularioTrabajador = ({
         contraseña: password,
         rol: formState.rol,
       };
+      jsonData.user = {
+        username: formState.dni,
+        contraseña: formState.dni,
+        rol: formState.rol === "Supervisor" ? "Supervisor" : "Trabajador",
+      };
       add(jsonData);
     } else {
       if (password !== "") {
         jsonData.user = {
           username: formState.dni,
           contraseña: password,
-          rol: formState.rol ,
+          rol: formState.rol === "Supervisor" ? "Supervisor" : "Trabajador",
         };
       }
       update(jsonData);
     }
   };
 
-  console.log(formState);
+  console.log(rol);
 
   const update = (dataForm) => {
     showLoader();
@@ -112,7 +117,7 @@ const FormularioTrabajador = ({
         newRowData["nombreEmpresa"] = newRowData.empresa.nombreEmpresa;
         closeModal();
         setFormSubmitted(false);
-        updateData()
+        updateData();
       } else {
         toast.error(message, {
           position: "bottom-right",
@@ -139,7 +144,7 @@ const FormularioTrabajador = ({
         closeModal();
         setFormSubmitted(false);
         onResetForm();
-        updateData()
+        updateData();
       } else {
         toast.error(message, {
           position: "bottom-right",
