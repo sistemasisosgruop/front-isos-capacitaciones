@@ -20,6 +20,7 @@ const FormularioTrabajador = ({
   updateData,
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [rol, setRol] = useState("")
   const formValidations = validate();
   //tipo de accion del formulario
   const action = initialForm.dni === "" ? "ADD" : "UPDATE";
@@ -39,7 +40,6 @@ const FormularioTrabajador = ({
     empresa,
     celular,
     user,
-    rol,
 
     nombresValid,
     apellidoPaternoValid,
@@ -68,6 +68,7 @@ const FormularioTrabajador = ({
     //establecemos formato solicitado BACK
     const { password, empresa, ...newFormat } = formState;
     const jsonData = newFormat;
+    delete jsonData.rol
     const newFormDate = formatDateYMD(newFormat.fechadenac);
 
     jsonData.empresaId = empresa;
@@ -78,12 +79,12 @@ const FormularioTrabajador = ({
       jsonData.user = {
         username: formState.dni,
         contraseña: password,
-        rol: formState.rol,
+        rol: rol === "Supervisor" ? "Supervisor" : "Trabajador",
       };
       jsonData.user = {
         username: formState.dni,
         contraseña: formState.dni,
-        rol: formState.rol === "Supervisor" ? "Supervisor" : "Trabajador",
+        rol: rol === "Supervisor" ? "Supervisor" : "Trabajador",
       };
       add(jsonData);
     } else {
@@ -91,18 +92,19 @@ const FormularioTrabajador = ({
         jsonData.user = {
           username: formState.dni,
           contraseña: password,
-          rol: formState.rol === "Supervisor" ? "Supervisor" : "Trabajador",
+          rol: rol === "Supervisor" ? "Supervisor" : "Trabajador",
         };
       }
       update(jsonData);
     }
+    console.log(jsonData);
   };
 
-  console.log(rol);
 
   const update = (dataForm) => {
     showLoader();
     delete dataForm.emoPdf;
+    delete dataForm.rol
     patchTrabajador(dataForm).then(({ data, message = null }) => {
       if (data) {
         const { createdAt, ...newRowData } = data;
@@ -111,6 +113,7 @@ const FormularioTrabajador = ({
           data["nombreEmpresa"] = data.empresa.nombreEmpresa;
           updateRow(data);
         });
+        setRol("")
         toast.success("Actualizado con exito", {
           position: "bottom-right",
         });
@@ -131,6 +134,7 @@ const FormularioTrabajador = ({
     showLoader();
     const { id, ...newData } = dataForm;
     delete dataForm.emoPdf;
+    delete dataForm.rol
     postTrabajador(newData).then(({ data, message = null }) => {
       if (data) {
         const { createdAt, ...newrowData } = data;
@@ -141,6 +145,7 @@ const FormularioTrabajador = ({
         toast.success("Agregado con exito", {
           position: "bottom-right",
         });
+        setRol()
         closeModal();
         setFormSubmitted(false);
         onResetForm();
@@ -388,7 +393,7 @@ const FormularioTrabajador = ({
             className="select select-bordered select-sm block w-full"
             id="rol"
             name="rol"
-            onChange={onInputChange}
+            onChange={(e)=> setRol(e.target.value)}
             value={rol}
           >
             <option value="Trabajador" selected>

@@ -12,7 +12,6 @@ const initialForm = {
   password: "",
   empresa: "",
   celular: "",
-  rol: ""
 };
 
 const initialFormImport = {
