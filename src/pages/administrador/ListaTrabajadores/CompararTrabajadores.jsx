@@ -11,7 +11,7 @@ import styled from "styled-components";
 import FormularioImportar from "./components/FormularioImportar";
 import noData from "../../../assets/img/no-data.png";
 import {
-  getTrabajadores,
+  getTrabajadoresEmpresa,
   postTrabajador,
   postTrabajadorComparar,
 } from "../../../services/trabajador";
@@ -82,7 +82,7 @@ const CompararTrabajadores = () => {
   ];
 
   const getDataTrabajador = async () => {
-    const response = await getTrabajadores(page, perPage, empresaData);
+    const response = await getTrabajadoresEmpresa(page, perPage, empresaData);
     if (response.status === 200) {
       setRowData(response.data.data);
       setTotalRows(response.data.pageInfo.total);
@@ -228,9 +228,7 @@ const CompararTrabajadores = () => {
                 highlightOnHover
                 responsive
                 pagination
-                paginationServer
                 paginationTotalRows={totalRows}
-                onChangePage={(page) => setPage(page)}
                 conditionalRowStyles={conditionalRowStyles}
                 noDataComponent={
                   <div style={{ display: "flex", flexDirection:"column" }}>

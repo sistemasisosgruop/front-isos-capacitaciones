@@ -47,6 +47,20 @@ const getTrabajadores = (page, limit, empresa, search, all) => {
   }
   return baseApi(url).get().catch(objErrorApi);
 };
+const getTrabajadoresEmpresa = (page, limit, empresa, search, all) => {
+  let url = `${stepApi}/empresa?page=${page}&limit=${limit}`;
+
+  if (empresa) {
+    url += `&nombreEmpresa=${empresa}`;
+  }
+  if (search) {
+    url += `&search=${search}`;
+  }
+  if (all) {
+    url += `&all=${all}`;
+  }
+  return baseApi(url).get().catch(objErrorApi);
+};
 
 const getTrabajador = (id) => {
   return baseApi(stepApi)
@@ -68,5 +82,6 @@ export {
   deleteTrabajador,
   patchEstado,
   getTrabajador,
-  postTrabajadorComparar
+  postTrabajadorComparar,
+  getTrabajadoresEmpresa
 };

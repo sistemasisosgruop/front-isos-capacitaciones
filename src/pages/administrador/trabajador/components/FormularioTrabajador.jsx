@@ -136,6 +136,7 @@ const FormularioTrabajador = ({
     delete dataForm.emoPdf;
     delete dataForm.rol
     postTrabajador(newData).then(({ data, message = null }) => {
+
       if (data) {
         const { createdAt, ...newrowData } = data;
         getTrabajador(data.id).then(({ data }) => {

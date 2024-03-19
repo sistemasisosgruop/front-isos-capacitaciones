@@ -31,7 +31,7 @@ const OpcionesAdmin = () => {
               <h3 className="font-bold text-base md:text-lg mb-3">TEST</h3>
               <FontAwesomeIcon icon={faListOl} size="3x" />
             </Link>
-            <Link className="shadow-xl bg-white box-5 text-center p-5 rounded-2xl" to="../reportes">
+            <Link className="shadow-xl bg-white box-5 text-center p-5 rounded-2xl" to="../reportes/opciones">
               <h3 className="font-bold text-base md:text-lg mb-3">REPORTES</h3>
               <FontAwesomeIcon icon={faFileInvoice} size="3x" />
             </Link>
