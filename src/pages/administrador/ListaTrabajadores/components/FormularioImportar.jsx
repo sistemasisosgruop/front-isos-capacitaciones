@@ -39,7 +39,6 @@ const FormularioImportar = ({
     headerRow.eachCell({ includeEmpty: true }, function (cell, colNumber) {
       headers[colNumber - 1] = cell.value;
     });
-
     const keyMapping = {
       "APELLIDO PATERNO": "apellidoPaterno",
       "APELLIDO  MATERNO": "apellidoMaterno",

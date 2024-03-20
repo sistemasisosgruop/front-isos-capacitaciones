@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../../../../components/Button";
 import { formatDateYMD } from "../../../../utils/formtDate";
 import { hideLoader, showLoader } from "../../../../utils/loader";
@@ -59,6 +59,8 @@ const FormularioTrabajador = ({
     onResetForm,
   } = useForm(initialForm, formValidations);
 
+  console.log(initialForm);
+
   const handleForm = async (event, action) => {
     event.preventDefault();
     setFormSubmitted(true);
@@ -97,14 +99,18 @@ const FormularioTrabajador = ({
       }
       update(jsonData);
     }
-    console.log(jsonData);
   };
-
+  useEffect(() => {
+    setRol(initialForm.rol || "");
+  }, [initialForm.rol]);
 
   const update = (dataForm) => {
     showLoader();
     delete dataForm.emoPdf;
-    delete dataForm.rol
+      dataForm.user = {};
+  
+    // Mueve la propiedad 'rol' dentro del objeto 'user'
+    dataForm.user.rol = rol;
     patchTrabajador(dataForm).then(({ data, message = null }) => {
       if (data) {
         const { createdAt, ...newRowData } = data;
@@ -113,7 +119,7 @@ const FormularioTrabajador = ({
           data["nombreEmpresa"] = data.empresa.nombreEmpresa;
           updateRow(data);
         });
-        setRol("")
+        setRol(initialForm.rol || "")
         toast.success("Actualizado con exito", {
           position: "bottom-right",
         });
@@ -146,7 +152,7 @@ const FormularioTrabajador = ({
         toast.success("Agregado con exito", {
           position: "bottom-right",
         });
-        setRol()
+        setRol(initialForm.rol || "")
         closeModal();
         setFormSubmitted(false);
         onResetForm();
@@ -397,9 +403,8 @@ const FormularioTrabajador = ({
             onChange={(e)=> setRol(e.target.value)}
             value={rol}
           >
-            <option value="Trabajador" selected>
-              {" "}
-              Seleccione una opción{" "}
+            <option value="" selected>
+              Seleccione una opción
             </option>
             <option value="Supervisor">Si</option>
             <option value="Trabajador">No</option>

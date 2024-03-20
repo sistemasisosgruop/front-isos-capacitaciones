@@ -194,8 +194,8 @@ const ListadoTrabajador = () => {
   }, []);
 
   const updateRow = useCallback((data) => {
-    var rowNode = gridRef.current.api.getRowNode(data?.id);
-    rowNode.setData(data);
+    // var rowNode = gridRef.current.api.getRowNode(data?.id);
+    // rowNode.setData(data);
   }, []);
 
   const removeItem = useCallback((data) => {
