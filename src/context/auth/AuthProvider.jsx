@@ -20,13 +20,17 @@ const AuthProvider = ({ children }) => {
   );
 
   const login = (user = {}) => {
-    console.log(user);
+    let idUser = user.idUsuario
+    let rol = user.rol
+
     const action = {
       type: types.login,
       payload: user,
     };
-    console.log("Este es user:" + user);
+    // console.log("Este es user:" + user);
     localStorage.setItem("userIsos", JSON.stringify(user));
+    localStorage.setItem("userId", idUser);
+    localStorage.setItem("rol", rol);
     dispatch(action);
   };
 
@@ -36,6 +40,8 @@ const AuthProvider = ({ children }) => {
       payload: {},
     };
     localStorage.removeItem("userIsos");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("rol");
 
     dispatch(action);
   };

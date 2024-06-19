@@ -11,6 +11,7 @@ import { AuthContext } from "../../context/auth/AuthContext";
 import { useContext } from "react";
 import ItemsTrabajador from "./ItemsTrabajador";
 import ItemSupervisor from "./ItemSupervisor";
+import ItemCapacitador from "./ItemCapacitador";
 
 const menuItemStyles = {
   root: {
@@ -74,7 +75,7 @@ const SidebarCustom = ({ children }) => {
       <Sidebar breakPoint="md" width="240px" backgroundColor="#ffff">
         <Menu menuItemStyles={menuItemStyles}>
           <div className="flex justify-center">
-            <div className="w-24 h-24 bg-white flex justify-center items-center rounded-full p-5">
+            <div className="flex items-center justify-center w-24 h-24 p-5 bg-white rounded-full">
               <img src={logoIsos} className="w-16" />
             </div>
           </div>
@@ -82,11 +83,13 @@ const SidebarCustom = ({ children }) => {
             <ItemsTrabajador />
           ) : rolUser === "Supervisor" ? (
             <ItemSupervisor />
+          ) : rolUser === "Capacitador" ? (
+            <ItemCapacitador />
           ) : (
             <ItemsAdmin />
           )}
         </Menu>
-        <div className="text-center absolute bottom-0 right-0">
+        <div className="absolute bottom-0 right-0 text-center">
           {!collapsed ? (
             <button onClick={() => collapseSidebar(true)}>
               <FontAwesomeIcon icon={faSquareCaretLeft} size="xl" />

@@ -18,6 +18,7 @@ const FormularioInicio = ({
   addItem,
   updateRow,
   closeModal,
+  userId
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
@@ -36,6 +37,7 @@ const FormularioInicio = ({
     fechaAplazo,
     empresas,
     certificado,
+    // userId,
 
     nombreValid,
     instructorValid,
@@ -92,6 +94,7 @@ const FormularioInicio = ({
     data.append("examen", JSON.stringify(formatPregunta));
     data.append("empresas", empresasFormat);
     data.append("horas", formState.horas);
+    data.append("userId", userId);
 
     if (action === "ADD") {
       add(data);
@@ -106,6 +109,7 @@ const FormularioInicio = ({
       if (data) {
         getCapacitacion(data.id).then(({ data }) => {
           const { capacitacion } = data;
+          console.log(data)
           delete data.capacitacion;
           const dataFormat = { ...data, ...capacitacion };
           toast.success("Agregado con exito", {
@@ -158,7 +162,7 @@ const FormularioInicio = ({
 
   return (
     <form onSubmit={(event) => handleForm(event, action)}>
-      <div className="flex flex-col md:flex-row gap-3 mb-2">
+      <div className="flex flex-col gap-3 mb-2 md:flex-row">
         <div className="w-full md:w-2/4">
           <label htmlFor="nombre" className="font-semibold">
             Nombre de capacitación
@@ -168,8 +172,16 @@ const FormularioInicio = ({
             type="text"
             name="nombre"
             id="nombre"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={nombre}
+            onChange={onInputChange}
+          />
+          <input
+            type="hidden"
+            name="userId"
+            id="userId"
+            className="w-full input input-bordered input-sm"
+            value={userId}
             onChange={onInputChange}
           />
           {!!nombreValid && formSubmitted && (
@@ -192,7 +204,7 @@ const FormularioInicio = ({
           )}
         </div>
       </div>
-      <div className="flex flex-col md:flex-row gap-3 mb-2">
+      <div className="flex flex-col gap-3 mb-2 md:flex-row">
         <div className="w-full md:w-1/3">
           <label htmlFor="instructor" className="font-semibold">
             Nombre del instructor
@@ -201,7 +213,7 @@ const FormularioInicio = ({
             type="text"
             name="instructor"
             id="instructor"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={instructor}
             onChange={onInputChange}
           />
@@ -217,7 +229,7 @@ const FormularioInicio = ({
             type="url"
             name="urlVideo"
             id="urlVideo"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={urlVideo}
             onChange={onInputChange}
           />
@@ -233,7 +245,7 @@ const FormularioInicio = ({
             type="file"
             name="certificado"
             id="certificado"
-            className="file-input file-input-bordered file-input-sm w-full"
+            className="w-full file-input file-input-bordered file-input-sm"
             accept=".png, .jpg, .jpeg"
             onChange={onInputChange}
           />
@@ -242,7 +254,7 @@ const FormularioInicio = ({
           )}
         </div>
       </div>
-      <div className="flex flex-col md:flex-row gap-3 mb-2">
+      <div className="flex flex-col gap-3 mb-2 md:flex-row">
         <div className="w-full md:w-1/4">
           <label htmlFor="horas" className="font-semibold">
             Horas
@@ -251,7 +263,7 @@ const FormularioInicio = ({
             type="number"
             name="horas"
             id="horas"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={horas}
             onChange={onInputChange}
           />
@@ -267,7 +279,7 @@ const FormularioInicio = ({
             type="date"
             name="fechaInicio"
             id="fechaInicio"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={fechaInicio}
             onChange={onInputChange}
           />
@@ -283,7 +295,7 @@ const FormularioInicio = ({
             type="date"
             name="fechaCulminacion"
             id="fechaCulminacion"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={fechaCulminacion}
             onChange={onInputChange}
           />
@@ -300,7 +312,7 @@ const FormularioInicio = ({
               type="date"
               name="fechaAplazo"
               id="fechaAplazo"
-              className="input input-bordered input-sm w-full"
+              className="w-full input input-bordered input-sm"
               value={fechaAplazo}
               onChange={onInputChange}
             />

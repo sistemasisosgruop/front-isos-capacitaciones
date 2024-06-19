@@ -124,8 +124,9 @@ const ListadoTrabajador = () => {
       center: true,
     },
     {
-      name: "Supervisor",
-      selector: (row) => row?.user?.rol === "Supervisor" ? "Si" : "No",
+      name: "Rol",
+      // selector: (row) => row?.user?.rol === "Supervisor" ? "Si" : "No",
+      selector: (row) => row?.user?.rol === "Trabajador" ? "" : row?.user?.rol,
       center: true,
     },
     {
@@ -152,9 +153,9 @@ const ListadoTrabajador = () => {
           onClick={() => openConfirm(e, "UPDATE")}
         >
           {e.habilitado ? (
-            <div className="badge bg-red-500">Deshabilitar</div>
+            <div className="bg-red-500 badge">Deshabilitar</div>
           ) : (
-            <div className="badge bg-teal-700">Habilitar</div>
+            <div className="bg-teal-700 badge">Habilitar</div>
           )}
         </label>
       ),
@@ -168,7 +169,7 @@ const ListadoTrabajador = () => {
         <>
           <label
             onClick={() => updateButton(e)}
-            className="cursor-pointer mr-2"
+            className="mr-2 cursor-pointer"
           >
             <FontAwesomeIcon icon={faEdit} />
           </label>
@@ -357,12 +358,12 @@ const ListadoTrabajador = () => {
       className=""
       style={{ width: "100%", padding: "20px", height: "20% !important" }}
     >
-      <div className="bg-white p-3 ">
+      <div className="p-3 bg-white ">
         <div className="flex justify-between gap-3">
-          <h2 className="font-bold text-2xl mb-3">Trabajadores</h2>
+          <h2 className="mb-3 text-2xl font-bold">Trabajadores</h2>
         </div>
-        <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
-          <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
+        <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
+          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/5">
             <select
               className="select select-bordered select-sm"
               id="searchSelect"
@@ -387,7 +388,7 @@ const ListadoTrabajador = () => {
               className="input input-bordered input-sm"
             />
           </div>
-          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-2/5">
+          <div className="flex flex-col justify-end w-full gap-3 md:flex-row lg:w-2/5">
             <Button
               description="Importar"
               icon={faFileImport}

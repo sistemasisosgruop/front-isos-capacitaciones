@@ -33,6 +33,12 @@ const getCapacitacion = (id) => {
     .catch(objErrorApi);
 };
 
+const getCapacitacionUser = (id) => {
+  return baseApi(stepApi)
+    .get(`/capacitador/${id}`)
+    .catch(objErrorApi);
+};
+
 const getPreguntas = (id) => {
   return baseApi(stepApi)
     .get(`/${id}`)
@@ -56,6 +62,7 @@ const deleteCapacitaciones = (id) => {
 export {
   getCapacitaciones,
   getCapacitacion,
+  getCapacitacionUser,
   postCapacitaciones,
   getPreguntas,
   patchCapacitaciones,
