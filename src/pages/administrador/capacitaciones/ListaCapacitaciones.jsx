@@ -21,6 +21,8 @@ import { toast } from "react-toastify";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faPlus, faTrashAlt } from "@fortawesome/free-solid-svg-icons";
+import { getReportCreate, getReportStatus } from "../../../services/reportes";
+import ProgressBar from "../../../components/ProgressBar";
 
 const ListaCapacitaciones = () => {
   const [formPreguntas, setFormPreguntas] = useState(initialFormPreguntas);
@@ -289,6 +291,16 @@ const ListaCapacitaciones = () => {
     setdataForm(initialForm);
   };
 
+  const createWorkersReport = () => {
+    getReportCreate().then(({ report }) => {
+      console.log("====================================");
+      console.log(report);
+      console.log("====================================");
+    });
+
+
+  };
+
   return (
     <div className="">
       <div className="bg-white p-3">
@@ -301,7 +313,15 @@ const ListaCapacitaciones = () => {
             onChange={onFilterTextBoxChanged}
             className="input input-bordered input-sm"
           />
-          <Button description="Registrar" icon={faPlus} event={openAddModal} />
+
+          <div className="flex justify-between gap-3 mb-2">
+            <ProgressBar/>
+            <Button
+              description="Registrar"
+              icon={faPlus}
+              event={openAddModal}
+            />
+          </div>
         </div>
         <div style={containerStyle}>
           <div style={gridStyle} className="ag-theme-alpine">

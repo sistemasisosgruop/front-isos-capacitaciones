@@ -27,6 +27,12 @@ const getCapacitaciones = () => {
     .catch(objErrorApi);
 };
 
+const getCapacitacionesReport = () => {
+  return baseApi(stepApi)
+    .get("/report")
+    .catch(objErrorApi);
+};
+
 const getCapacitacion = (id) => {
   return baseApi(stepApi)
     .get(`/${id}`)
@@ -62,4 +68,5 @@ export {
   patchEstadoCapacitacion,
   deleteCapacitaciones,
   getFirmaCertificado,
+  getCapacitacionesReport
 };

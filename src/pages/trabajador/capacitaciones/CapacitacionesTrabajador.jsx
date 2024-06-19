@@ -44,7 +44,8 @@ const CapacitacionesTrabajador = () => {
     setYears(getYearsBefore(10));
   }, []);
   const filter = (obj) => {
-    const [day, month, year] = formatDateDb(obj.createdAt);
+    const [day, month, year] = formatDateDb(obj.fechaCapacitacion);
+    
     if (selectMonth !== "" && selectYear !== "") {
       if (year == selectYear && month == selectMonth) {
         return true;
@@ -86,7 +87,6 @@ const CapacitacionesTrabajador = () => {
     }
 
   }
-  console.log(dataInit);
   useEffect(() => {
     getData()
   }, []);
@@ -146,6 +146,7 @@ const CapacitacionesTrabajador = () => {
         position: "bottom-right",
       });
     }
+    console.log(validatePreguntas);
     const { examenId, capacitacionId, trabajadorID, preguntas } =
       validatePreguntas;
     const newFormatPreguntas = preguntas.map((e) => {
