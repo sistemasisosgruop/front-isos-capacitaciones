@@ -40,6 +40,7 @@ const ListaCapacitaciones = () => {
 
   const rol = window.localStorage.getItem('rol')
   const userId = window.localStorage.getItem('userId')
+  const empresaId = window.localStorage.getItem('empresaId')
 
   //configuracion de la tabla
   const renderButtons = ({ data }) => {
@@ -358,6 +359,7 @@ const ListaCapacitaciones = () => {
                 addItem={addItem}
                 updateRow={updateRow}
                 userId={userId}
+                empresaId={empresaId}
               />
             </div>
             <div className="p-3" stepName={"preguntas"}>

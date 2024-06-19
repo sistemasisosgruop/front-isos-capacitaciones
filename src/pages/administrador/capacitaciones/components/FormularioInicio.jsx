@@ -18,7 +18,8 @@ const FormularioInicio = ({
   addItem,
   updateRow,
   closeModal,
-  userId
+  userId,
+  empresaId
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
@@ -37,7 +38,6 @@ const FormularioInicio = ({
     fechaAplazo,
     empresas,
     certificado,
-    // userId,
 
     nombreValid,
     instructorValid,
@@ -109,7 +109,7 @@ const FormularioInicio = ({
       if (data) {
         getCapacitacion(data.id).then(({ data }) => {
           const { capacitacion } = data;
-          console.log(data)
+          // console.log(data)
           delete data.capacitacion;
           const dataFormat = { ...data, ...capacitacion };
           toast.success("Agregado con exito", {
@@ -182,6 +182,14 @@ const FormularioInicio = ({
             id="userId"
             className="w-full input input-bordered input-sm"
             value={userId}
+            onChange={onInputChange}
+          />
+          <input
+            type="hidden"
+            name="empresaId"
+            id="empresaId"
+            className="w-full input input-bordered input-sm"
+            value={empresaId}
             onChange={onInputChange}
           />
           {!!nombreValid && formSubmitted && (

@@ -22,6 +22,7 @@ const AuthProvider = ({ children }) => {
   const login = (user = {}) => {
     let idUser = user.idUsuario
     let rol = user.rol
+    let idEmpresa = user.empresaId
 
     const action = {
       type: types.login,
@@ -30,6 +31,7 @@ const AuthProvider = ({ children }) => {
     // console.log("Este es user:" + user);
     localStorage.setItem("userIsos", JSON.stringify(user));
     localStorage.setItem("userId", idUser);
+    localStorage.setItem("empresaId", idEmpresa);
     localStorage.setItem("rol", rol);
     dispatch(action);
   };
@@ -41,6 +43,7 @@ const AuthProvider = ({ children }) => {
     };
     localStorage.removeItem("userIsos");
     localStorage.removeItem("userId");
+    localStorage.removeItem("empresaId");
     localStorage.removeItem("rol");
 
     dispatch(action);
