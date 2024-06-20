@@ -3,7 +3,7 @@ import { getEmpresa, getEmpresas, getImgs } from "../../services/empresa";
 import Button from "../../components/Button";
 import { toast } from "react-toastify";
 import { getReporte } from "../../services/reportes";
-import { getCapacitaciones } from "../../services/capacitacion";
+import { getCapacitaciones, getCapacitacionUser } from "../../services/capacitacion";
 import { Modal } from "../../components/modal/Modal";
 import useModals from "../../hooks/useModal";
 import ExamenCapacitacion from "../../components/ExamenCapacitacion";
@@ -47,6 +47,10 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   const [isOpenModal, openModal, closeModal] = useModals();
   const [page, setPage] = useState(1);
   const [empresaNombre, setEmpresaNombre] = useState("");
+
+  const rol = window.localStorage.getItem('rol')
+  const userId = window.localStorage.getItem('userId')
+  const empresaId = window.localStorage.getItem('empresaId')
 
   const columns = [
     {
@@ -150,7 +154,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   }, []);
 
   useEffect(() => {
-    getCapacitaciones().then(({ data }) => {
+    getCapacitacionUser(empresaId).then(({ data }) => {
       setCapacitaciones(data);
     });
   }, []);
@@ -334,12 +338,12 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
 
   return (
     <div className="">
-      <div className="bg-white p-3">
-        <h2 className="font-bold text-2xl mb-3 block">{titulo}</h2>
-        <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
-          <div className="flex flex-col md:flex-row w-full lg:w-auto gap-3">
+      <div className="p-3 bg-white">
+        <h2 className="block mb-3 text-2xl font-bold">{titulo}</h2>
+        <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
+          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-auto">
             <select
-              className="select select-bordered select-sm w-full md:w-1/3"
+              className="w-full select select-bordered select-sm md:w-1/3"
               id="searchSelect"
               onChange={(e) => setSelectCapacitacion(e.target.value)}
               value={selectCapacitacion}
@@ -354,7 +358,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
             <select
-              className="select select-bordered select-sm w-full md:w-1/5"
+              className="w-full select select-bordered select-sm md:w-1/5"
               id="searchSelect"
               onChange={(e) => setSelectMes(e.target.value)}
               value={selectMes}
@@ -369,9 +373,9 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
           </div>
-          <div className="flex flex-col md:flex-row justify-end gap-3 w-full lg:w-auto">
+          <div className="flex flex-col justify-end w-full gap-3 md:flex-row lg:w-auto">
             <button
-              className="btn btn-sm btn-outline btn-info w-full md:w-auto"
+              className="w-full btn btn-sm btn-outline btn-info md:w-auto"
               onClick={() => {
                 if (selectCapacitacion) {
                   descargarDocumento("examen");
@@ -393,7 +397,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               icon={faFileExport}
             />
             <button
-              className="btn btn-sm btn-outline btn-error w-full md:w-auto"
+              className="w-full btn btn-sm btn-outline btn-error md:w-auto"
               onClick={() => descargarDocumento("pdf")}
             >
               Descargar PDFS

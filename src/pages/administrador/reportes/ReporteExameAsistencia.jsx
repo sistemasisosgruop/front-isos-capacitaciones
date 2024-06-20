@@ -287,12 +287,12 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   };
   return (
     <div className="">
-      <div className="bg-white p-3">
-        <h2 className="font-bold text-2xl mb-3 block">{titulo}</h2>
-        <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
-          <div className="flex flex-col md:flex-row w-full lg:w-auto gap-3">
+      <div className="p-3 bg-white">
+        <h2 className="block mb-3 text-2xl font-bold">{titulo}</h2>
+        <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
+          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-auto">
             <select
-              className="select select-bordered select-sm w-1/4"
+              className="w-1/4 select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectEmpresa(e.target.value)}
               value={selectEmpresa}
@@ -307,7 +307,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
             <select
-              className="select select-bordered select-sm w-1/3"
+              className="w-1/3 select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectCapacitacion(e.target.value)}
               value={selectCapacitacion}
@@ -322,7 +322,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
             <select
-              className="select select-bordered select-sm w-1/5"
+              className="w-1/5 select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectMes(e.target.value)}
               value={selectMes}
@@ -337,7 +337,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
           </div>
-          <div className="flex flex-col md:flex-row justify-end  gap-3 w-1/2 lg:w-1/2">
+          <div className="flex flex-col justify-end w-1/2 gap-3 md:flex-row lg:w-1/2">
             <Button
               description="Exportar"
               event={() => descargarDocumento("excel")}

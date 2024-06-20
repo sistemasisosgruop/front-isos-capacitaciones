@@ -9,7 +9,7 @@ const ProgressBar = () => {
 
   const startReportGeneration = async () => {
     setIsGenerating(true);
-    await fetch("http://54.91.207.26/api/v1/reporte/generar", {
+    await fetch("http://localhost:4000/api/v1/reporte/generar", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -20,7 +20,7 @@ const ProgressBar = () => {
 
   const updateProgress = async () => {
     const response = await fetch(
-      "http://54.91.207.26/api/v1/reporte/progreso"
+      "http://localhost:4000/api/v1/reporte/progreso"
     );
     const data = await response.json();
     setProgress(data);

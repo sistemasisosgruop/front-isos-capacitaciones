@@ -20,6 +20,7 @@ import { getReporte } from "../../services/reportes";
 import {
   getCapacitaciones,
   getFirmaCertificado,
+  getCapacitacionUser,
 } from "../../services/capacitacion";
 import { PDFViewer, pdf } from "@react-pdf/renderer";
 
@@ -50,6 +51,10 @@ const ReporteCertificadoCapacitador1 = () => {
   const [isOpenModal, openModal, closeModal] = useModals();
   const [page, setPage] = useState(1);
   const [empresaNombre, setEmpresaNombre] = useState("");
+
+  const rol = window.localStorage.getItem('rol')
+  const userId = window.localStorage.getItem('userId')
+  const empresaId = window.localStorage.getItem('empresaId')
 
   const columns = [
     {
@@ -135,7 +140,7 @@ const ReporteCertificadoCapacitador1 = () => {
   }, [page, selectEmpresa, selectCapacitacion, selectMes]);
 
   useEffect(() => {
-    getCapacitaciones().then(({ data }) => {
+    getCapacitacionUser(empresaId).then(({ data }) => {
       setCapacitaciones(data);
     });
   }, []);

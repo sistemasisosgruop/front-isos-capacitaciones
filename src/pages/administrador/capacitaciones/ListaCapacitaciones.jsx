@@ -117,7 +117,7 @@ const ListaCapacitaciones = () => {
 
     if ( rol === 'Capacitador') {
       // console.log('Es un Capacitador')
-      getCapacitacionUser(userId).then(({ data }) => {
+      getCapacitacionUser(empresaId).then(({ data }) => {
         // console.log(data);
         if (data) {
           setRowData(data);

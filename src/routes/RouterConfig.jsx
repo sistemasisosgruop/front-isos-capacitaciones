@@ -55,8 +55,8 @@ const router = createBrowserRouter([
         ),
         children: [
           { path: "opciones", element: <OpcionesTrabajador /> },
-          // { path: "capacitaciones", element: <CapacitacionesTrabajador /> },
           { path: "capacitaciones", element: <ListaCapacitaciones /> },
+          { path: "capacitador", element: <CapacitacionesTrabajador /> },
           { path: "test", element: <TestTrabajador /> },
           { path: "evaluacion", element: <EvaluacionMedica /> },
           {

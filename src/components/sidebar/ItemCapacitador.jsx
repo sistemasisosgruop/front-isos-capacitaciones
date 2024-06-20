@@ -17,6 +17,12 @@ const ItemCapacitador = () => {
     <>
       <MenuItem
         component={<Link to="./capacitador/capacitaciones" />}
+        icon={<FontAwesomeIcon icon={faBuilding} />}
+      >
+        Lista Capacitaciones
+      </MenuItem>
+      <MenuItem
+        component={<Link to="./capacitador/capacitador" />}
         icon={<FontAwesomeIcon icon={faChalkboardTeacher} />}
       >
         Capacitaciones
