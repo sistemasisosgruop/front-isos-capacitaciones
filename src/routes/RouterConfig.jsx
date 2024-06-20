@@ -21,7 +21,10 @@ import OpcionesEmos from "../pages/administrador/emos/opcionesReportes";
 import EvaluacionMedica from "../pages/trabajador/evaluacionMedica/EvaluacionMedica";
 import ReporteEmo from "../pages/administrador/reportes/ReporteEmo";
 import CompararTrabajadores from "../pages/administrador/ListaTrabajadores/CompararTrabajadores";
+import OpcionesCapacitador from "../pages/capacitador/OpcionesCapacitador";
 import OpcionesSupervisor from "../pages/supervisor/OpcionesSupervisor";
+import ReporteExameAsistenciaCapacitador from "../pages/capacitador/ReporteExameAsistenciaCapacitador";
+import ReporteCertificadoCapacitador1 from "../pages/capacitador/ReporteCertificadoCapacitador1";
 import ReporteExameAsistenciaSupervisor from "../pages/supervisor/ReporteExameAsistenciaSupervisor";
 import ReporteCertificadoSupervisor1 from "../pages/supervisor/ReporteCertificadoSupervisor1";
 
@@ -35,12 +38,50 @@ const router = createBrowserRouter([
           userRoles.ADMIN,
           userRoles.EMPLOYEE,
           userRoles.SUPERVISOR,
+          userRoles.CAPACITADOR,
         ]}
       >
         <Menu />
       </ProtectedRoute>
     ),
     children: [
+      {
+        path: "capacitador",
+        loader: validateToken,
+        element: (
+          <ProtectedRoute expectedRoles={[userRoles.CAPACITADOR]}>
+            <Outlet />
+          </ProtectedRoute>
+        ),
+        children: [
+          { path: "opciones", element: <OpcionesTrabajador /> },
+          // { path: "capacitaciones", element: <CapacitacionesTrabajador /> },
+          { path: "capacitaciones", element: <ListaCapacitaciones /> },
+          { path: "test", element: <TestTrabajador /> },
+          { path: "evaluacion", element: <EvaluacionMedica /> },
+          {
+            path: "reportes",
+            element: <Outlet />,
+            children: [
+              { path: "opciones", element: <OpcionesCapacitador /> },
+              {
+                path: "examenes",
+                element: (
+                  <ReporteExameAsistenciaCapacitador
+                    titulo={"Reporte de examenes"}
+                    esExamen={true}
+                  />
+                ),
+              },
+              {
+                path: "certificados",
+                element: <ReporteCertificadoCapacitador1 />,
+              },
+            ],
+          },
+          { path: "*", element: <Navigate to="/menu/capacitador/opciones" /> },
+        ],
+      },
       {
         path: "supervisor",
         loader: validateToken,

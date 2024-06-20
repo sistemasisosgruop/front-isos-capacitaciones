@@ -17,7 +17,7 @@ const months = [
   },
   {
     numero: 5,
-    descripcion: "mayo",
+    descripcion: "Mayo",
   },
   {
     numero: 6,
@@ -33,19 +33,19 @@ const months = [
   },
   {
     numero: 9,
-    descripcion: "septiembre",
+    descripcion: "Septiembre",
   },
   {
     numero: 10,
-    descripcion: "octubre",
+    descripcion: "Octubre",
   },
   {
     numero: 11,
-    descripcion: "noviembre",
+    descripcion: "Noviembre",
   },
   {
     numero: 12,
-    descripcion: "diciembre",
+    descripcion: "Diciembre",
   },
 ];
 

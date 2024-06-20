@@ -58,6 +58,15 @@ const FormLogin = () => {
             rutaInicio = "/menu/supervisor/opciones";
             login({ nombres, apellidoPaterno, token, idUsuario, rol, dni, empresaId });
           }
+          if (rol === "Capacitador") {
+            // console.log(data.user)
+            const nombres = data.capacitador.nombres;
+            const apellidoPaterno = data.capacitador.apellidoPaterno;
+            idUsuario = data.user.id;
+            const empresaId = data.capacitador.empresaId
+            rutaInicio = "/menu/capacitador/opciones";
+            login({ nombres, apellidoPaterno, token, idUsuario, rol, dni, empresaId });
+          }
           if (rol === "Trabajador") {
             const nombres = data.worker.nombres;
             const apellidoPaterno = data.worker.apellidoPaterno;
@@ -95,7 +104,7 @@ const FormLogin = () => {
         type="text"
         value={user}
         name="user"
-        className="input input-bordered input-sm w-full"
+        className="w-full input input-bordered input-sm"
         onChange={onInputChange}
       />
       {!!userValid && formSubmitted && (
@@ -107,7 +116,7 @@ const FormLogin = () => {
         type="password"
         name="password"
         value={password}
-        className="input input-bordered input-sm w-full mb-3"
+        className="w-full mb-3 input input-bordered input-sm"
         onChange={onInputChange}
       />
       {!!passwordValid && formSubmitted && (

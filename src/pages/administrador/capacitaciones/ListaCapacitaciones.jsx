@@ -11,6 +11,7 @@ import StepWizard from "react-step-wizard";
 import {
   deleteCapacitaciones,
   getCapacitacion,
+  getCapacitacionUser,
   getCapacitaciones,
   getPreguntas,
   patchEstadoCapacitacion,
@@ -39,18 +40,22 @@ const ListaCapacitaciones = () => {
   const [rowData, setRowData] = useState([]);
   const gridRef = useRef();
 
+  const rol = window.localStorage.getItem('rol')
+  const userId = window.localStorage.getItem('userId')
+  const empresaId = window.localStorage.getItem('empresaId')
+
   //configuracion de la tabla
   const renderButtons = ({ data }) => {
     return (
       <>
         <label
           onClick={() => updateButton(data)}
-          className="cursor-pointer mr-2"
+          className="mr-2 cursor-pointer"
         >
           <FontAwesomeIcon icon={faEdit} />
         </label>
         <label
-          className="cursor-pointer mr-2"
+          className="mr-2 cursor-pointer"
           onClick={() => openConfirm(data, "DELETE")}
         >
           <FontAwesomeIcon icon={faTrashAlt} />
@@ -61,9 +66,9 @@ const ListaCapacitaciones = () => {
           onClick={() => openConfirm(data, "UPDATE")}
         >
           {data.habilitado ? (
-            <div className="badge bg-red-500">Deshabilitar</div>
+            <div className="bg-red-500 badge">Deshabilitar</div>
           ) : (
-            <div className="badge bg-teal-700">Habilitar</div>
+            <div className="bg-teal-700 badge">Habilitar</div>
           )}
         </label>
       </>
@@ -73,7 +78,7 @@ const ListaCapacitaciones = () => {
   const renderButtonCertificado = ({ data }) => {
     return (
       <div
-        className="badge badge-primary cursor-pointer"
+        className="cursor-pointer badge badge-primary"
         onClick={() => showImgs(data, true)}
       >
         <FontAwesomeIcon icon={faEye} />
@@ -109,15 +114,32 @@ const ListaCapacitaciones = () => {
 
   //cargar la informacion de la tabla
   const onGridReady = useCallback((params) => {
-    getCapacitaciones().then(({ data }) => {
-      if (data) {
-        setRowData(data);
-      } else {
-        toast.error("Ocurrio un error en el servidor", {
-          position: "bottom-right",
-        });
-      }
-    });
+
+    if ( rol === 'Capacitador') {
+      // console.log('Es un Capacitador')
+      getCapacitacionUser(userId).then(({ data }) => {
+        // console.log(data);
+        if (data) {
+          setRowData(data);
+        } else {
+          toast.error("Ocurrio un error en el servidor", {
+            position: "bottom-right",
+          });
+        }
+      });
+    } else {
+      getCapacitaciones().then(({ data }) => {
+        // console.log(data);
+        if (data) {
+          setRowData(data);
+        } else {
+          toast.error("Ocurrio un error en el servidor", {
+            position: "bottom-right",
+          });
+        }
+      });
+    }
+
   }, []);
 
   //funciones para refrescar la tabla
@@ -168,6 +190,7 @@ const ListaCapacitaciones = () => {
       fechaAplazo: !data.fechaAplazo ? "" : data.fechaAplazo,
       certificado: data.certificado,
       empresas: empresasFormat,
+      userId: userId
     };
 
     setdataForm(dataFormat);
@@ -303,8 +326,8 @@ const ListaCapacitaciones = () => {
 
   return (
     <div className="">
-      <div className="bg-white p-3">
-        <h2 className="font-bold text-2xl mb-3">Capacitaciones</h2>
+      <div className="p-3 bg-white">
+        <h2 className="mb-3 text-2xl font-bold">Capacitaciones</h2>
         <div className="flex justify-between gap-3 mb-2">
           <input
             type="text"
@@ -355,6 +378,8 @@ const ListaCapacitaciones = () => {
                 closeModal={closeModal}
                 addItem={addItem}
                 updateRow={updateRow}
+                userId={userId}
+                empresaId={empresaId}
               />
             </div>
             <div className="p-3" stepName={"preguntas"}>

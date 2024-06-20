@@ -20,7 +20,7 @@ import { formatDateDb, formatDateYMD } from "../../../utils/formtDate";
 import { getImgs } from "../../../services/empresa";
 import { months } from "../../../config";
 import getYearsBefore from "../../../utils/yearsBefore";
-import {  getExamenCapacitacion } from "../../../services/examenes";
+import { getExamenCapacitacion } from "../../../services/examenes";
 import { initialFormPreguntas } from "./config";
 import { hideLoader, showLoader } from "../../../utils/loader";
 import { pdf } from "@react-pdf/renderer";
@@ -45,7 +45,7 @@ const CapacitacionesTrabajador = () => {
   }, []);
   const filter = (obj) => {
     const [day, month, year] = formatDateDb(obj.fechaCapacitacion);
-    
+
     if (selectMonth !== "" && selectYear !== "") {
       if (year == selectYear && month == selectMonth) {
         return true;
@@ -63,6 +63,7 @@ const CapacitacionesTrabajador = () => {
     if (selectMonth === "" && selectYear === "") {
       return;
     }
+    // console.log(dataInit);
     var arrPorID = dataInit?.filter(filter);
     setData(arrPorID);
   };
@@ -87,6 +88,7 @@ const CapacitacionesTrabajador = () => {
     }
 
   }
+  // console.log(dataInit);
   useEffect(() => {
     getData()
   }, []);
@@ -213,12 +215,12 @@ const CapacitacionesTrabajador = () => {
   
   return (
     <div className="">
-      <div className="bg-white p-3">
+      <div className="p-3 bg-white">
         <div className="flex justify-between gap-3">
-          <h2 className="font-bold text-2xl mb-3">Capacitaciones</h2>
+          <h2 className="mb-3 text-2xl font-bold">Capacitaciones</h2>
         </div>
-        <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
-          <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
+        <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
+          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/5">
             <select
               className="select select-bordered select-sm"
               id="searchSelect"

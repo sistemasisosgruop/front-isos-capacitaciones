@@ -77,16 +77,26 @@ const FormularioTrabajador = ({
     // jsonData.fechadenac = newFormDate;
 
     if (action === "ADD") {
+
+      // switch (rol) {
+      //   case "Supervisor":
+      //     rol = "Supervisor"
+      //     break;
+      
+      //   default:
+      //     break;
+      // }
+      
       //reset
       jsonData.user = {
         username: formState.dni,
         contraseña: password,
-        rol: rol === "Supervisor" ? "Supervisor" : "Trabajador",
+        rol: rol,
       };
       jsonData.user = {
         username: formState.dni,
         contraseña: formState.dni,
-        rol: rol === "Supervisor" ? "Supervisor" : "Trabajador",
+        rol: rol,
       };
       add(jsonData);
     } else {
@@ -94,7 +104,7 @@ const FormularioTrabajador = ({
         jsonData.user = {
           username: formState.dni,
           contraseña: password,
-          rol: rol === "Supervisor" ? "Supervisor" : "Trabajador",
+          rol: rol,
         };
       }
       update(jsonData);
@@ -168,7 +178,7 @@ const FormularioTrabajador = ({
 
   return (
     <form onSubmit={(e) => handleForm(e, action)}>
-      <div className="flex flex-col md:flex-row gap-3 mb-2">
+      <div className="flex flex-col gap-3 mb-2 md:flex-row">
         <div className="w-full md:w-1/3">
           <label htmlFor="nombres" className="font-semibold">
             Nombres
@@ -178,7 +188,7 @@ const FormularioTrabajador = ({
             type="text"
             name="nombres"
             id="nombres"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={nombres}
             onChange={onInputChange}
           />
@@ -194,7 +204,7 @@ const FormularioTrabajador = ({
             type="text"
             name="apellidoPaterno"
             id="apellidoPaterno"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={apellidoPaterno}
             onChange={onInputChange}
           />
@@ -210,7 +220,7 @@ const FormularioTrabajador = ({
             type="text"
             name="apellidoMaterno"
             id="apellidoMaterno"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={apellidoMaterno}
             onChange={onInputChange}
           />
@@ -219,7 +229,7 @@ const FormularioTrabajador = ({
           )}
         </div>
       </div>
-      <div className="flex flex-col md:flex-row gap-3 mb-2">
+      <div className="flex flex-col gap-3 mb-2 md:flex-row">
         <div className="w-full md:w-1/3">
           <label htmlFor="dni" className="font-semibold">
             DNI
@@ -228,7 +238,7 @@ const FormularioTrabajador = ({
             type="number"
             name="dni"
             id="dni"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={dni}
             onChange={onInputChange}
           />
@@ -241,7 +251,7 @@ const FormularioTrabajador = ({
             Genero
           </label>
           <select
-            className="select select-bordered select-sm block w-full"
+            className="block w-full select select-bordered select-sm"
             id="genero"
             name="genero"
             onChange={onInputChange}
@@ -266,7 +276,7 @@ const FormularioTrabajador = ({
             type="number"
             name="edad"
             id="edad"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={edad}
             onChange={onInputChange}
           />
@@ -275,7 +285,7 @@ const FormularioTrabajador = ({
           )}
         </div>
       </div>
-      <div className="flex flex-col md:flex-row  gap-3 mb-2">
+      <div className="flex flex-col gap-3 mb-2 md:flex-row">
         <div className="w-full md:w-1/3">
           <label htmlFor="edad" className="font-semibold">
             Celular
@@ -284,7 +294,7 @@ const FormularioTrabajador = ({
             type="number"
             name="celular"
             id="celular"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={celular}
             onChange={onInputChange}
           />
@@ -300,7 +310,7 @@ const FormularioTrabajador = ({
             type="text"
             id="areadetrabajo"
             name="areadetrabajo"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={areadetrabajo}
             onChange={onInputChange}
           />
@@ -316,7 +326,7 @@ const FormularioTrabajador = ({
             type="text"
             id="cargo"
             name="cargo"
-            className="input input-bordered file-input-sm w-full"
+            className="w-full input input-bordered file-input-sm"
             value={cargo}
             onChange={onInputChange}
             accept=".png, .jpg, .jpeg"
@@ -333,7 +343,7 @@ const FormularioTrabajador = ({
             type="date"
             id="fechadenac"
             name="fechadenac"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={fechadenac}
             onChange={onInputChange}
           />
@@ -342,12 +352,12 @@ const FormularioTrabajador = ({
           )}
         </div>
       </div>
-      <div className="flex flex-col md:flex-row gap-3  mb-2">
+      <div className="flex flex-col gap-3 mb-2 md:flex-row">
         {action === "UPDATE" ? (
           <div className="w-full md:w-1/3">
             <label htmlFor="password" className="font-semibold">
               Contraseña{" "}
-              <span className="text-yellow-500 text-sm">
+              <span className="text-sm text-yellow-500">
                 (dejar vacio para no actualizar este campo )
               </span>
             </label>
@@ -355,7 +365,7 @@ const FormularioTrabajador = ({
               type="text"
               id="password"
               name="password"
-              className="file-input file-input-bordered file-input-sm w-full max-w-xs"
+              className="w-full max-w-xs file-input file-input-bordered file-input-sm"
               value={password}
               onChange={onInputChange}
               accept=".png, .jpg, .jpeg"
@@ -371,7 +381,7 @@ const FormularioTrabajador = ({
           </label>
 
           <select
-            className="select select-bordered select-sm block w-full"
+            className="block w-full select select-bordered select-sm"
             id="empresa"
             name="empresa"
             onChange={onInputChange}
@@ -394,10 +404,10 @@ const FormularioTrabajador = ({
         </div>
         <div className="w-full md:w-1/3">
           <label htmlFor="rol" className="font-semibold">
-            Supervisor
+            Rol
           </label>
           <select
-            className="select select-bordered select-sm block w-full"
+            className="block w-full select select-bordered select-sm"
             id="rol"
             name="rol"
             onChange={(e)=> setRol(e.target.value)}
@@ -406,8 +416,9 @@ const FormularioTrabajador = ({
             <option value="" selected>
               Seleccione una opción
             </option>
-            <option value="Supervisor">Si</option>
-            <option value="Trabajador">No</option>
+            <option value="Supervisor">Supervisor</option>
+            <option value="Capacitador">Capacitador</option>
+            <option value="Trabajador">Trabajador</option>
           </select>
         </div>
       </div>

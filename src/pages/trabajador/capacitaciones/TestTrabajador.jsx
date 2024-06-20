@@ -116,10 +116,10 @@ const TestTrabajador = () => {
 
   return (
     <div className="">
-      <div className="bg-white p-3">
-        <h2 className="font-bold text-2xl mb-3 block">Tests</h2>
-        <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
-          <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
+      <div className="p-3 bg-white">
+        <h2 className="block mb-3 text-2xl font-bold">Tests</h2>
+        <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
+          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/5">
             <select
               className="select select-bordered select-sm"
               id="searchSelect"
