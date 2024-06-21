@@ -73,10 +73,15 @@ const ListaCapacitaciones = () => {
           className="cursor-pointer"
           onClick={() => openConfirm(data, "UPDATE")}
         >
+        
           {data.habilitado ? (
-            <div className="bg-red-500 badge">Deshabilitar</div>
+            data.userId == userId && rol === 'Capacitador'
+            ? <div className="bg-red-500 badge">Deshabilitar</div>
+            : rol === 'Administrador' ? <div className="bg-red-500 badge">Deshabilitar</div> : null
           ) : (
-            <div className="bg-teal-700 badge">Habilitar</div>
+            data.userId == userId && rol === 'Capacitador'
+            ? <div className="bg-teal-700 badge">Habilitar</div>
+            : rol === 'Administrador' ? <div className="bg-teal-700 badge">Habilitar</div> : null
           )}
         </label>
       </>

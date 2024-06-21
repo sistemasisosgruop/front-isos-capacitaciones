@@ -4,7 +4,7 @@ import {
   faSquareCaretLeft,
   faSquareCaretRight,
 } from "@fortawesome/free-solid-svg-icons";
-import logoIsos from "../../assets/img/logoIsos.svg";
+import logoIsos from "../../assets/img/logoallincode.png";
 import NavBar from "../NavBar";
 import ItemsAdmin from "./ItemsAdmin";
 import { AuthContext } from "../../context/auth/AuthContext";
@@ -75,7 +75,7 @@ const SidebarCustom = ({ children }) => {
       <Sidebar breakPoint="md" width="240px" backgroundColor="#ffff">
         <Menu menuItemStyles={menuItemStyles}>
           <div className="flex justify-center">
-            <div className="flex items-center justify-center w-24 h-24 p-5 bg-white rounded-full">
+            <div className="flex items-center justify-center w-24 h-24 p-3 bg-white rounded-full">
               <img src={logoIsos} className="w-16" />
             </div>
           </div>
