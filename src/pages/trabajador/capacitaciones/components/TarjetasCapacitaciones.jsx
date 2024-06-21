@@ -2,8 +2,6 @@ const TarjetasCapacitaciones = ({ data, verPreguntas, verCertificado }) => {
   let backgroundEstado = null;
   let descripcionEstado = null;
 
-  
-
   if (!data.asistenciaExamen) {
     descripcionEstado = "Pendiente";
     backgroundEstado = " rgb(148 163 184)";
@@ -21,15 +19,15 @@ const TarjetasCapacitaciones = ({ data, verPreguntas, verCertificado }) => {
       className={`w-full bg-slate-100 p-3 border-l-8 rounded-lg`}
       style={{ borderLeftColor: backgroundEstado }}
     >
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="font-bold text-sm md:text-lg">
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-sm font-bold md:text-lg">
           {data.capacitacion?.nombre}
         </h2>
         <div
           className={`badge text-white`}
           style={{ backgroundColor: backgroundEstado }}
         >
-          {descripcionEstado}
+          {descripcionEstado} { (descripcionEstado === 'Aprobado') ? ' - ' + data.notaExamen : null }
         </div>
       </div>
       <div className="flex flex-col lg:flex-row">
@@ -42,12 +40,12 @@ const TarjetasCapacitaciones = ({ data, verPreguntas, verCertificado }) => {
             <a
               href={data.capacitacion?.urlVideo}
               target="_blank"
-              className="badge badge-outline text-blue-500 cursor-pointer block mb-2"
+              className="block mb-2 text-blue-500 cursor-pointer badge badge-outline"
             >
               Dar capacitación
             </a>
             <div
-              className="badge badge-outline text-blue-500 cursor-pointer block mb-2"
+              className="block mb-2 text-blue-500 cursor-pointer badge badge-outline"
               onClick={() =>
                 descripcionEstado !=='Aprobado' && verPreguntas(data)
               }
@@ -63,12 +61,15 @@ const TarjetasCapacitaciones = ({ data, verPreguntas, verCertificado }) => {
             <p className="font-semibold">Fecha</p>
           </div>
           <div className="w-1/2 lg:w-3/5">
-            <div
-              className="badge badge-outline text-blue-500 cursor-pointer block mb-2"
+            { (descripcionEstado === 'Aprobado')
+            ? <div
+              className="block mb-2 text-blue-500 cursor-pointer badge badge-outline" 
               onClick={() => (descripcionEstado === 'Aprobado') && verCertificado(data)}
             >
               Ver certificado
             </div>
+            : <div className="invisible mb-2 text-blue-500 cursor-pointer badge badge-outline"></div>
+            }
             <p>{data.fechaCapacitacion}</p>
           </div>
         </div>

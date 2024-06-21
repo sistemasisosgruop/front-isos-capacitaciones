@@ -25,6 +25,11 @@ const getEmpresa = ( id ) => {
     .get(`/${ id }`)
     .catch(objErrorApi);
 };
+const getEmpresaCapacitador = ( id ) => {
+  return baseApi(stepApi)
+    .get(`/capacitador/${ id }`)
+    .catch(objErrorApi);
+};
 
 const getImgs = ( id, typeImg ) => {
   return baseApi(stepApi)
@@ -43,6 +48,7 @@ const deleteEmpresa = (id) => {
 export { 
   getEmpresas,
   getEmpresa,
+  getEmpresaCapacitador,
   deleteEmpresa,
   postEmpresas, 
   patchEmpresas, 

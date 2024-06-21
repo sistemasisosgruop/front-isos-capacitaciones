@@ -19,7 +19,8 @@ const FormularioInicio = ({
   updateRow,
   closeModal,
   userId,
-  empresaId
+  empresaId,
+  rol
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
@@ -81,7 +82,7 @@ const FormularioInicio = ({
 
     //formatemos empresas a [1,2...]
     const empresasFormat = formState.empresas.map((obj) => obj.value);
-
+    
     const data = new FormData();
 
     data.append("nombre", formState.nombre);

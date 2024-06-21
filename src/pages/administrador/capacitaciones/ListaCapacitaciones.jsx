@@ -17,7 +17,7 @@ import {
   patchEstadoCapacitacion,
 } from "../../../services/capacitacion";
 import { AgGridReact } from "ag-grid-react";
-import { getEmpresas } from "../../../services/empresa";
+import { getEmpresas, getEmpresaCapacitador } from "../../../services/empresa";
 import { toast } from "react-toastify";
 import SweetAlert from "react-bootstrap-sweetalert";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -52,13 +52,21 @@ const ListaCapacitaciones = () => {
           onClick={() => updateButton(data)}
           className="mr-2 cursor-pointer"
         >
-          <FontAwesomeIcon icon={faEdit} />
+          { 
+            data.userId == userId && rol === 'Capacitador'
+            ? <FontAwesomeIcon icon={faEdit} />
+            : rol === 'Administrador' ? <FontAwesomeIcon icon={faEdit} /> : null
+          }
         </label>
         <label
           className="mr-2 cursor-pointer"
           onClick={() => openConfirm(data, "DELETE")}
         >
-          <FontAwesomeIcon icon={faTrashAlt} />
+          { 
+            data.userId == userId && rol === 'Capacitador'
+            ? <FontAwesomeIcon icon={faTrashAlt} />
+            : rol === 'Administrador' ? <FontAwesomeIcon icon={faTrashAlt} /> : null
+          }
         </label>
         {}
         <label
@@ -277,17 +285,35 @@ const ListaCapacitaciones = () => {
   };
 
   useEffect(() => {
-    getEmpresas().then(({ data }) => {
-      const newData = data.map(function (obj) {
-        const { id, nombreEmpresa } = obj;
-        let newObj = {};
-        newObj["value"] = id;
-        newObj["label"] = nombreEmpresa;
-        return newObj;
-      });
 
-      setEmpresas(newData);
-    });
+    if (rol === 'Capacitador') {
+      // console.log(empresaId)
+      getEmpresaCapacitador(empresaId).then(({ data }) => {
+        const newData = data.map(function (obj) {
+          const { id, nombreEmpresa } = obj;
+          let newObj = {};
+          newObj["value"] = id;
+          newObj["label"] = nombreEmpresa;
+          return newObj;
+        });
+
+        // console.log(newData)
+  
+        setEmpresas(newData);
+      });
+    } else {
+      getEmpresas().then(({ data }) => {
+        const newData = data.map(function (obj) {
+          const { id, nombreEmpresa } = obj;
+          let newObj = {};
+          newObj["value"] = id;
+          newObj["label"] = nombreEmpresa;
+          return newObj;
+        });
+  
+        setEmpresas(newData);
+      });
+    }
   }, []);
 
   const validateGetPreguntas = () => {
@@ -380,6 +406,7 @@ const ListaCapacitaciones = () => {
                 updateRow={updateRow}
                 userId={userId}
                 empresaId={empresaId}
+                rol={rol}
               />
             </div>
             <div className="p-3" stepName={"preguntas"}>
