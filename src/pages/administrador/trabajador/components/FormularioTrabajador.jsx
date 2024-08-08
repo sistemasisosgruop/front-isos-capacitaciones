@@ -39,12 +39,14 @@ const FormularioTrabajador = ({
     password,
     empresa,
     celular,
+    email,
     user,
 
     nombresValid,
     apellidoPaternoValid,
     apellidoMaternoValid,
     dniValid,
+    emailValid,
     generoValid,
     edadValid,
     areadetrabajoValid,
@@ -374,6 +376,23 @@ const FormularioTrabajador = ({
         ) : (
           ""
         )}
+
+        <div className="w-full md:w-1/3">
+          <label htmlFor="email" className="font-semibold">
+            Email
+          </label>
+          <input
+            type="text"
+            name="email"
+            id="email"
+            className="w-full input input-bordered input-sm"
+            value={email}
+            onChange={onInputChange}
+          />
+          {!!emailValid && formSubmitted && (
+            <p className="text-sm text-red-700">{emailValid}</p>
+          )}
+        </div>
 
         <div className="w-full md:w-1/3">
           <label htmlFor="empresa" className="font-semibold">

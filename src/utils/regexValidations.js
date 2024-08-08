@@ -4,6 +4,7 @@ export default {
   ruc: /^\d{11}$/,
   number:/^\d+(\.\d+)?$/,
   dni:/\b\d{8}\b/,
+  email:/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
   url:/^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/,
   celular:/^\d{9}$/
 }

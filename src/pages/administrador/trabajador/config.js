@@ -4,6 +4,7 @@ const initialForm = {
   apellidoPaterno: "",
   apellidoMaterno: "",
   dni: "",
+  email: "",
   genero: "",
   edad: "",
   areadetrabajo: "",
