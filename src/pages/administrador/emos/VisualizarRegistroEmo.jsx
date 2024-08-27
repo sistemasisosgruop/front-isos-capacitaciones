@@ -58,7 +58,7 @@ const VisualizarRegistroEmo = () => {
     });
   }, []);
 
-  console.log(rowData);
+  // console.log(rowData);
   const addItem = useCallback((addIndex, newRow) => {
     const newItem = [newRow];
     gridRef.current.api.applyTransaction({
@@ -124,6 +124,10 @@ const VisualizarRegistroEmo = () => {
     { field: "edad", headerName: "EDAD", width: 80 },
     { field: "area", headerName: "AREA" },
     { field: "cargo", headerName: "PUESTO LABORAL" },
+    { field: "estado_email", headerName: "ESTADO CORREO" },
+    { field: "fecha_email", headerName: "FECHA CORREO" },
+    { field: "estado_whastapp", headerName: "ESTADO WHATSAPP" },
+    { field: "fecha_whastapp", headerName: "FECHA WHATSAPP" },
     {
       field: "fecha_examen",
       headerName: "FECHA EXAMEN MÉDICO",
@@ -137,6 +141,7 @@ const VisualizarRegistroEmo = () => {
       field: "fecha_lectura",
       headerName: "FECHA DE LECTURA EMO",
     },
+    { field: "estado", headerName: "ESTADO" },
     { field: "acciones", cellRenderer: renderButtons, width: 100 },
     { field: "nombreEmpresa", hide: true, filter: true },
   ]);

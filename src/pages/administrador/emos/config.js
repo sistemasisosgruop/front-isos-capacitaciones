@@ -4,6 +4,7 @@ const initialForm = {
   apellidoPaterno: "",
   apellidoMaterno: "",
   dni: "",
+  email: "",
   edad: "",
   area: "",
   cargo: "",
@@ -11,8 +12,12 @@ const initialForm = {
   fecha_examen: "",
   condicion: "",
   clinica: "",
-  lectura_emo: ""
-
+  lectura_emo: "",
+  estado_email: "",
+  fecha_email: "",
+  estado_whatsapp: "",
+  fecha_whatsapp: "",
+  estado: ""
 };
 
 const initialFormImport = {

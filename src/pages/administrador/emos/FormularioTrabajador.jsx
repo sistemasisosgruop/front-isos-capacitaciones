@@ -27,6 +27,7 @@ const FormularioTrabajador = ({
     fecha_lectura: "",
     fecha_examen: "",
     condicion_aptitud: "",
+    estado: "",
   });
   const formValidations = validate();
   //tipo de accion del formulario
@@ -37,6 +38,7 @@ const FormularioTrabajador = ({
       clinica: initialForm?.clinica || "",
       fecha_examen: initialForm?.fecha_examen || "",
       condicion_aptitud: initialForm?.condicion_aptitud || "",
+      estado: initialForm?.estado || "",
     });
   }, [initialForm]);
 
@@ -75,7 +77,7 @@ const FormularioTrabajador = ({
           <input
             type="date"
             name="fecha_examen"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={
               dataTrabajador.fecha_examen
                 ? dayjs(dataTrabajador.fecha_examen, "DD-MM-YYYY").format(
@@ -95,7 +97,7 @@ const FormularioTrabajador = ({
           </label>
           <br />
           <select
-            className="select select-bordered select-sm w-full"
+            className="w-full select select-bordered select-sm"
             name="condicion_aptitud"
             id=""
             value={dataTrabajador.condicion_aptitud}
@@ -113,7 +115,7 @@ const FormularioTrabajador = ({
           <input
             type="text"
             name="clinica"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={dataTrabajador.clinica}
             onChange={handleChange}
           />
@@ -129,7 +131,7 @@ const FormularioTrabajador = ({
           <input
             type="date"
             name="fecha_lectura"
-            className="input input-bordered input-sm w-full"
+            className="w-full input input-bordered input-sm"
             value={
               dataTrabajador.fecha_lectura
                 ? dayjs(dataTrabajador.fecha_lectura, "DD-MM-YYYY").format(
@@ -144,6 +146,23 @@ const FormularioTrabajador = ({
           )} */}
         </div>
       </div>
+      <div className="w-full mt-2">
+          <label htmlFor="estado" className="font-semibold">
+            Estado
+          </label>
+          <br />
+          <select
+            className="w-full select select-bordered select-sm"
+            name="estado"
+            id=""
+            value={dataTrabajador.estado}
+            onChange={handleChange}
+          >
+            <option value="PENDIENTE">PENDIENTE</option>
+            <option value="EMITIDO">EMITIDO</option>
+            <option value="EMITIDO Y ENVIADO">EMITIDO Y ENVIADO</option>
+          </select>
+        </div>
       <div className="flex justify-end mt-4">
         <Button description={"Guardar"} />
       </div>
