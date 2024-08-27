@@ -44,6 +44,7 @@ const FormularioImportar = ({
       "APELLIDO  MATERNO": "apellidoMaterno",
       NOMBRES: "nombres",
       DNI: "dni",
+      EMAIL: "email",
       CONTRASEÑA: "contrasena",
       CELULAR: "celular",
       Nº: "id",
@@ -81,7 +82,7 @@ const FormularioImportar = ({
         jsonData.push(rowObject);
       }
     });
-    console.log(jsonData);
+    // console.log(jsonData);
     if (jsonData.length > 0) {
       setRowData2(jsonData);
       closeModal();
@@ -95,7 +96,7 @@ const FormularioImportar = ({
         name="excel"
         accept=".xlsx,.xls"
         onChange={onChange}
-        className="file-input file-input-bordered file-input-sm w-full mb-1"
+        className="w-full mb-1 file-input file-input-bordered file-input-sm"
       />
       {!!excelValid && formSubmitted && (
         <p className="text-sm text-red-700">{excelValid}</p>

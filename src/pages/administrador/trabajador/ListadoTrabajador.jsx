@@ -98,6 +98,11 @@ const ListadoTrabajador = () => {
       center: true,
     },
     {
+      name: "Email",
+      selector: (row) => row.email,
+      center: true,
+    },
+    {
       name: "Edad",
       selector: (row) => row.edad,
       center: true,
@@ -324,6 +329,7 @@ const ListadoTrabajador = () => {
         { header: "Apellido paterno", key: "apellidoPaterno", width: 32 },
         { header: "Apellido materno", key: "apellidoMaterno", width: 32 },
         { header: "DNI", key: "dni", width: 10 },
+        { header: "Email", key: "email", width: 10 },
         { header: "Genero", key: "genero", width: 10 },
         { header: "Edad", key: "edad", width: 10 },
         { header: "Area", key: "areadetrabajo", width: 32 },

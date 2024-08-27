@@ -75,6 +75,11 @@ const CompararTrabajadores = () => {
       center: true,
     },
     {
+      name: "EMAIL",
+      selector: (row) => row.email,
+      center: true,
+    },
+    {
       name: "Celular",
       selector: (row) => row.celular,
       center: true,
@@ -85,7 +90,7 @@ const CompararTrabajadores = () => {
     const response = await getTrabajadoresEmpresa(page, perPage, empresaData);
     if (response.status === 200) {
       setRowData(response.data.data);
-      setTotalRows(response.data.pageInfo.total);
+      // setTotalRows(response.data.pageInfo.total);
     }
   };
 
@@ -174,9 +179,9 @@ const CompararTrabajadores = () => {
 
   return (
     <div className="" style={{ width: "100%" }}>
-      <div className="bg-white p-3 ">
-        <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
-          <div className="flex flex-col md:flex-row w-full lg:w-full gap-3">
+      <div className="p-3 bg-white ">
+        <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
+          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-full">
             <select
               className="select select-bordered select-sm"
               id="searchSelect"
@@ -194,7 +199,7 @@ const CompararTrabajadores = () => {
             </select>
           </div>
           {empresaData !== "" && rowData2.length === 0 ? (
-            <div className="flex flex-col md:flex-row justify-start  gap-3 w-full lg:w-full">
+            <div className="flex flex-col justify-start w-full gap-3 md:flex-row lg:w-full">
               <Button
                 description="Cargar"
                 icon={faFileImport}
@@ -202,7 +207,7 @@ const CompararTrabajadores = () => {
               />
             </div>
           ) : empresaData !== "" && rowData2.length > 0 ? (
-            <div className="flex flex-col md:flex-row justify-start  gap-3 w-full lg:w-full">
+            <div className="flex flex-col justify-start w-full gap-3 md:flex-row lg:w-full">
               <Button
                 description="Actualizar cambios"
                 event={handleChangeSubmit}

@@ -14,13 +14,17 @@ import {
   faPlus,
   faEdit,
   faTrashAlt,
+  faPhone,
   faFileImport,
+  faEnvelope,
   faDownload,
 } from "@fortawesome/free-solid-svg-icons";
 import { Modal } from "../../../components/modal/Modal";
 import useModals from "../../../hooks/useModal";
 import FormularioImportar from "./FormularioImportar";
 import FormularioTrabajador from "./FormularioTrabajador";
+import FormularioEnvios from "./FormularioEnvios";
+import FormularioCorreos from "./FormularioCorreos";
 import { initialForm } from "./config";
 import { pdf } from "@react-pdf/renderer";
 import { getTrabajadorEmo } from "../../../services/emo";
@@ -32,6 +36,8 @@ const VisualizarRegistroEmo = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "75vh" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [isOpen1, openModal1, closeModal1] = useModals();
+  const [isOpen2, openModal2, closeModal2] = useModals();
+  const [isOpen3, openModal3, closeModal3] = useModals();
   const [isOpenImport, openModalImport, closeModalImport] = useModals();
   const [refetchData, setRefetchData] = useState(false);
   const [dataForm, setdataForm] = useState(initialForm);
@@ -87,6 +93,18 @@ const VisualizarRegistroEmo = () => {
     return (
       <>
         <label
+          onClick={() => sendButton(data)}
+          className="mr-2 cursor-pointer"
+        >
+          <FontAwesomeIcon icon={faPhone} />
+        </label>
+        <label
+          onClick={() => sendEmailButton(data)}
+          className="mr-2 cursor-pointer"
+        >
+          <FontAwesomeIcon icon={faEnvelope} />
+        </label>
+        <label
           onClick={() => updateButton(data)}
           className="mr-2 cursor-pointer"
         >
@@ -104,6 +122,16 @@ const VisualizarRegistroEmo = () => {
   const updateButton = (data) => {
     setDescripcionModal("Actualizar trabajador");
     openModal1();
+    setdataForm(data);
+  };
+  const sendButton = (data) => {
+    setDescripcionModal("Enviar por WhatsApp al trabajador");
+    openModal2();
+    setdataForm(data);
+  };
+  const sendEmailButton = (data) => {
+    setDescripcionModal("Enviar por Correo al trabajador");
+    openModal3();
     setdataForm(data);
   };
 
@@ -137,7 +165,7 @@ const VisualizarRegistroEmo = () => {
       field: "fecha_lectura",
       headerName: "FECHA DE LECTURA EMO",
     },
-    { field: "acciones", cellRenderer: renderButtons, width: 100 },
+    { field: "acciones", cellRenderer: renderButtons, width: 130 },
     { field: "nombreEmpresa", hide: true, filter: true },
   ]);
   const onFilterTextBoxChanged = useCallback((e, isSelect) => {
@@ -303,6 +331,38 @@ const VisualizarRegistroEmo = () => {
         <FormularioTrabajador
           initialForm={dataForm}
           closeModal={closeModal1}
+          addItem={addItem}
+          updateRow={updateRow}
+          empresas={empresas}
+          getTrabajadorEmo={onGridReady}
+        />
+      </Modal>
+      <Modal
+        isOpen={isOpen2}
+        openModal={openModal2}
+        closeModal={closeModal2}
+        size={"w-100"}
+        title="Enviar por WhatsApp al trabajador"
+      >
+        <FormularioEnvios
+          initialForm={dataForm}
+          closeModal={closeModal1}
+          addItem={addItem}
+          updateRow={updateRow}
+          empresas={empresas}
+          getTrabajadorEmo={onGridReady}
+        />
+      </Modal>
+      <Modal
+        isOpen={isOpen3}
+        openModal={openModal3}
+        closeModal={closeModal3}
+        size={"w-100"}
+        title="Enviar por Correo al trabajador"
+      >
+        <FormularioCorreos
+          initialForm={dataForm}
+          closeModal={closeModal2}
           addItem={addItem}
           updateRow={updateRow}
           empresas={empresas}
