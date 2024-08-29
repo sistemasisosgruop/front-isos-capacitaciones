@@ -98,7 +98,7 @@ const ConstanciaEmo = ({ data, logo }) => {
       borderRadius: "6px",
     },
   });
-  console.log(logo);
+  // console.log(logo);
   return (
     <Document>
       <Page size="A4" orientation="portrait" style={styles.page}>

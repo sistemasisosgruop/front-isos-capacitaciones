@@ -26,6 +26,18 @@ const getDescargaEmo = (id, ) => {
     .catch(objErrorApi);
 };
 
+const postSendEmail = (data ) => {
+  return baseApi(stepApi)
+    .post(`/send-email`, data)
+    .catch(objErrorApi);
+};
+
+const postSendWhatsapp = (data ) => {
+  return baseApi(stepApi)
+    .post(`/send-whatsapp`, data)
+    .catch(objErrorApi);
+};
+
 const getReporteEmo = (page,limit, empresa, search,all) => {
   let url = `${stepApi}/reporte?page=${page}&limit=${limit}`;
 
@@ -69,4 +81,4 @@ const updateTrabajadorEmo = (id, data) => {
 //     .catch(objErrorApi);
 // };
 
-export { getTrabajadorEmo, postImportarExcel, updateTrabajadorEmo, postEmo, getReporteEmo, getDescargaEmo };
+export { getTrabajadorEmo, postSendEmail, postSendWhatsapp, postImportarExcel, updateTrabajadorEmo, postEmo, getReporteEmo, getDescargaEmo };

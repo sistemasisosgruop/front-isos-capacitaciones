@@ -13,7 +13,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
   faEdit,
+  faPhone,
   faTrashAlt,
+  faEnvelope,
   faFileImport,
   faDownload,
 } from "@fortawesome/free-solid-svg-icons";
@@ -23,10 +25,12 @@ import FormularioImportar from "./FormularioImportar";
 import FormularioTrabajador from "./FormularioTrabajador";
 import { initialForm } from "./config";
 import { pdf } from "@react-pdf/renderer";
-import { getTrabajadorEmo } from "../../../services/emo";
+import { getTrabajadorEmo, postSendEmail, postSendWhatsapp } from "../../../services/emo";
 import ConstanciaEmo from "../../../components/ConstanciaEmo";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
+import { confirmAlert } from 'react-confirm-alert'; 
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const VisualizarRegistroEmo = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "75vh" }), []);
@@ -87,6 +91,18 @@ const VisualizarRegistroEmo = () => {
     return (
       <>
         <label
+          onClick={() => sendButton(data)}
+          className="mr-2 cursor-pointer"
+        >
+          <FontAwesomeIcon icon={faPhone} />
+        </label>
+        <label
+          onClick={() => sendEmailButton(data)}
+          className="mr-2 cursor-pointer"
+        >
+          <FontAwesomeIcon icon={faEnvelope} />
+        </label>
+        <label
           onClick={() => updateButton(data)}
           className="mr-2 cursor-pointer"
         >
@@ -105,6 +121,139 @@ const VisualizarRegistroEmo = () => {
     setDescripcionModal("Actualizar trabajador");
     openModal1();
     setdataForm(data);
+  };
+
+  const sendButton = async (data) => {
+    setDescripcionModal("Enviar por WhatsApp al trabajador");
+
+    if (!data.fecha_examen) {
+      toast.error("No importo los datos respectivos", {
+        position: "bottom-right",
+      });
+    }
+
+    if (!data.celular) {
+      toast.error("No tiene correo de envio", {
+        position: "bottom-right",
+      });
+    }
+
+
+    // console.log(data);
+    // openModal2();
+
+    const logo = await getImgs(data.empresa_id, "logo");
+    const srcLogo = URL.createObjectURL(new Blob([logo.data]));
+    const link = document.createElement("a");
+    const pdfBlob = await pdf(
+      <ConstanciaEmo data={data} logo={srcLogo} />
+    ).toBlob();
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    // link.href = pdfUrl;
+    // link.target = "_blank";
+    // link.download = `Constancia-${data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres}.pdf`;
+    // // link.click;
+
+    let arr = pdfUrl.split('blob:');
+
+    // console.log(arr);
+    const textToShare = encodeURIComponent(
+      `Su constancia EMO ha sido generado correctamente, puede revisarlo en el siguiente enlace: ${arr[1]}`
+    );
+    data.celular = '959824954';
+
+    confirmAlert({
+      title: 'CONFIRMAR EL ENVIO',
+      message: '¿Estas seguro de enviar por Whatsapp?',
+      buttons: [
+        {
+          label: 'SI',
+          onClick: async () => {
+            const response = await postSendWhatsapp(data);
+            if (response.status === 200) {
+              getTrabajadorEmo().then(({ data, message = null }) => {
+                if (data) {
+                  setRowData(data.data);
+                } else {
+                  toast.error("Ocurrio un error en el servidor", {
+                    position: "bottom-right",
+                  });
+                }
+              });
+              toast.success("Se envio el Whatsapp correctamente.", {
+                position: "bottom-right",
+              });
+              window.open(`https://wa.me/51${data.celular}?text=${textToShare}`, '_blank');
+            } else {
+              toast.error(message, {
+                position: "bottom-right",
+              });
+            }
+          }
+        },
+        {
+          label: 'NO',
+          // onClick: () => alert('Click No')
+        }
+      ]
+    });
+
+
+    // setdataForm(data);
+  };
+
+
+  const sendEmailButton = async (data) => {
+    setDescripcionModal("Enviar por Correo al trabajador");
+    // console.log(data);
+    if (!data.fecha_examen) {
+      toast.error("No importo los datos respectivos", {
+        position: "bottom-right",
+      });
+    }
+
+    if (!data.email) {
+      toast.error("No tiene correo de envio", {
+        position: "bottom-right",
+      });
+    }
+
+    confirmAlert({
+      title: 'CONFIRMAR EL ENVIO',
+      message: '¿Estas seguro de enviar el correo?',
+      buttons: [
+        {
+          label: 'SI',
+          onClick: async () => {
+            const response = await postSendEmail(data);
+            if (response.status === 200) {
+              getTrabajadorEmo().then(({ data, message = null }) => {
+                if (data) {
+                  setRowData(data.data);
+                } else {
+                  toast.error("Ocurrio un error en el servidor", {
+                    position: "bottom-right",
+                  });
+                }
+              });
+              toast.success("Se envio el correo correctamente.", {
+                position: "bottom-right",
+              });
+            } else {
+              toast.error(message, {
+                position: "bottom-right",
+              });
+            }
+          }
+        },
+        {
+          label: 'NO',
+          // onClick: () => alert('Click No')
+        }
+      ]
+    });
+
+    
   };
 
   const [columnDefs, setColumnDefs] = useState([
@@ -126,8 +275,8 @@ const VisualizarRegistroEmo = () => {
     { field: "cargo", headerName: "PUESTO LABORAL" },
     { field: "estado_email", headerName: "ESTADO CORREO" },
     { field: "fecha_email", headerName: "FECHA CORREO" },
-    { field: "estado_whastapp", headerName: "ESTADO WHATSAPP" },
-    { field: "fecha_whastapp", headerName: "FECHA WHATSAPP" },
+    { field: "estado_whatsapp", headerName: "ESTADO WHATSAPP" },
+    { field: "fecha_whatsapp", headerName: "FECHA WHATSAPP" },
     {
       field: "fecha_examen",
       headerName: "FECHA EXAMEN MÉDICO",
@@ -142,7 +291,7 @@ const VisualizarRegistroEmo = () => {
       headerName: "FECHA DE LECTURA EMO",
     },
     { field: "estado", headerName: "ESTADO" },
-    { field: "acciones", cellRenderer: renderButtons, width: 100 },
+    { field: "acciones", cellRenderer: renderButtons, width: 130 },
     { field: "nombreEmpresa", hide: true, filter: true },
   ]);
   const onFilterTextBoxChanged = useCallback((e, isSelect) => {
