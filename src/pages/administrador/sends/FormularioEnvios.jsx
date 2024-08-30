@@ -1,115 +1,80 @@
-import { useEffect, useState } from "react";
-import Button from "../../../components/Button";
-import { formatDateYMD } from "../../../utils/formtDate";
-import { hideLoader, showLoader } from "../../../utils/loader";
-import validate from "../emos/validateFormModal";
-import { useForm } from "../../../hooks/useForms";
-import { toast } from "react-toastify";
-import {
-  getTrabajador,
-  patchTrabajador,
-  postTrabajador,
-} from "../../../services/trabajador";
-import dayjs from "dayjs";
-import { getTrabajadorEmo, updateTrabajadorEmo } from "../../../services/emo";
+import { useState, useMemo} from "react";
+import { AgGridReact } from "ag-grid-react";
 
 const FormularioEnvios = ({
   initialForm,
-  addItem,
-  updateRow,
-  closeModal,
-  empresas,
-  getTrabajadorEmo,
 }) => {
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [dataTrabajador, setDataTrabajador] = useState({
-    celular: "",
-    fecha_envio: "",
-  });
-  const formValidations = validate();
-  //tipo de accion del formulario
+  const containerStyle = useMemo(() => ({ width: "100%", height: "50vh" }), []);
+  const gridStyle = useMemo(() => ({ height: "65%", width: "100%" }), []);
+  
+  const registroData = initialForm.registroDescarga;
+  let approved = registroData.filter(reg => reg.tipo == 'whatsapp');
+  // console.log(initialForm)
 
-  useEffect(() => {
-    setDataTrabajador({
-      celular: initialForm?.celular || "",
-      fecha_envio: initialForm?.fecha_envio || "",
-    });
-  }, [initialForm]);
+  const DataCard = props => {
+    return (
+      <div className="overflow-x-auto">
+        <div className="flex items-center gap-1">
+          <div>
+            <label><h4>Nombres y Apellidos:</h4></label>
+            <div className="font-bold">{initialForm.nombres} {initialForm.apellidoPaterno} {initialForm.apellidoMaterno}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <div>
+            <label><h4>DNI:</h4></label>
+            <div className="font-bold">{initialForm.dni}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <div>
+            <label><h4>Empresa:</h4></label>
+            <div className="font-bold">{initialForm.nombreEmpresa}</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setDataTrabajador((prevState) => ({ ...prevState, [name]: value }));
-  };
+  const NotFound = () => {
+    return (
+      <div className="w-full mt-6 bg-orange-300 shadow-xl card">
+        <div className="card-body">
+          <h2 className="card-title">Alerta!</h2>
+          <h1>Está pendiente el envío</h1>
+      </div>
+      </div>
+    );
+  }
 
-  const update = async (e) => {
-    e.preventDefault();
-    // showLoader();
+  const RegistroCard = props => {
+    const [rowData, setRowData] = useState(approved);
+    const [columnDefs, setColumnDefs] = useState([
+      { field: "id", hide: true },
+      { field: "fecha" },
+      { field: "hora" },
+    ]);
+    // console.log(rowData)
 
-    const response = await updateTrabajadorEmo(initialForm.dni, dataTrabajador);
-    if (response) {
-      toast.success("Enviado con exito", {
-        position: "bottom-right",
-      });
-      getTrabajadorEmo();
-      closeModal();
-    } else {
-      toast.error(message, {
-        position: "bottom-right",
-      });
-      // hideLoader();
-    }
-  };
+    return (
+      <AgGridReact 
+        rowData={rowData} 
+        columnDefs={columnDefs} 
+        autoSizeColumns={true}
+        rowGroupPanelShow={"always"}
+        rowHeight="34"
+        pagination={true}
+      />
+    );
+  }
 
   return (
-    <form onSubmit={update}>
-      <div className="flex flex-col w-full gap-3 md:w-full">
-        <div className="w-full ">
-          <label htmlFor="celular" className="font-semibold">
-            Número de Celular
-          </label>
-          {/* <input type="hidden" defaultValue={"fds"} /> */}
-          <input
-            type="text"
-            name="celular"
-            className="w-full input input-bordered input-sm"
-            value={
-              dataTrabajador.celular
-                ? dataTrabajador.celular
-                : ""
-            }
-            onChange={handleChange}
-          />
-          {/* {!!nombresValid && formSubmitted && (
-            <p className="text-sm text-red-700">{nombresValid}</p>
-          )} */}
-        </div>
-
-        <div className="w-full ">
-          <label htmlFor="dni" className="font-semibold">
-            Fecha de Envio Emo
-          </label>
-          <input
-            type="date"
-            name="fecha_lectura"
-            className="w-full input input-bordered input-sm"
-            value={
-              dataTrabajador.fecha_envio
-                ? dayjs(dataTrabajador.fecha_envio, "DD-MM-YYYY").format(
-                    "YYYY-MM-DD"
-                  )
-                : ""
-            }
-            onChange={handleChange}
-          />
-          {/* {!!dniValid && formSubmitted && (
-            <p className="text-sm text-red-700">{dniValid}</p>
-          )} */}
-        </div>
+    <div style={containerStyle}>
+      <DataCard />
+      <div style={gridStyle} className="ag-theme-alpine">
+        {approved.length >= 1  ? <RegistroCard /> : <NotFound /> }
       </div>
-      <div className="flex justify-end mt-4">
-        <Button description={"Enviar por Whatsapp"} />
-      </div>
-    </form>
+    </div>
   );
 };
 

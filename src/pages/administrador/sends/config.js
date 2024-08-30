@@ -14,8 +14,9 @@ const initialForm = {
   condicion: "",
   clinica: "",
   lectura_emo: "",
-  fecha_envio: ""
-
+  fecha_envio: "",
+  trabajador_id: "",
+  registroDescarga: []
 };
 
 const initialFormImport = {

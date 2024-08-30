@@ -20,6 +20,13 @@ const getTrabajadorEmo = () => {
     .catch(objErrorApi);
 };
 
+const getEnvioWhatsapp = (id) => {
+  // var tId = data.trabajador_id ? data.trabajador_id : 1;
+  return baseApi(stepApi)
+    .get(`/registro-whatsapp/${id}`)
+    .catch(objErrorApi);
+};
+
 const getDescargaEmo = (id, ) => {
   return baseApi(stepApi)
     .get(`/descargar/${id}`)
@@ -81,4 +88,4 @@ const updateTrabajadorEmo = (id, data) => {
 //     .catch(objErrorApi);
 // };
 
-export { getTrabajadorEmo, postSendEmail, postSendWhatsapp, postImportarExcel, updateTrabajadorEmo, postEmo, getReporteEmo, getDescargaEmo };
+export { getTrabajadorEmo, getEnvioWhatsapp, postSendEmail, postSendWhatsapp, postImportarExcel, updateTrabajadorEmo, postEmo, getReporteEmo, getDescargaEmo };

@@ -14,6 +14,7 @@ import {
   faPlus,
   faEdit,
   faTrashAlt,
+  faMailBulk,
   faPhone,
   faFileImport,
   faEnvelope,
@@ -42,6 +43,8 @@ const VisualizarRegistroEmo = () => {
   const [refetchData, setRefetchData] = useState(false);
   const [dataForm, setdataForm] = useState(initialForm);
   const [rowData, setRowData] = useState();
+  const [trabajadorId, setTrabajadorId] = useState();
+  const [register, setRegister] = useState();
   const [empresas, setEmpresas] = useState([]);
   const [selectFilter, setSelectFilter] = useState("");
   const [rowDelete, setRowDelete] = useState(null);
@@ -55,6 +58,7 @@ const VisualizarRegistroEmo = () => {
   const onGridReady = useCallback((params) => {
     getTrabajadorEmo().then(({ data, message = null }) => {
       if (data) {
+        // console.log(data.data)
         setRowData(data.data);
       } else {
         toast.error("Ocurrio un error en el servidor", {
@@ -64,7 +68,7 @@ const VisualizarRegistroEmo = () => {
     });
   }, []);
 
-  console.log(rowData);
+  // console.log(rowData);
   const addItem = useCallback((addIndex, newRow) => {
     const newItem = [newRow];
     gridRef.current.api.applyTransaction({
@@ -105,33 +109,27 @@ const VisualizarRegistroEmo = () => {
           <FontAwesomeIcon icon={faEnvelope} />
         </label>
         <label
-          onClick={() => updateButton(data)}
+          onClick={() => sendEmail(data)}
           className="mr-2 cursor-pointer"
         >
-          <FontAwesomeIcon icon={faEdit} />
-        </label>
-        <label
-          onClick={() => handleDownload(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faDownload} />
+          <FontAwesomeIcon icon={faMailBulk} />
         </label>
       </>
     );
   };
-  const updateButton = (data) => {
-    setDescripcionModal("Actualizar trabajador");
-    openModal1();
-    setdataForm(data);
-  };
+
   const sendButton = (data) => {
-    setDescripcionModal("Enviar por WhatsApp al trabajador");
+    setDescripcionModal("Estado de Envios por WhatsApp");
     openModal2();
     setdataForm(data);
   };
   const sendEmailButton = (data) => {
-    setDescripcionModal("Enviar por Correo al trabajador");
+    setDescripcionModal("Envios por Correo al trabajador");
     openModal3();
+    setdataForm(data);
+  };
+  const sendEmail = (data) => {
+    setDescripcionModal("Envios de EMO por correo");
     setdataForm(data);
   };
 
@@ -153,18 +151,14 @@ const VisualizarRegistroEmo = () => {
     { field: "area", headerName: "AREA" },
     { field: "cargo", headerName: "PUESTO LABORAL" },
     {
-      field: "fecha_examen",
-      headerName: "FECHA EXAMEN MÉDICO",
+      field: "estado",
+      headerName: "ESTADO EMO",
     },
     {
-      field: "condicion_aptitud",
-      headerName: "CONDICIÓN DE APTITUD",
+      field: "estado_email",
+      headerName: "ESTADO CORREO",
     },
-    { field: "clinica", headerName: "CLÍNICA" },
-    {
-      field: "fecha_lectura",
-      headerName: "FECHA DE LECTURA EMO",
-    },
+    { field: "estado_whatsapp", headerName: "ESTADO WHATSAPP" },
     { field: "acciones", cellRenderer: renderButtons, width: 130 },
     { field: "nombreEmpresa", hide: true, filter: true },
   ]);
@@ -342,15 +336,10 @@ const VisualizarRegistroEmo = () => {
         openModal={openModal2}
         closeModal={closeModal2}
         size={"w-100"}
-        title="Enviar por WhatsApp al trabajador"
+        title="Envios por WhatsApp al trabajador"
       >
         <FormularioEnvios
           initialForm={dataForm}
-          closeModal={closeModal1}
-          addItem={addItem}
-          updateRow={updateRow}
-          empresas={empresas}
-          getTrabajadorEmo={onGridReady}
         />
       </Modal>
       <Modal
@@ -358,15 +347,10 @@ const VisualizarRegistroEmo = () => {
         openModal={openModal3}
         closeModal={closeModal3}
         size={"w-100"}
-        title="Enviar por Correo al trabajador"
+        title="Envios por Correo al trabajador"
       >
         <FormularioCorreos
           initialForm={dataForm}
-          closeModal={closeModal2}
-          addItem={addItem}
-          updateRow={updateRow}
-          empresas={empresas}
-          getTrabajadorEmo={onGridReady}
         />
       </Modal>
       <Modal
