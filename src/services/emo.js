@@ -33,15 +33,38 @@ const getDescargaEmo = (id, ) => {
     .catch(objErrorApi);
 };
 
+const getDescargaConstancia = (id, ) => {
+  return baseApi(stepApi)
+    .get(`/descargar/constancia/${id}`)
+    .catch(objErrorApi);
+};
+
 const postSendEmail = (data ) => {
   return baseApi(stepApi)
     .post(`/send-email`, data)
+    .catch(objErrorApi);
+};
+const postSendEmoEmail = (data ) => {
+  return baseApi(stepApi)
+    .post(`/send-emo-email`, data)
+    .catch(objErrorApi);
+};
+
+const postCrearConstancia = (data ) => {
+  return baseApi(stepApi)
+    .post(`/constancia`, data)
     .catch(objErrorApi);
 };
 
 const postSendWhatsapp = (data ) => {
   return baseApi(stepApi)
     .post(`/send-whatsapp`, data)
+    .catch(objErrorApi);
+};
+
+const postSendEmoWhatsapp = (data ) => {
+  return baseApi(stepApi)
+    .post(`/send-emo-whatsapp`, data)
     .catch(objErrorApi);
 };
 
@@ -88,4 +111,4 @@ const updateTrabajadorEmo = (id, data) => {
 //     .catch(objErrorApi);
 // };
 
-export { getTrabajadorEmo, getEnvioWhatsapp, postSendEmail, postSendWhatsapp, postImportarExcel, updateTrabajadorEmo, postEmo, getReporteEmo, getDescargaEmo };
+export { getTrabajadorEmo, postSendEmoWhatsapp, getEnvioWhatsapp, postSendEmail, postSendEmoEmail, postSendWhatsapp, postImportarExcel, updateTrabajadorEmo, postEmo, getReporteEmo, getDescargaEmo, getDescargaConstancia, postCrearConstancia };

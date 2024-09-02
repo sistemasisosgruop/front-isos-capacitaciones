@@ -16,6 +16,8 @@ import {
   faTrashAlt,
   faMailBulk,
   faPhone,
+  faEye,
+  faMailForward,
   faFileImport,
   faEnvelope,
   faDownload,
@@ -25,13 +27,17 @@ import useModals from "../../../hooks/useModal";
 import FormularioImportar from "./FormularioImportar";
 import FormularioTrabajador from "./FormularioTrabajador";
 import FormularioEnvios from "./FormularioEnvios";
+import FormularioEmos from "./FormularioEmos";
 import FormularioCorreos from "./FormularioCorreos";
 import { initialForm } from "./config";
 import { pdf } from "@react-pdf/renderer";
-import { getTrabajadorEmo } from "../../../services/emo";
+import { getTrabajadorEmo, postSendEmoEmail, postSendEmoWhatsapp } from "../../../services/emo";
 import ConstanciaEmo from "../../../components/ConstanciaEmo";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
+import { confirmAlert } from 'react-confirm-alert'; 
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import getEnvVaribles from "../../../config/getEnvVariables";
 
 const VisualizarRegistroEmo = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "75vh" }), []);
@@ -50,6 +56,8 @@ const VisualizarRegistroEmo = () => {
   const [rowDelete, setRowDelete] = useState(null);
   const [descripcionModal, setDescripcionModal] = useState("");
   const gridRef = useRef();
+  const { VITE_API_URL } = getEnvVaribles();
+  const stepApi = 'emo';
 
   useEffect(() => {
     getEmpresas().then((res) => setEmpresas(res.data));
@@ -96,6 +104,12 @@ const VisualizarRegistroEmo = () => {
   const renderButtons = ({ data }) => {
     return (
       <>
+      <label
+          onClick={() => sendEmo(data)}
+          className="mr-2 cursor-pointer"
+        >
+          <FontAwesomeIcon icon={faEye} />
+        </label>
         <label
           onClick={() => sendButton(data)}
           className="mr-2 cursor-pointer"
@@ -114,6 +128,12 @@ const VisualizarRegistroEmo = () => {
         >
           <FontAwesomeIcon icon={faMailBulk} />
         </label>
+        <label
+          onClick={() => sendEmoWhatsapp(data)}
+          className="mr-2 cursor-pointer"
+        >
+          <FontAwesomeIcon icon={faMailForward} />
+        </label>
       </>
     );
   };
@@ -123,14 +143,120 @@ const VisualizarRegistroEmo = () => {
     openModal2();
     setdataForm(data);
   };
+
+  const sendEmo = (data) => {
+    setDescripcionModal("Estado de Envios por EMO");
+    openModal1();
+    setdataForm(data);
+  };
   const sendEmailButton = (data) => {
-    setDescripcionModal("Envios por Correo al trabajador");
+    setDescripcionModal("Estado de Envios por Correo al trabajador");
     openModal3();
     setdataForm(data);
   };
-  const sendEmail = (data) => {
-    setDescripcionModal("Envios de EMO por correo");
-    setdataForm(data);
+
+  const sendEmoWhatsapp = async (data) => {
+    setDescripcionModal("Enviar EMO por WhatsApp al trabajador");
+    const url = `${VITE_API_URL}/${ stepApi }/descargar/emo/${data.trabajador_id}`;
+    console.log('enviando')
+
+    if (!data.fecha_examen) {
+      toast.error("No importo los datos respectivos", {
+        position: "bottom-right",
+      });
+    } else if (!data.celular) {
+      toast.error("No tiene celular de envio", {
+        position: "bottom-right",
+      });
+    } else {
+      confirmAlert({
+        title: 'CONFIRMAR EL ENVIO EXAMEN MÉDICO OCUPACIONAL - WHATSAPP',
+        message: '¿Estas seguro de enviar el Examen Médico Ocupacional por Whatsapp?',
+        buttons: [
+          {
+            label: 'SI',
+            onClick: async () => {
+              const textToShare = `Su Examén Médico Ocupacional ha sido generado correctamente, puede revisarlo en el siguiente enlace: ${url}`;
+              data.celular = '959824954';
+              const response = await postSendEmoWhatsapp(data);
+              if (response.status === 200) {
+                getTrabajadorEmo().then(({ data, message = null }) => {
+                  if (data) {
+                    setRowData(data.data);
+                  } else {
+                    toast.error("Ocurrio un error en el servidor", {
+                      position: "bottom-right",
+                    });
+                  }
+                });
+                toast.success("Se envio el Whatsapp correctamente.", {
+                  position: "bottom-right",
+                });
+                window.open(`https://wa.me/51${data.celular}?text=${textToShare}`, '_blank');
+              } else {
+                toast.error(message, {
+                  position: "bottom-right",
+                });
+              }
+            }
+          },
+          {
+            label: 'NO',
+            // onClick: () => alert('Click No')
+          }
+        ]
+      });
+    }
+    // setdataForm(data);
+  };
+
+  const sendEmail = async (data) => {
+    setDescripcionModal("Enviar por Correo al trabajador");
+    // console.log(data);
+    if (!data.fecha_examen) {
+      toast.error("No importo los datos respectivos", {
+        position: "bottom-right",
+      });
+    } else if (!data.email) {
+      toast.error("No tiene correo de envio", {
+        position: "bottom-right",
+      });
+    } else {
+      confirmAlert({
+        title: 'CONFIRMAR EL ENVIO - EXAMEN MÉDICO OCUPACIONAL',
+        message: '¿Estas seguro de enviar el correo?',
+        buttons: [
+          {
+            label: 'SI',
+            onClick: async () => {
+              const response = await postSendEmoEmail(data);
+              if (response.status === 200) {
+                getTrabajadorEmo().then(({ data, message = null }) => {
+                  if (data) {
+                    setRowData(data.data);
+                  } else {
+                    toast.error("Ocurrio un error en el servidor", {
+                      position: "bottom-right",
+                    });
+                  }
+                });
+                toast.success("Se envio el correo correctamente.", {
+                  position: "bottom-right",
+                });
+              } else {
+                toast.error(message, {
+                  position: "bottom-right",
+                });
+              }
+            }
+          },
+          {
+            label: 'NO',
+            // onClick: () => alert('Click No')
+          }
+        ]
+      });
+    }
   };
 
   const [columnDefs, setColumnDefs] = useState([
@@ -151,15 +277,11 @@ const VisualizarRegistroEmo = () => {
     { field: "area", headerName: "AREA" },
     { field: "cargo", headerName: "PUESTO LABORAL" },
     {
-      field: "estado",
+      field: "estado_emo",
       headerName: "ESTADO EMO",
     },
-    {
-      field: "estado_email",
-      headerName: "ESTADO CORREO",
-    },
-    { field: "estado_whatsapp", headerName: "ESTADO WHATSAPP" },
-    { field: "acciones", cellRenderer: renderButtons, width: 130 },
+    { field: "estado_emo_whatsapp", headerName: "ESTADO WHATSAPP" },
+    { field: "acciones", cellRenderer: renderButtons, width: 180 },
     { field: "nombreEmpresa", hide: true, filter: true },
   ]);
   const onFilterTextBoxChanged = useCallback((e, isSelect) => {
@@ -339,6 +461,18 @@ const VisualizarRegistroEmo = () => {
         title="Envios por WhatsApp al trabajador"
       >
         <FormularioEnvios
+          initialForm={dataForm}
+        />
+      
+      </Modal>
+      <Modal
+        isOpen={isOpen1}
+        openModal={openModal1}
+        closeModal={closeModal1}
+        size={"w-100"}
+        title="Envios de EMO por Correo al trabajador"
+      >
+        <FormularioEmos
           initialForm={dataForm}
         />
       </Modal>

@@ -16,6 +16,12 @@ const initialForm = {
   lectura_emo: "",
   fecha_envio: "",
   trabajador_id: "",
+  estado_email: "",
+  fecha_email: "",
+  estado_whatsapp: "",
+  fecha_whatsapp: "",
+  estado_emo: "",
+  fecha_emo: "",
   registroDescarga: []
 };
 

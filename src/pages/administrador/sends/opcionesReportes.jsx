@@ -15,7 +15,7 @@ const OpcionesReportes = () => {
     <>
 
       <div className="w-full h-full p-5 bg-white rounded-md">
-                  <h2 className="mb-3 text-2xl font-bold">Envios de resultado de examen Médico</h2>
+                  <h2 className="mb-3 text-2xl font-bold">Envios de Resultado de Examen Médico Ocupacional</h2>
         <div className="w-full h-full">
           
           <VisualizarRegistroEmo/>

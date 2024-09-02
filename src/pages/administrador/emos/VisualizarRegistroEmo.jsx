@@ -14,6 +14,7 @@ import {
   faPlus,
   faEdit,
   faPhone,
+  faEye,
   faTrashAlt,
   faEnvelope,
   faFileImport,
@@ -31,6 +32,7 @@ import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import { confirmAlert } from 'react-confirm-alert'; 
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import getEnvVaribles from "../../../config/getEnvVariables";
 
 const VisualizarRegistroEmo = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "75vh" }), []);
@@ -45,6 +47,8 @@ const VisualizarRegistroEmo = () => {
   const [rowDelete, setRowDelete] = useState(null);
   const [descripcionModal, setDescripcionModal] = useState("");
   const gridRef = useRef();
+  const { VITE_API_URL } = getEnvVaribles();
+  const stepApi = 'emo';
 
   useEffect(() => {
     getEmpresas().then((res) => setEmpresas(res.data));
@@ -125,78 +129,57 @@ const VisualizarRegistroEmo = () => {
 
   const sendButton = async (data) => {
     setDescripcionModal("Enviar por WhatsApp al trabajador");
+    const url = `${VITE_API_URL}/${ stepApi }/descargar/constancia/${data.trabajador_id}`;
 
     if (!data.fecha_examen) {
       toast.error("No importo los datos respectivos", {
         position: "bottom-right",
       });
-    }
-
-    if (!data.celular) {
-      toast.error("No tiene correo de envio", {
+    } else if (!data.celular) {
+      toast.error("No tiene celular de envio", {
         position: "bottom-right",
       });
-    }
-
-
-    // console.log(data);
-    // openModal2();
-
-    const logo = await getImgs(data.empresa_id, "logo");
-    const srcLogo = URL.createObjectURL(new Blob([logo.data]));
-    const link = document.createElement("a");
-    const pdfBlob = await pdf(
-      <ConstanciaEmo data={data} logo={srcLogo} />
-    ).toBlob();
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-    // link.href = pdfUrl;
-    // link.target = "_blank";
-    // link.download = `Constancia-${data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres}.pdf`;
-    // // link.click;
-
-    let arr = pdfUrl.split('blob:');
-
-    // console.log(arr);
-    const textToShare = encodeURIComponent(
-      `Su constancia EMO ha sido generado correctamente, puede revisarlo en el siguiente enlace: ${arr[1]}`
-    );
-    data.celular = '959824954';
-
-    confirmAlert({
-      title: 'CONFIRMAR EL ENVIO',
-      message: '¿Estas seguro de enviar por Whatsapp?',
-      buttons: [
-        {
-          label: 'SI',
-          onClick: async () => {
-            const response = await postSendWhatsapp(data);
-            if (response.status === 200) {
-              getTrabajadorEmo().then(({ data, message = null }) => {
-                if (data) {
-                  setRowData(data.data);
-                } else {
-                  toast.error("Ocurrio un error en el servidor", {
-                    position: "bottom-right",
-                  });
-                }
-              });
-              toast.success("Se envio el Whatsapp correctamente.", {
-                position: "bottom-right",
-              });
-              window.open(`https://wa.me/51${data.celular}?text=${textToShare}`, '_blank');
-            } else {
-              toast.error(message, {
-                position: "bottom-right",
-              });
+    } else {
+      confirmAlert({
+        title: 'CONFIRMAR EL ENVIO - WHATSAPP',
+        message: '¿Estas seguro de enviar por Whatsapp?',
+        buttons: [
+          {
+            label: 'SI',
+            onClick: async () => {
+              const textToShare = `Su constancia de Examén Médico Ocupacional ha sido generado correctamente, puede revisarlo en el siguiente enlace: ${url}`;
+              data.celular = '959824954';
+              const response = await postSendWhatsapp(data);
+              if (response.status === 200) {
+                getTrabajadorEmo().then(({ data, message = null }) => {
+                  if (data) {
+                    setRowData(data.data);
+                  } else {
+                    toast.error("Ocurrio un error en el servidor", {
+                      position: "bottom-right",
+                    });
+                  }
+                });
+                toast.success("Se envio el Whatsapp correctamente.", {
+                  position: "bottom-right",
+                });
+                window.open(`https://wa.me/51${data.celular}?text=${textToShare}`, '_blank');
+              } else {
+                toast.error(message, {
+                  position: "bottom-right",
+                });
+              }
             }
+          },
+          {
+            label: 'NO',
+            // onClick: () => alert('Click No')
           }
-        },
-        {
-          label: 'NO',
-          // onClick: () => alert('Click No')
-        }
-      ]
-    });
+        ]
+      });
+    }
+    
+
 
 
     // setdataForm(data);
@@ -210,48 +193,47 @@ const VisualizarRegistroEmo = () => {
       toast.error("No importo los datos respectivos", {
         position: "bottom-right",
       });
-    }
-
-    if (!data.email) {
+    } else if (!data.email) {
       toast.error("No tiene correo de envio", {
         position: "bottom-right",
       });
+    } else {
+      confirmAlert({
+        title: 'CONFIRMAR EL ENVIO - CONSTANCIA',
+        message: '¿Estas seguro de enviar el correo?',
+        buttons: [
+          {
+            label: 'SI',
+            onClick: async () => {
+              const response = await postSendEmail(data);
+              if (response.status === 200) {
+                getTrabajadorEmo().then(({ data, message = null }) => {
+                  if (data) {
+                    setRowData(data.data);
+                  } else {
+                    toast.error("Ocurrio un error en el servidor", {
+                      position: "bottom-right",
+                    });
+                  }
+                });
+                toast.success("Se envio el correo correctamente.", {
+                  position: "bottom-right",
+                });
+              } else {
+                toast.error(message, {
+                  position: "bottom-right",
+                });
+              }
+            }
+          },
+          {
+            label: 'NO',
+            // onClick: () => alert('Click No')
+          }
+        ]
+      });
     }
 
-    confirmAlert({
-      title: 'CONFIRMAR EL ENVIO',
-      message: '¿Estas seguro de enviar el correo?',
-      buttons: [
-        {
-          label: 'SI',
-          onClick: async () => {
-            const response = await postSendEmail(data);
-            if (response.status === 200) {
-              getTrabajadorEmo().then(({ data, message = null }) => {
-                if (data) {
-                  setRowData(data.data);
-                } else {
-                  toast.error("Ocurrio un error en el servidor", {
-                    position: "bottom-right",
-                  });
-                }
-              });
-              toast.success("Se envio el correo correctamente.", {
-                position: "bottom-right",
-              });
-            } else {
-              toast.error(message, {
-                position: "bottom-right",
-              });
-            }
-          }
-        },
-        {
-          label: 'NO',
-          // onClick: () => alert('Click No')
-        }
-      ]
-    });
 
     
   };
