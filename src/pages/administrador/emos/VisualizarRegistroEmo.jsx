@@ -148,7 +148,7 @@ const VisualizarRegistroEmo = () => {
             label: 'SI',
             onClick: async () => {
               const textToShare = `Su constancia de Examén Médico Ocupacional ha sido generado correctamente, puede revisarlo en el siguiente enlace: ${url}`;
-              data.celular = '959824954';
+              // data.celular = '959824954';
               const response = await postSendWhatsapp(data);
               if (response.status === 200) {
                 getTrabajadorEmo().then(({ data, message = null }) => {
