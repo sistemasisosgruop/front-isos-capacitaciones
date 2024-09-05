@@ -14,8 +14,8 @@ const OpcionesReportes = () => {
   return (
     <>
 
-      <div className="w-full h-full bg-white rounded-md p-5">
-                  <h2 className="font-bold text-2xl mb-3">Constancia de resultado de examen Médico</h2>
+      <div className="w-full h-full p-5 bg-white rounded-md">
+                  <h2 className="mb-3 text-2xl font-bold">Constancias y Envios de Resultado de Examén Médico Ocupacional</h2>
         <div className="w-full h-full">
           
           <VisualizarRegistroEmo/>

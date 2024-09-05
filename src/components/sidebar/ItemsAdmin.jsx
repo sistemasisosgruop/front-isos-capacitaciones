@@ -48,14 +48,14 @@ const ItemsAdmin = () => {
         component={<Link to="./admin/constancia/opciones" />}
         icon={<FontAwesomeIcon icon={faFileInvoice} />}
       >
-        Constancias EMO
+        Constancias y Envios
       </MenuItem>
-      <MenuItem
+      {/* <MenuItem
         component={<Link to="./admin/emos/opciones" />}
         icon={<FontAwesomeIcon icon={faFileInvoice} />}
       >
         Envios EMO
-      </MenuItem>
+      </MenuItem> */}
       <MenuItem
         component={<Link to="./admin/lista" />}
         icon={<FontAwesomeIcon icon={faCodeCompare} />}
