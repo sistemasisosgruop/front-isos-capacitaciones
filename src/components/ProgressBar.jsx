@@ -2,14 +2,17 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import React, { useState, useEffect } from "react";
 import Button from "./Button";
 import { toast } from "react-toastify";
+import getEnvVaribles from "../config/getEnvVariables";
 
 const ProgressBar = () => {
   const [progress, setProgress] = useState({ total: 0, completado: 0 });
   const [isGenerating, setIsGenerating] = useState(false);
+  const { VITE_API_URL } = getEnvVaribles();
+  const stepApi = 'reporte';
 
   const startReportGeneration = async () => {
     setIsGenerating(true);
-    await fetch("http://3.83.176.28/api/v1/reporte/generar", {
+    await fetch(`${VITE_API_URL}/${ stepApi }/generar`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -20,7 +23,7 @@ const ProgressBar = () => {
 
   const updateProgress = async () => {
     const response = await fetch(
-      "http://3.83.176.28/api/v1/reporte/progreso"
+      `${VITE_API_URL}/${ stepApi }/progreso`
     );
     const data = await response.json();
     setProgress(data);

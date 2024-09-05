@@ -113,7 +113,7 @@ const ConstanciaEmo = ({ data, logo }) => {
           </View>
           <View style={styles.main}>
             <Text style={styles.title}>
-              CONSTANCIA DE ENTREGA Y LECTURA DE RESULTADOS DE EXAMEN MEDICO
+              CONSTANCIA DE ENTREGA DE RESULTADOS DE EXAMEN MEDICO
               OCUPACIONAL
             </Text>
             <View style={styles.content}>
