@@ -176,7 +176,7 @@ const VisualizarRegistroEmo = () => {
           {
             label: 'SI',
             onClick: async () => {
-              const textToShare = `Su Examén Médico Ocupacional ha sido generado correctamente, puede revisarlo en el siguiente enlace: ${url}`;
+              const textToShare = `Su Examén Médico Ocupacional ha sido generado correctamente, puede revisarlo en el siguiente enlace: ${url}. Si no puede visualizarlo copie el enlace y peguelo en una ventana nueva y presione Enter`;
               // data.celular = '959824954';
               const response = await postSendEmoWhatsapp(data);
               if (response.status === 200) {
