@@ -435,6 +435,11 @@ const VisualizarRegistroEmo = () => {
       field: "fecha_lectura",
       headerName: "FECHA DE LECTURA EMO",
     },
+    {
+      field: "fecha_vencimiento",
+      headerName: "FECHA DE VENCIMIENTO EMO",
+      width: 230 
+    },
     { field: "fecha_email", headerName: "FECHA CONSTANCIA CORREO", width: 230 },
     { field: "fecha_whatsapp", headerName: "FECHA CONSTANCIA WHATSAPP" , width: 230},
     {

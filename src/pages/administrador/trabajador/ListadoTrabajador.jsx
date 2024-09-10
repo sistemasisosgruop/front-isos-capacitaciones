@@ -312,6 +312,7 @@ const ListadoTrabajador = () => {
       true
     );
     if (response.status === 200) {
+      // console.log(response.data.data);
       generarExcel(response.data.data);  // Llamar a la función para generar Excel
     }
   };
@@ -335,6 +336,8 @@ const ListadoTrabajador = () => {
         { header: "Area", key: "areadetrabajo", width: 32 },
         { header: "Cargo", key: "cargo", width: 32 },
         { header: "Empresa", key: "nombreEmpresa", width: 32 },
+        { header: "EMO", key: "emoPdf", width: 32 },
+        { header: "Habilitado", key: "habilitado", width: 32 },
       ];
 
       // Obtener el rango correspondiente a la cabecera
@@ -346,6 +349,27 @@ const ListadoTrabajador = () => {
         pattern: "solid",
         fgColor: { argb: "16A971" },
       };
+      // console.log(data);
+      // data.empresa = data.map(item => (
+      //   item.empresa.nombreEmpresa
+      // ));
+
+      for (const d of data) {
+        d.nombres = d.nombres
+        d.apellidoPaterno = d.apellidoPaterno
+        d.apellidoMaterno = d.apellidoMaterno
+        d.dni = d.dni
+        d.email = d.email
+        d.genero = d.genero
+        d.edad = d.edad
+        d.areadetrabajo = d.areadetrabajo
+        d.cargo = d.cargo
+        d.nombreEmpresa = d.empresa.nombreEmpresa
+        d.emoPdf = (d.emoPdf == null || d.emoPdf == '' ) ? 'false' : 'true'
+        d.habilitado = d.habilitado == 'VERDADERO' ? 'true' : 'false'
+        // console.log(d.emoPdf);
+      }
+
       //agrega filas
       worksheet.addRows(data);
 

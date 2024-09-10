@@ -61,7 +61,7 @@ const FormularioTrabajador = ({
     onResetForm,
   } = useForm(initialForm, formValidations);
 
-  console.log(initialForm);
+  // console.log(initialForm);
 
   const handleForm = async (event, action) => {
     event.preventDefault();

@@ -26,6 +26,7 @@ const FormularioTrabajador = ({
     clinica: "",
     fecha_lectura: "",
     fecha_examen: "",
+    fecha_vencimiento: "",
     condicion_aptitud: "",
     estado: "",
   });
@@ -37,6 +38,7 @@ const FormularioTrabajador = ({
       fecha_lectura: initialForm?.fecha_lectura || "",
       clinica: initialForm?.clinica || "",
       fecha_examen: initialForm?.fecha_examen || "",
+      fecha_vencimiento: initialForm?.fecha_vencimiento || "",
       condicion_aptitud: initialForm?.condicion_aptitud || "",
       estado: initialForm?.estado || "",
     });
@@ -50,6 +52,7 @@ const FormularioTrabajador = ({
   const update = async (e) => {
     e.preventDefault();
     // showLoader();
+    // console.log(dataTrabajador)
 
     const response = await updateTrabajadorEmo(initialForm.dni, dataTrabajador);
     if (response) {
@@ -135,6 +138,28 @@ const FormularioTrabajador = ({
             value={
               dataTrabajador.fecha_lectura
                 ? dayjs(dataTrabajador.fecha_lectura, "DD-MM-YYYY").format(
+                    "YYYY-MM-DD"
+                  )
+                : ""
+            }
+            onChange={handleChange}
+          />
+          {/* {!!dniValid && formSubmitted && (
+            <p className="text-sm text-red-700">{dniValid}</p>
+          )} */}
+        </div>
+
+        <div className="w-full ">
+          <label htmlFor="fecha_vencimiento" className="font-semibold">
+            Fecha de Vencimiento Emo
+          </label>
+          <input
+            type="date"
+            name="fecha_vencimiento"
+            className="w-full input input-bordered input-sm"
+            value={
+              dataTrabajador.fecha_vencimiento
+                ? dayjs(dataTrabajador.fecha_vencimiento, "DD-MM-YYYY").format(
                     "YYYY-MM-DD"
                   )
                 : ""
