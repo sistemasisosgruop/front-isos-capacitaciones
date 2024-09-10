@@ -420,10 +420,8 @@ const VisualizarRegistroEmo = () => {
     { field: "edad", headerName: "EDAD", width: 80 },
     { field: "area", headerName: "AREA" },
     { field: "cargo", headerName: "PUESTO LABORAL" },
-    { field: "estado_email", headerName: "ESTADO CORREO", width: 160},
-    { field: "fecha_email", headerName: "FECHA CORREO", width: 160 },
-    { field: "estado_whatsapp", headerName: "ESTADO WHATSAPP", width: 160 },
-    { field: "fecha_whatsapp", headerName: "FECHA WHATSAPP" , width: 160},
+    // { field: "estado_email", headerName: "ESTADO CORREO", width: 160},
+    // { field: "estado_whatsapp", headerName: "ESTADO WHATSAPP", width: 160 },
     {
       field: "fecha_examen",
       headerName: "FECHA EXAMEN MÉDICO",
@@ -437,6 +435,8 @@ const VisualizarRegistroEmo = () => {
       field: "fecha_lectura",
       headerName: "FECHA DE LECTURA EMO",
     },
+    { field: "fecha_email", headerName: "FECHA CONSTANCIA CORREO", width: 230 },
+    { field: "fecha_whatsapp", headerName: "FECHA CONSTANCIA WHATSAPP" , width: 230},
     {
       field: "estado_emo",
       headerName: "ESTADO CORREO EMO",
