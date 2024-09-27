@@ -49,14 +49,14 @@ const FormularioImportar = ({
       CELULAR: "celular",
       ITEM: "id",
       "NO CUENTA CON EMO (COLOCAR NO)": "emo",
-      "Indicar Trabajo Administrativo u Operario": "cargo",
-      "SEXO (F/M)": "sexo",
+      // "Indicar Trabajo Administrativo u Operario": "cargo",
+      "SEXO": "sexo",
       EDAD: "edad",
-      "Tipo de trabajo": "tipo",
-      "FECHA DE EXAMEN MEDICO": "fechaExamen",
+      "AREA DE TRABAJO": "tipo",
+      " FECHA INICIAL DE EXAMEN ": "fechaExamen",
       "FECHA DE NACIMIENTO": "fechaNacimiento",
-      "CLINICA DONDE PASO SU EXAMEN": "clinica",
-      "CARGO": "cargo",
+      "CLINICA DONDE PASO EXAMEN MEDICO": "clinica",
+      "PUESTO LABORAL": "cargo",
     };
     const jsonData = [];
     worksheet.eachRow({ includeEmpty: true }, function (row, rowNumber) {
@@ -82,7 +82,7 @@ const FormularioImportar = ({
         jsonData.push(rowObject);
       }
     });
-    console.log(jsonData);
+    // console.log(jsonData);
     if (jsonData.length > 0) {
       setRowData2(jsonData);
       closeModal();
