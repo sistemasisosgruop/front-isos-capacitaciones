@@ -15,6 +15,7 @@ import { toast } from "react-toastify";
 import DataTable from "react-data-table-component";
 import styled from "styled-components";
 import noData from "../../../assets/img/no-data.png";
+import getEnvVaribles from "../../../config/getEnvVariables";
 
 import {
   deleteTrabajador,
@@ -29,6 +30,7 @@ import {
   faTrashAlt,
   faFileImport,
   faFileExport,
+  faPrint,
   faCheckCircle,
   faTimesCircle,
   faCheck,
@@ -62,6 +64,8 @@ const ListadoTrabajador = () => {
   const [search, setSearch] = useState("");
   const [empresaData, setEmpresaData] = useState("");
   const [page, setPage] = useState(1);
+  const { VITE_API_URL } = getEnvVaribles();
+  const stepApi = 'emo';
 
   const gridRef = useRef();
 
@@ -100,16 +104,6 @@ const ListadoTrabajador = () => {
     {
       name: "Email",
       selector: (row) => row.email,
-      center: true,
-    },
-    {
-      name: "Edad",
-      selector: (row) => row.edad,
-      center: true,
-    },
-    {
-      name: "Área",
-      selector: (row) => row.areadetrabajo,
       center: true,
     },
     {
@@ -172,6 +166,16 @@ const ListadoTrabajador = () => {
       button: true,
       cell: (e) => (
         <>
+          {e.emoPdf !== null ? (
+            <label
+            onClick={() => handleDownloadEmo(e)}
+            className="mr-2 cursor-pointer"
+          >
+            <FontAwesomeIcon style={{ color: "green" }} icon={faPrint} />
+          </label>
+          ) : (
+            <label className="mr-5"></label>
+          )}
           <label
             onClick={() => updateButton(e)}
             className="mr-2 cursor-pointer"
@@ -234,6 +238,16 @@ const ListadoTrabajador = () => {
     setdataForm(data);
     handlePageChange();
     // setdataForm(initialForm);
+  };
+
+  const handleDownloadEmo = async (data) => {
+    const url = `${VITE_API_URL}/${ stepApi }/descargar/emo/${data.id}`;
+    // console.log('descargando ' + url)
+    const link = document.createElement('a');
+    link.target = '_blank';
+    link.href = url;
+    link.download = 'preferred-filename.file-extension';
+    link.click();
   };
 
   const updateButton = (data) => {

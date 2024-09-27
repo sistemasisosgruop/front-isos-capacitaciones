@@ -56,17 +56,17 @@ const CompararTrabajadores = () => {
     },
     {
       name: "Apellido paterno",
-      selector: (row) => row.apellidoPaterno.toUpperCase(),
+      selector: (row) => row.apellidoPaterno,
       sortable: true,
     },
     {
       name: "Apellido materno",
-      selector: (row) => row.apellidoMaterno.toUpperCase(),
+      selector: (row) => row.apellidoMaterno,
       sortable: true,
     },
     {
       name: "Nombres",
-      selector: (row) => row.nombres.toUpperCase(),
+      selector: (row) => row.nombres,
       sortable: true,
     },
     {
