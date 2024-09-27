@@ -34,20 +34,20 @@ const FormularioImportar = ({
     const worksheet = workbook.getWorksheet(1); // Si quieres la primera hoja de trabajo
 
     // Obtenemos los encabezados de la fila 4
-    const headerRow = worksheet.getRow(4);
+    const headerRow = worksheet.getRow(3);
     const headers = [];
     headerRow.eachCell({ includeEmpty: true }, function (cell, colNumber) {
       headers[colNumber - 1] = cell.value;
     });
     const keyMapping = {
       "APELLIDO PATERNO": "apellidoPaterno",
-      "APELLIDO  MATERNO": "apellidoMaterno",
+      "APELLIDO MATERNO": "apellidoMaterno",
       NOMBRES: "nombres",
       DNI: "dni",
       EMAIL: "email",
       CONTRASEÑA: "contrasena",
       CELULAR: "celular",
-      Nº: "id",
+      ITEM: "id",
       "NO CUENTA CON EMO (COLOCAR NO)": "emo",
       "Indicar Trabajo Administrativo u Operario": "cargo",
       "SEXO (F/M)": "sexo",
@@ -60,7 +60,7 @@ const FormularioImportar = ({
     };
     const jsonData = [];
     worksheet.eachRow({ includeEmpty: true }, function (row, rowNumber) {
-      if (rowNumber <= 4) return;
+      if (rowNumber <= 3) return;
 
       let isEmptyRow = true;
       const rowObject = {};
@@ -82,7 +82,7 @@ const FormularioImportar = ({
         jsonData.push(rowObject);
       }
     });
-    // console.log(jsonData);
+    console.log(jsonData);
     if (jsonData.length > 0) {
       setRowData2(jsonData);
       closeModal();

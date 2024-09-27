@@ -417,11 +417,7 @@ const VisualizarRegistroEmo = () => {
     },
     { field: "nombres", headerName: "NOMBRES", minWidth: 200 },
     { field: "dni", headerName: "DNI", width: 110 },
-    { field: "edad", headerName: "EDAD", width: 80 },
-    { field: "area", headerName: "AREA" },
     { field: "cargo", headerName: "PUESTO LABORAL" },
-    // { field: "estado_email", headerName: "ESTADO CORREO", width: 160},
-    // { field: "estado_whatsapp", headerName: "ESTADO WHATSAPP", width: 160 },
     {
       field: "fecha_examen",
       headerName: "FECHA EXAMEN MÉDICO",
@@ -574,11 +570,11 @@ const VisualizarRegistroEmo = () => {
         />
 
         <div className="flex justify-between gap-3">
-          <Button
+          {/* <Button
             description="Importar"
             icon={faFileImport}
             event={openModalImport}
-          />
+          /> */}
           <button
             className="btn btn-sm btn-outline btn-error"
             onClick={handleDownloadMulitple}

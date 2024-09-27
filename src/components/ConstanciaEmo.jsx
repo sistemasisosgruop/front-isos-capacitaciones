@@ -248,6 +248,9 @@ const ConstanciaEmo = ({ data, logo }) => {
                   presente .
                 </Text>
               </View>
+              <View style={{ marginTop: 15 }}>
+                <Text>FECHA DE LECTURA: {data.fecha_lectura ? data.fecha_lectura : ''}</Text>
+              </View>
             </View>
           </View>
 
