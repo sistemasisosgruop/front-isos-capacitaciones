@@ -132,6 +132,9 @@ const CompararTrabajadores = () => {
       (row) => !matchByDni(row, rowData2)
     );
 
+    const recordsToUpdate = rowData2?.filter(
+      (row) => matchByDni(row, rowData)
+    );
     // Filtrar registros en rowData2 que no están en rowData (coloreados de verde para crear)
     const recordsToCreate = rowData2?.filter(
       (row) => !matchByDni(row, rowData)
@@ -149,6 +152,11 @@ const CompararTrabajadores = () => {
         action: "disable",
         empresa_id: empresaId,
       })),
+      ...recordsToUpdate?.map((record) => ({
+        ...record,
+        action: "update",
+        empresa_id: empresaId,
+      })),
       ...recordsToCreate?.map((record) => ({
         ...record,
         action: "create",
@@ -158,6 +166,7 @@ const CompararTrabajadores = () => {
     ];
 
     if (combinedRecords.length > 0) {
+      // console.log(combinedRecords)
       const response = await postTrabajadorComparar(combinedRecords);
       if (response.status === 201) {
         setRowData2([]);
