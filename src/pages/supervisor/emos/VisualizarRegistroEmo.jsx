@@ -50,6 +50,7 @@ const VisualizarRegistroEmo = () => {
   const [refetchData, setRefetchData] = useState(false);
   const [dataForm, setdataForm] = useState(initialForm);
   const [rowData, setRowData] = useState();
+  const [rowNombreEmpresa, setNombreEmpresa] = useState();
   const [empresas, setEmpresas] = useState([]);
   const [selectFilter, setSelectFilter] = useState("");
   const [rowDelete, setRowDelete] = useState(null);
@@ -59,13 +60,29 @@ const VisualizarRegistroEmo = () => {
   const stepApi = 'emo';
 
   useEffect(() => {
-    getEmpresas().then((res) => setEmpresas(res.data));
+    getEmpresas().then((res) => {
+      const userIsosString = localStorage.getItem("userIsos");
+      const userIsosObject = JSON.parse(userIsosString);
+      const empresaId = userIsosObject ? userIsosObject.empresaId : null;
+      const filtered = res.data.filter(item=>item.id === empresaId);
+      const n = filtered.map(e => e.nombreEmpresa);
+      setEmpresas(filtered)
+      setSelectFilter(n)
+    });
   }, []);
-
+  
   const onGridReady = useCallback((params) => {
+    const userIsosString = localStorage.getItem("userIsos");
+    const userIsosObject = JSON.parse(userIsosString);
+    const empresaId = userIsosObject ? userIsosObject.empresaId : null;
+    
+    
     getTrabajadorEmo().then(({ data, message = null }) => {
       if (data) {
-        setRowData(data.data);
+        const filtered = data.data.filter(item=>item.empresa_id === empresaId);
+        const nombreEmpresa = filtered.nombreEmpresa;
+        setRowData(filtered);  
+        setNombreEmpresa(nombreEmpresa);  
       } else {
         toast.error("Ocurrio un error en el servidor", {
           position: "bottom-right",
@@ -457,7 +474,10 @@ const VisualizarRegistroEmo = () => {
     } else {
       // Cuando se comienza a escribir en el input, borramos la selección del select
       document.getElementById("searchSelect").value = "";
-      setSelectFilter("");
+      const userIsosString = localStorage.getItem("userIsos");
+      const userIsosObject = JSON.parse(userIsosString);
+      const empresaId = userIsosObject ? userIsosObject.empresaId : null;
+      setSelectFilter(empresaId);
   
       // Reiniciamos el filtro de la empresa
       gridRef.current.api.setFilterModel(null);
@@ -532,7 +552,7 @@ const VisualizarRegistroEmo = () => {
   return (
     <div>
       <div className="flex flex-row w-full gap-3 mt-2 mb-2 md:flex-row">
-        <div className="flex w-full gap-3 flx-row md:w-2/4 ">
+        <div className="flex w-full gap-3 flx-row md:w-2/4">
           <select
             className="w-6/12 select select-bordered select-sm"
             id="searchSelect"
@@ -591,71 +611,6 @@ const VisualizarRegistroEmo = () => {
           ></AgGridReact>
         </div>
       </div>
-
-      {/* <Modal
-        isOpen={isOpen4}
-        openModal={openModal4}
-        closeModal={closeModal4}
-        size={"w-100"}
-        title="Editar información del trabajador"
-      >
-        <FormularioTrabajador
-          initialForm={dataForm}
-          closeModal={closeModal4}
-          addItem={addItem}
-          updateRow={updateRow}
-          empresas={empresas}
-          getTrabajadorEmo={onGridReady}
-        />
-      </Modal> */}
-      {/* <Modal
-        isOpen={isOpen2}
-        openModal={openModal2}
-        closeModal={closeModal2}
-        size={"w-100"}
-        title="Envios por WhatsApp al trabajador"
-      >
-        <FormularioEnvios
-          initialForm={dataForm}
-        />
-      
-      </Modal> */}
-      {/* <Modal
-        isOpen={isOpen1}
-        openModal={openModal1}
-        closeModal={closeModal1}
-        size={"w-100"}
-        title="Envios de EMO por Correo al trabajador"
-      >
-        <FormularioEmos
-          initialForm={dataForm}
-        />
-      </Modal> */}
-      {/* <Modal
-        isOpen={isOpen3}
-        openModal={openModal3}
-        closeModal={closeModal3}
-        size={"w-100"}
-        title="Envios por Correo al trabajador"
-      >
-        <FormularioCorreos
-          initialForm={dataForm}
-        />
-      </Modal> */}
-      {/* <Modal
-        isOpen={isOpenImport}
-        openModal={openModalImport}
-        closeModal={closeModalImport}
-        size={"modal-sm"}
-        title="Importar información del trabajador"
-      >
-        <FormularioImportar
-          setRefetchData={setRefetchData}
-          closeModal={closeModalImport}
-          empresas={empresas}
-          actualizar={onGridReady}
-        />
-      </Modal> */}
     </div>
   );
 };

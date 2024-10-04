@@ -482,17 +482,23 @@ const VisualizarRegistroEmo = () => {
 
 
   const handleConstanciaDownload = async (data) => {
-    const logo = await getImgs(data.empresa_id, "logo");
-    const srcLogo = URL.createObjectURL(new Blob([logo.data]));
-    const link = document.createElement("a");
-    const pdfBlob = await pdf(
-      <ConstanciaEmo data={data} logo={srcLogo} />
-    ).toBlob();
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-    link.href = pdfUrl;
-    link.target = "_blank";
-    link.download = `Constancia-${data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres}.pdf`;
-    link.click();
+    // if(data.fecha_lectura) {
+      const logo = await getImgs(data.empresa_id, "logo");
+      const srcLogo = URL.createObjectURL(new Blob([logo.data]));
+      const link = document.createElement("a");
+      const pdfBlob = await pdf(
+        <ConstanciaEmo data={data} logo={srcLogo} />
+      ).toBlob();
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      link.href = pdfUrl;
+      link.target = "_blank";
+      link.download = `Constancia-${data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres}.pdf`;
+      link.click();
+    // } else {
+    //   return toast.error("No se puede descargar debe tener la Fecha de Lectura", {
+    //     position: "bottom-right",
+    //   });
+    // }
   };
 
   const handleDownloadMulitple = async (data) => {
