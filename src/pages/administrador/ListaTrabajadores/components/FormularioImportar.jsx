@@ -54,6 +54,7 @@ const FormularioImportar = ({
       EDAD: "edad",
       "AREA DE TRABAJO": "tipo",
       "FECHA INICIAL DE EXAMEN": "fechaExamen",
+      "APTITUD MEDICA OCUPACIONAL": "condicionAptitud",
       "FECHA DE CADUCIDAD DEL EXAMEN": "fechaVencimiento",
       "CONTROLES": "controles",
       "RECOMENDACIONES": "recomendaciones",

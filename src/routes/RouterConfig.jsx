@@ -19,6 +19,7 @@ import TestTrabajador from "../pages/trabajador/capacitaciones/TestTrabajador";
 import validateToken from "./validateToken";
 import OpcionesEmos from "../pages/administrador/emos/opcionesReportes";
 import OpcionesSends from "../pages/administrador/sends/opcionesReportes";
+import OpcionesSendsEmos from "../pages/supervisor/emos/opcionesReportes";
 import EvaluacionMedica from "../pages/trabajador/evaluacionMedica/EvaluacionMedica";
 import ReporteEmo from "../pages/administrador/reportes/ReporteEmo";
 import CompararTrabajadores from "../pages/administrador/ListaTrabajadores/CompararTrabajadores";
@@ -96,6 +97,11 @@ const router = createBrowserRouter([
           { path: "capacitaciones", element: <CapacitacionesTrabajador /> },
           { path: "test", element: <TestTrabajador /> },
           { path: "evaluacion", element: <EvaluacionMedica /> },
+          {
+            path: "constancia",
+            element: <Outlet />,
+            children: [{ path: "opciones", element: <OpcionesSendsEmos /> }],
+          },
           {
             path: "reportes",
             element: <Outlet />,

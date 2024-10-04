@@ -34,6 +34,12 @@ const ItemSupervisor = () => {
         Evaluación médica
       </MenuItem>
       <MenuItem
+        component={<Link to="./supervisor/constancia/opciones" />}
+        icon={<FontAwesomeIcon icon={faFileInvoice} />}
+      >
+        Constancias y Envios
+      </MenuItem>
+      <MenuItem
         component={<Link to="./supervisor/reportes/opciones" />}
         icon={<FontAwesomeIcon icon={faClipboard} />}
       >

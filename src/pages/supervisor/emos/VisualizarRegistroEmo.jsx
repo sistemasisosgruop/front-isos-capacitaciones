@@ -24,7 +24,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Modal } from "../../../components/modal/Modal";
 import useModals from "../../../hooks/useModal";
-import FormularioImportar from "./FormularioImportar";
+// import FormularioImportar from "./FormularioImportar";
 import FormularioTrabajador from "./FormularioTrabajador";
 import FormularioEnvios from "./FormularioEnvios";
 import FormularioEmos from "./FormularioEmos";
@@ -409,26 +409,18 @@ const VisualizarRegistroEmo = () => {
       field: "apellidoPaterno",
       headerName: "APELLIDO PATERNO",
       minWidth: 200,
-      pinned: 'left'
     },
     {
       field: "apellidoMaterno",
       headerName: "APELLIDO MATERNO",
       minWidth: 200,
-      pinned: 'left'
     },
-    { field: "nombres", headerName: "NOMBRES", minWidth: 200, pinned: 'left' },
+    { field: "nombres", headerName: "NOMBRES 1", minWidth: 200, pinned: 'left' },
     { field: "dni", headerName: "DNI", width: 110 },
-    { field: "cargo", headerName: "PUESTO LABORAL" },
     {
       field: "fecha_examen",
       headerName: "FECHA EXAMEN MÉDICO",
     },
-    {
-      field: "condicion_aptitud",
-      headerName: "CONDICIÓN DE APTITUD",
-    },
-    { field: "clinica", headerName: "CLÍNICA" },
     {
       field: "fecha_lectura",
       headerName: "FECHA DE LECTURA EMO",
@@ -438,16 +430,13 @@ const VisualizarRegistroEmo = () => {
       headerName: "FECHA DE VENCIMIENTO EMO",
       width: 230 
     },
-    { field: "fecha_email", headerName: "FECHA CONSTANCIA CORREO", width: 230 },
-    { field: "fecha_whatsapp", headerName: "FECHA CONSTANCIA WHATSAPP" , width: 230},
     {
       field: "estado_emo",
       headerName: "ESTADO CORREO EMO",
     },
     { field: "estado_emo_whatsapp", headerName: "ESTADO WHATSAPP EMO", width: 250 },
-    { field: "estado", headerName: "ESTADO" },
-    { field: "CONSTANCIAS", cellRenderer: renderConstanciaButtons, width: 150 },
-    { field: "EMOS", cellRenderer: renderEmoButtons, width: 180 },
+    { field: "CONSTANCIAS", cellRenderer: renderConstanciaButtons, width: 150, hide: true },
+    { field: "EMOS", cellRenderer: renderEmoButtons, width: 180, hide: true },
     { field: "nombreEmpresa", hide: true, filter: true },
   ]);
   const onFilterTextBoxChanged = useCallback((e, isSelect) => {
@@ -603,7 +592,7 @@ const VisualizarRegistroEmo = () => {
         </div>
       </div>
 
-      <Modal
+      {/* <Modal
         isOpen={isOpen4}
         openModal={openModal4}
         closeModal={closeModal4}
@@ -618,8 +607,8 @@ const VisualizarRegistroEmo = () => {
           empresas={empresas}
           getTrabajadorEmo={onGridReady}
         />
-      </Modal>
-      <Modal
+      </Modal> */}
+      {/* <Modal
         isOpen={isOpen2}
         openModal={openModal2}
         closeModal={closeModal2}
@@ -630,8 +619,8 @@ const VisualizarRegistroEmo = () => {
           initialForm={dataForm}
         />
       
-      </Modal>
-      <Modal
+      </Modal> */}
+      {/* <Modal
         isOpen={isOpen1}
         openModal={openModal1}
         closeModal={closeModal1}
@@ -641,8 +630,8 @@ const VisualizarRegistroEmo = () => {
         <FormularioEmos
           initialForm={dataForm}
         />
-      </Modal>
-      <Modal
+      </Modal> */}
+      {/* <Modal
         isOpen={isOpen3}
         openModal={openModal3}
         closeModal={closeModal3}
@@ -652,8 +641,8 @@ const VisualizarRegistroEmo = () => {
         <FormularioCorreos
           initialForm={dataForm}
         />
-      </Modal>
-      <Modal
+      </Modal> */}
+      {/* <Modal
         isOpen={isOpenImport}
         openModal={openModalImport}
         closeModal={closeModalImport}
@@ -666,7 +655,7 @@ const VisualizarRegistroEmo = () => {
           empresas={empresas}
           actualizar={onGridReady}
         />
-      </Modal>
+      </Modal> */}
     </div>
   );
 };
