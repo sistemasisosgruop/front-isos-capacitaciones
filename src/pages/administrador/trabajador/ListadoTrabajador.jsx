@@ -79,6 +79,7 @@ const ListadoTrabajador = () => {
       selector: (row) => row.id,
       sortable: true,
       width: "80px",
+      // style: "position: -webkit-sticky;position: sticky;background-color: white;width: 100px;min-width: 100px;max-width: 100px;left: 0px;"
     },
     {
       name: "Apellido paterno",
@@ -99,6 +100,21 @@ const ListadoTrabajador = () => {
     {
       name: "DNI",
       selector: (row) => row.dni,
+      center: true,
+    },
+    {
+      name: "EMO",
+      button: true,
+      cell: (e) => (
+        <label className="cursor-pointer" onClick={() => cargarEmoPdf(e)}>
+          EMO{" "}
+          {e.emoPdf !== null ? (
+            <FontAwesomeIcon style={{ color: "green" }} icon={faCheck} />
+          ) : (
+            <FontAwesomeIcon style={{ color: "red" }} icon={faClose} />
+          )}
+        </label>
+      ),
       center: true,
     },
     {
@@ -126,21 +142,6 @@ const ListadoTrabajador = () => {
       name: "Rol",
       // selector: (row) => row?.user?.rol === "Supervisor" ? "Si" : "No",
       selector: (row) => row?.user?.rol === "Trabajador" ? "" : row?.user?.rol,
-      center: true,
-    },
-    {
-      name: "EMO",
-      button: true,
-      cell: (e) => (
-        <label className="cursor-pointer" onClick={() => cargarEmoPdf(e)}>
-          EMO{" "}
-          {e.emoPdf !== null ? (
-            <FontAwesomeIcon style={{ color: "green" }} icon={faCheck} />
-          ) : (
-            <FontAwesomeIcon style={{ color: "red" }} icon={faClose} />
-          )}
-        </label>
-      ),
       center: true,
     },
     {
@@ -469,7 +470,7 @@ const ListadoTrabajador = () => {
               paginationTotalRows={totalRows}
               onChangePage={(page) => setPage(page)}
               noDataComponent={
-                <div style={{ display: "flex", flexDirection:"column" }}>
+                <div style={{ display: "flex", flexDirection:"column", position:"sticky", zIndex: 2 }}>
                   <img src={noData} alt="" width={"250px"} />
                 </div>
               }

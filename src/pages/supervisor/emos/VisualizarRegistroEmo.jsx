@@ -426,11 +426,13 @@ const VisualizarRegistroEmo = () => {
       field: "apellidoPaterno",
       headerName: "APELLIDO PATERNO",
       minWidth: 200,
+      pinned: 'left'
     },
     {
       field: "apellidoMaterno",
       headerName: "APELLIDO MATERNO",
       minWidth: 200,
+      pinned: 'left'
     },
     { field: "nombres", headerName: "NOMBRES 1", minWidth: 200, pinned: 'left' },
     { field: "dni", headerName: "DNI", width: 110 },

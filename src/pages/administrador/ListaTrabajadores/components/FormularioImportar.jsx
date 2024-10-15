@@ -86,7 +86,7 @@ const FormularioImportar = ({
         jsonData.push(rowObject);
       }
     });
-    // console.log(jsonData);
+    console.log(jsonData);
     if (jsonData.length > 0) {
       setRowData2(jsonData);
       closeModal();
