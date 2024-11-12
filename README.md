@@ -1,5 +1,5 @@
 # front-isos-capacitaciones
-Bienvenidos al repositorio de ISOSGROUP, el proyecto que se desarrollo es el de un modulo de capacitaciones para trabajadores, donde podran descargar su certificado, dar su examen y repsasar su induccion
+Bienvenidos al repositorio de ISOSGROUP, el proyecto que se desarrollo es el de un modulo de capacitaciones para trabajadores, donde podran descargar su certificado, dar su examen y repasar su induccion
 
 ### Deployment📋
 
