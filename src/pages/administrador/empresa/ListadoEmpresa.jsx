@@ -155,6 +155,7 @@ const ListadoEmpresa = () => {
       numeroContacto,
       direccion,
       id,
+      relacionadas,
     } = data;
 
     openModal();
@@ -167,6 +168,7 @@ const ListadoEmpresa = () => {
       direccion,
       logoEmpresa: "-",
       fondoCertificado: "-",
+      relacionadas: relacionadas
     });
   };
 

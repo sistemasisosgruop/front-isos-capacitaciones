@@ -1,12 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../../../../components/Button";
 import validate from "../validateFormModal";
 import { useForm } from "../../../../hooks/useForms";
-import { patchEmpresas, postEmpresas } from "../../../../services/empresa";
+import { patchEmpresas, postEmpresas, getEmpresas } from "../../../../services/empresa";
 import { toast } from "react-toastify";
 import { hideLoader, showLoader } from "../../../../utils/loader";
+import Select from 'react-select'
 
 const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
+  const [empresas, setEmpresas] = useState([]);
+  const [relacionesSeleccionadas, setRelacionesSeleccionadas] = useState([]);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const formValidations = validate();
 
@@ -30,9 +33,43 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
     logoEmpresaValid,
     fondoCertificadoValid,
     formState,
+    relacionadas,
     isFormValid,
     onInputChange,
   } = useForm(initialForm, formValidations);
+
+  const handleRelacionesChange = (selectedOptions) => {
+    setRelacionesSeleccionadas(selectedOptions || []); 
+  };
+
+  useEffect(() => {
+    getEmpresas().then(({ data }) => {
+      if (data) {
+        const empresaOptions = data
+        .filter(empresa => empresa.id !== id)
+        .map(empresa => ({
+          value: empresa.id, 
+          label: empresa.nombreEmpresa  
+        }));
+        setEmpresas(empresaOptions);  
+        if (relacionadas && relacionadas.length > 0) {
+          const relacionesOptions = relacionadas.map(relacion => ({
+            value: relacion.id,  
+            label: relacion.nombreEmpresa  
+          }));
+          setRelacionesSeleccionadas(relacionesOptions); 
+        }
+        else{
+          setRelacionesSeleccionadas([]);
+        }
+      } else {
+        toast.error("Ocurrio un error en el servidor", {
+          position: "bottom-right",
+        });
+      }
+    });
+  }, [relacionadas]);
+
 
   const handleForm = async (event, action) => {
     event.preventDefault();
@@ -49,6 +86,12 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
     fondoCertificado !== "-" &&
       data.append("imagenCertificado", fondoCertificado);
     data.append("RUC", ruc);
+
+    const relacionesIds = relacionesSeleccionadas.map(rel => rel.value);
+    data.append("relaciones", JSON.stringify(relacionesIds));
+
+
+
 
     if (action === "ADD") {
       add(data);
@@ -218,6 +261,23 @@ const FormularioEmpresa = ({ initialForm, addItem, updateRow, closeModal }) => {
           )}
         </div>
       </div>
+
+      <div className="mb-2">
+        <label htmlFor="relaciones" className="font-semibold">
+          Relaciones
+        </label>
+        <Select
+              name="relacionadas"
+              isMulti
+              value={relacionesSeleccionadas}
+              onChange={handleRelacionesChange}
+              options={empresas}
+          />
+      </div>
+
+
+
+
       <div className="flex justify-end">
         <Button description={action === "ADD" ? "Agregar" : "Guardar"} />
       </div>

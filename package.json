@@ -28,8 +28,9 @@
     "react-modal": "^3.16.1",
     "react-pro-sidebar": "^1.0.0",
     "react-router-dom": "^6.4.2",
-    "react-select": "^5.7.2",
+    "react-select": "^5.9.0",
     "react-step-wizard": "^5.3.11",
+    "react-tailwindcss-select": "^1.8.5",
     "react-toastify": "^9.1.2",
     "styled-components": "^5.3.3"
   },
