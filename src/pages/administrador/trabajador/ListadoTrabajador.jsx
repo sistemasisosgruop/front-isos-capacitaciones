@@ -134,7 +134,9 @@ const ListadoTrabajador = () => {
     },
     {
       name: "Empresa",
-      selector: (row) => row?.empresa?.nombreEmpresa,
+      selector: (row) => {
+        return row?.empresas?.map((empresa) => empresa.nombreEmpresa).join(", ") || "No asociada";
+      },
       sortable: true,
       center: true,
     },
