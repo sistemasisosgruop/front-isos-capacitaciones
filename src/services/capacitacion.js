@@ -59,6 +59,13 @@ const getFirmaCertificado = (id) => {
     .catch(objErrorApi);
 };
 
+const patchEstadoRecuperacion = (id, recuperacion) => {
+  return baseApi(stepApi)
+    .patch(`/${id}`, { recuperacion })  // Asumiendo que 'recuperacion' es el nombre del campo para actualizar el estado.
+    .catch(objErrorApi);
+};
+
+
 const deleteCapacitaciones = (id) => {
   return baseApi(stepApi)
     .delete(`/${id}`)
@@ -75,5 +82,6 @@ export {
   patchEstadoCapacitacion,
   deleteCapacitaciones,
   getFirmaCertificado,
-  getCapacitacionesReport
+  getCapacitacionesReport,
+  patchEstadoRecuperacion
 };

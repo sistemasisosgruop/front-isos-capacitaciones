@@ -1,8 +1,10 @@
 const TarjetasCapacitaciones = ({ data, verPreguntas, verCertificado }) => {
   let backgroundEstado = null;
   let descripcionEstado = null;
-
-  if (!data.asistenciaExamen) {
+  if (data.capacitacion.recuperacion) {
+    descripcionEstado = "Recuperacion";
+    backgroundEstado = "rgb(249 115 22)";
+  }else if (!data.asistenciaExamen) {
     descripcionEstado = "Pendiente";
     backgroundEstado = " rgb(148 163 184)";
   } else {

@@ -15,6 +15,8 @@ import {
   getCapacitaciones,
   getPreguntas,
   patchEstadoCapacitacion,
+  patchCapacitaciones,
+  patchEstadoRecuperacion
 } from "../../../services/capacitacion";
 import { AgGridReact } from "ag-grid-react";
 import { getEmpresas, getEmpresaCapacitador } from "../../../services/empresa";
@@ -34,6 +36,8 @@ const ListaCapacitaciones = () => {
   const [descripcionModal, setDescripcionModal] = useState("");
   const [sweetAlert, setSweetAlert] = useState(false);
   const [sweetAlertState, setSweetAlertState] = useState(false);
+  const [selectedEmpresa, setSelectedEmpresa] = useState(null);
+  const [originalData, setOriginalData] = useState([]);
 
   const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
@@ -43,6 +47,21 @@ const ListaCapacitaciones = () => {
   const rol = window.localStorage.getItem('rol')
   const userId = window.localStorage.getItem('userId')
   const empresaId = window.localStorage.getItem('empresaId')
+
+  const handleEmpresaFilter = (selectedOption) => {
+    console.log(selectedOption)
+    if (selectedOption) {
+      // Si se selecciona una empresa, filtramos
+      const filteredData = rowData.filter((row) =>
+        row.Empresas?.some((empresa) => empresa.id === selectedOption.value)
+      );
+      setRowData(filteredData);
+    } else {
+      // Si no hay selección, mostramos todos los datos
+      setRowData(originalData);
+    }
+    setSelectedEmpresa(selectedOption || null); // Actualizamos el estado
+  };
 
   //configuracion de la tabla
   const renderButtons = ({ data }) => {
@@ -99,6 +118,42 @@ const ListaCapacitaciones = () => {
     );
   };
 
+  const renderSwitch = ({ value, data }) => {
+    return (
+      <div className="flex items-center justify-center">
+        <input
+          type="checkbox"
+          checked={value}
+          onChange={() => handleSwitchChange(data)}
+          className={`toggle ${value ? 'toggle-accent bg-teal-300' : 'bg-red-200'}`}
+        />
+      </div>
+    );
+  };
+  
+
+  const handleSwitchChange = (data) => {
+    // Cambiar el valor de recuperación en el estado local
+    const updatedData = { ...data, recuperacion: !data.recuperacion };
+    console.log(updatedData);
+  
+    // Realizar la actualización en el backend
+    patchEstadoRecuperacion(data.id, updatedData.recuperacion).then(({ data }) => {
+      if (data) {
+        // Actualizar la fila en la tabla
+        updateRow(updatedData);
+        toast.success("Estado de recuperación actualizado", {
+          position: "bottom-right",
+        });
+      } else {
+        toast.error("Error al actualizar el estado", {
+          position: "bottom-right",
+        });
+      }
+    });
+  };
+  
+
   const [columnDefs, setColumnDefs] = useState([
     { field: "id", hide: true },
     { field: "nombre" },
@@ -107,6 +162,7 @@ const ListaCapacitaciones = () => {
     { field: "fechaInicio" },
     { field: "fechaCulminacion" },
     { field: "fechaAplazo" },
+    { field: "recuperacion", headerName: "Recuperación", cellRendererFramework: renderSwitch, minWidth: 150 },
     { field: "Opciones", cellRenderer: renderButtons, minWidth: 200 },
   ]);
 
@@ -127,13 +183,11 @@ const ListaCapacitaciones = () => {
 
   //cargar la informacion de la tabla
   const onGridReady = useCallback((params) => {
-
-    if ( rol === 'Capacitador') {
-      // console.log('Es un Capacitador')
+    if (rol === 'Capacitador') {
       getCapacitacionUser(empresaId).then(({ data }) => {
-        // console.log(data);
         if (data) {
           setRowData(data);
+          setOriginalData(data);  // Guardamos los datos originales aquí
         } else {
           toast.error("Ocurrio un error en el servidor", {
             position: "bottom-right",
@@ -142,9 +196,9 @@ const ListaCapacitaciones = () => {
       });
     } else {
       getCapacitaciones().then(({ data }) => {
-        // console.log(data);
         if (data) {
           setRowData(data);
+          setOriginalData(data);  // Guardamos los datos originales aquí
         } else {
           toast.error("Ocurrio un error en el servidor", {
             position: "bottom-right",
@@ -152,7 +206,6 @@ const ListaCapacitaciones = () => {
         }
       });
     }
-
   }, []);
 
   //funciones para refrescar la tabla
@@ -303,7 +356,7 @@ const ListaCapacitaciones = () => {
         });
 
         // console.log(newData)
-  
+        
         setEmpresas(newData);
       });
     } else {
@@ -359,14 +412,37 @@ const ListaCapacitaciones = () => {
     <div className="">
       <div className="p-3 bg-white">
         <h2 className="mb-3 text-2xl font-bold">Capacitaciones</h2>
-        <div className="flex justify-between gap-3 mb-2">
+        <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
+        <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/5">
+          <select
+            className="select select-bordered select-sml"  // Ajusté el tamaño del select para que esté alineado con el input
+            id="searchSelect"
+            onChange={(e) => {
+              const selectedValue = e.target.value;
+              const selectedOption = empresas.reduce((acc, emp) => {
+                if (emp.value == selectedValue) return emp;
+                return acc;
+              }, null);
+              handleEmpresaFilter(selectedOption);
+            }}
+            value={selectedEmpresa?.value || ""}
+          >
+            <option value="">Seleccione una empresa</option>
+            {empresas.map((empresa) => (
+              <option key={empresa.value} value={empresa.value}>
+                {empresa.label}
+              </option>
+            ))}
+          </select>
           <input
             type="text"
+            name="empresa"
             placeholder="Buscar"
             id="searchInput"
             onChange={onFilterTextBoxChanged}
-            className="input input-bordered input-sm"
+            className="input input-bordered input-sm w-full"  // Ajusté el tamaño del input para que esté alineado con el select
           />
+        </div>
 
           <div className="flex justify-between gap-3 mb-2">
             <ProgressBar/>
