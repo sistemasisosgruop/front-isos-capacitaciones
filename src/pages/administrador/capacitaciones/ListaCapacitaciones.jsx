@@ -411,40 +411,42 @@ const ListaCapacitaciones = () => {
   return (
     <div className="">
       <div className="p-3 bg-white">
-        <h2 className="mb-3 text-2xl font-bold">Capacitaciones</h2>
-        <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
-        <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/5">
-          <select
-            className="select select-bordered select-sml"  // Ajusté el tamaño del select para que esté alineado con el input
-            id="searchSelect"
-            onChange={(e) => {
-              const selectedValue = e.target.value;
-              const selectedOption = empresas.reduce((acc, emp) => {
-                if (emp.value == selectedValue) return emp;
-                return acc;
-              }, null);
-              handleEmpresaFilter(selectedOption);
-            }}
-            value={selectedEmpresa?.value || ""}
-          >
-            <option value="">Seleccione una empresa</option>
-            {empresas.map((empresa) => (
-              <option key={empresa.value} value={empresa.value}>
-                {empresa.label}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            name="empresa"
-            placeholder="Buscar"
-            id="searchInput"
-            onChange={onFilterTextBoxChanged}
-            className="input input-bordered input-sm w-full"  // Ajusté el tamaño del input para que esté alineado con el select
-          />
+        <div className="flex justify-between gap-3">
+          <h2 className="mb-3 text-2xl font-bold">Capacitaciones</h2>
         </div>
+        <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
+          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/5">
+            <select
+              className="select select-bordered select-sm"  // Ajusté el tamaño del select para que esté alineado con el input
+              id="searchSelect"
+              onChange={(e) => {
+                const selectedValue = e.target.value;
+                const selectedOption = empresas.reduce((acc, emp) => {
+                  if (emp.value == selectedValue) return emp;
+                  return acc;
+                }, null);
+                handleEmpresaFilter(selectedOption);
+              }}
+              value={selectedEmpresa?.value || ""}
+              >
+              <option value="">Seleccione una empresa</option>
+              {empresas.map((empresa) => (
+                <option key={empresa.value} value={empresa.value}>
+                  {empresa.label}
+                </option>
+              ))}
+            </select>
+            <input
+              type="text"
+              name="empresa"
+              placeholder="Buscar"
+              id="searchInput"
+              onChange={onFilterTextBoxChanged}
+              className="input input-bordered input-sm w-full"  // Ajusté el tamaño del input para que esté alineado con el select
+            />
+          </div>
 
-          <div className="flex justify-between gap-3 mb-2">
+          <div className="flex flex-col justify-end w-full gap-3 md:flex-row lg:w-2/5">
             <ProgressBar/>
             <Button
               description="Registrar"
@@ -453,6 +455,7 @@ const ListaCapacitaciones = () => {
             />
           </div>
         </div>
+
         <div style={containerStyle}>
           <div style={gridStyle} className="ag-theme-alpine">
             <AgGridReact
