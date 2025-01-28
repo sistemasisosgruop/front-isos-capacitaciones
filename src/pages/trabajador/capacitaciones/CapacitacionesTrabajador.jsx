@@ -26,8 +26,8 @@ import { hideLoader, showLoader } from "../../../utils/loader";
 import { pdf } from "@react-pdf/renderer";
 
 const CapacitacionesTrabajador = () => {
-  const [selectMonth, setSelectMonth] = useState("");
-  const [selectYear, setSelectYear] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [data, setData] = useState([]);
   const [dataInit, setDataInit] = useState([]);
   const [formPreguntas, setFormPreguntas] = useState(initialFormPreguntas);
@@ -40,44 +40,27 @@ const CapacitacionesTrabajador = () => {
   const [isOpenCerti, openModalCerti, closeModalCerti] = useModals();
   const { authState } = useContext(AuthContext);
 
-  useEffect(() => {
-    setYears(getYearsBefore(10));
-  }, []);
-  const filter = (obj) => {
-    const [day, month, year] = formatDateDb(obj.fechaCapacitacion);
-
-    if (selectMonth !== "" && selectYear !== "") {
-      if (year == selectYear && month == selectMonth) {
-        return true;
-      }
-    } else {
-      if (selectMonth === "") {
-        if (year == selectYear) return true;
-      } else if (selectYear === "") {
-        if (month == selectMonth) return true;
-      }
-    }
+  
+  const filterDataByDate = () => {
+    if (!startDate || !endDate) return;
+    const filtered = dataInit.filter(({ fechaCapacitacion }) => {
+      const fecha = new Date(formatDateDb(fechaCapacitacion));
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      return fecha >= start && fecha <= end;
+    });
+    setData(filtered);
   };
 
-  const filterData = () => {
-    if (selectMonth === "" && selectYear === "") {
-      return;
-    }
-    // console.log(dataInit);
-    var arrPorID = dataInit?.filter(filter);
-    setData(arrPorID);
-  };
-
-  const handleSelectYear = (e) => {
-    setSelectYear(e.target.value);
-  };
-  const handleSelectMonth = (e) => {
-    setSelectMonth(e.target.value);
+  const handleDateChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "startDate") setStartDate(value);
+    if (name === "endDate") setEndDate(value);
   };
 
   useEffect(() => {
-    filterData();
-  }, [selectMonth, selectYear]);
+    filterDataByDate();
+  }, [startDate, endDate]);
 
   const getData = async () =>{
     const dni =JSON.parse(localStorage.getItem("userIsos")).dni;
@@ -219,40 +202,37 @@ const CapacitacionesTrabajador = () => {
         <div className="flex justify-between gap-3">
           <h2 className="mb-3 text-2xl font-bold">Capacitaciones</h2>
         </div>
-        <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
-          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/5">
-            <select
-              className="select select-bordered select-sm"
-              id="searchSelect"
-              onChange={handleSelectYear}
-              value={selectYear}
-            >
-              <option value={""}>Año</option>
-              {years?.map((year, index) => {
-                return (
-                  <option key={index} value={year}>
-                    {year}
-                  </option>
-                );
-              })}
-            </select>
-            <select
-              className="select select-bordered select-sm"
-              id="searchSelect"
-              onChange={handleSelectMonth}
-              value={selectMonth}
-            >
-              <option value={""}>Mes</option>
-              {months?.map((month, index) => {
-                return (
-                  <option key={index} value={month.descripcion}>
-                    {month.descripcion}
-                  </option>
-                );
-              })}
-            </select>
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-6">
+        {/* Input de rango de fechas */}
+        <div className="flex flex-col sm:flex-row gap-3 w-full">
+          <div className="flex flex-col">
+            <label htmlFor="startDate" className="text-sm font-medium mb-1">
+              Fecha de inicio:
+            </label>
+            <input
+              type="date"
+              id="startDate"
+              name="startDate"
+              value={startDate}
+              onChange={handleDateChange}
+              className="input input-bordered input-sm w-full"
+            />
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="endDate" className="text-sm font-medium mb-1">
+              Fecha de fin:
+            </label>
+            <input
+              type="date"
+              id="endDate"
+              name="endDate"
+              value={endDate}
+              onChange={handleDateChange}
+              className="input input-bordered input-sm w-full"
+            />
           </div>
         </div>
+      </div>
 
         <div className="flex flex-col gap-3">
           {data?.length !== 0 ? (
