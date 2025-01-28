@@ -140,6 +140,10 @@ const ListadoEmpresa = () => {
     });
   }, []);
 
+  const handleSearch = (e) => {
+    gridRef.current.api.setQuickFilter(e.target.value);
+  };
+
   const openAddModal = () => {
     setDescripcionModal('Agregar empresa');
     openModal();
@@ -209,7 +213,17 @@ const ListadoEmpresa = () => {
     <div className="">
       <div className="bg-white p-3">
         <div className="flex justify-between gap-3">
-          <h2 className="font-bold text-2xl mb-3">Empresas</h2>
+        <h2 className="font-bold text-2xl mb-3">Empresas</h2>
+        </div>
+        <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
+          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/5">
+          <input
+            type="text"
+            placeholder="Buscar por nombre de empresa"
+            className="input input-bordered input-sm"
+            onChange={handleSearch} // Llama al manejador del filtro
+          />
+          </div>
           <Button description="Registrar" icon={faPlus} event={openAddModal} />
         </div>
 
@@ -266,7 +280,7 @@ const ListadoEmpresa = () => {
           onCancel={() => setSweetAlert(false)}
         ></SweetAlert>
       </div>
-    </div>
+      </div>
   );
 };
 
