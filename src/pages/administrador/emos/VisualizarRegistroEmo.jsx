@@ -62,6 +62,27 @@ const VisualizarRegistroEmo = () => {
     getEmpresas().then((res) => setEmpresas(res.data));
   }, []);
 
+  useEffect(() => {
+    getTrabajadorEmo().then(({ data, message = null }) => {
+      if (data) {
+        if (selectFilter) {
+          const filteredData = data.data.filter((item) =>
+            item.empresas.some((empresa) => empresa.nombreEmpresa === selectFilter)
+          );
+  
+          setRowData(filteredData);
+        } else {
+          setRowData(data.data); // Si no hay filtro, mostrar todos
+        }
+      } else {
+        toast.error("Ocurrió un error en el servidor", {
+          position: "bottom-right",
+        });
+      }
+    });
+  }, [selectFilter]);
+  
+
   const onGridReady = useCallback((params) => {
     getTrabajadorEmo().then(({ data, message = null }) => {
       if (data) {
@@ -180,7 +201,7 @@ const VisualizarRegistroEmo = () => {
       toast.error("No importo los datos respectivos", {
         position: "bottom-right",
       });
-    } else if (!data.celular) {
+    } else if (!data.celular) { 
       toast.error("No tiene celular de envio", {
         position: "bottom-right",
       });
@@ -448,37 +469,63 @@ const VisualizarRegistroEmo = () => {
     { field: "estado", headerName: "ESTADO" },
     { field: "CONSTANCIAS", cellRenderer: renderConstanciaButtons, width: 150 },
     { field: "EMOS", cellRenderer: renderEmoButtons, width: 180 },
-    { field: "nombreEmpresa", hide: true, filter: true },
+    {
+      field: "empresas", 
+      headerName: "EMPRESAS",
+      filter: 'agTextColumnFilter',  
+      cellRenderer: (params) => {
+        if (Array.isArray(params.value) && params.value.length > 0) {
+          return params.value.map(empresa => empresa.nombreEmpresa).join(", ");
+        }
+        return "";  
+      },
+      filterParams: {
+        textCustomComparator: (filter, value) => {
+          // Si el valor es un array, verificamos si alguno de los elementos incluye el filtro
+          if (Array.isArray(value)) {
+            return value.some(val => val.toLowerCase().includes(filter.toLowerCase()));
+          }
+          return value.toLowerCase().includes(filter.toLowerCase());
+        },
+      },
+      hide: false,
+      width: 200,
+    },
   ]);
+
   const onFilterTextBoxChanged = useCallback((e, isSelect) => {
     if (isSelect) {
-      const empresaNombre = e.target.value;
-      setSelectFilter(empresaNombre);
+      const selectedValue = e.target.value; // Tomamos el valor seleccionado (una empresa o varias)
+      setSelectFilter(selectedValue);
   
-      if (empresaNombre !== "") {
+      // Si se selecciona alguna empresa
+      if (selectedValue && selectedValue.length > 0) {
+        // Suponiendo que selectedValue es un solo valor o un array de valores
         gridRef.current.api.setFilterModel({
-          nombreEmpresa: {
-            type: "contains",
-            filter: empresaNombre,
+          empresas: { // Cambié el nombre del filtro a 'empresa' para que coincida con tu lógica
+            type: "in", 
+            values: Array.isArray(selectedValue) ? selectedValue : [selectedValue], // Si es un solo valor, lo convertimos en array
           },
         });
       } else {
+        // Si no hay selección, eliminamos el filtro de la empresa
         gridRef.current.api.setFilterModel(null);
       }
     } else {
-      // Cuando se comienza a escribir en el input, borramos la selección del select
-      document.getElementById("searchSelect").value = "";
-      setSelectFilter("");
+      // Cuando no es un select (es input), limpiamos la selección del select
+      const inputValue = e.target.value;
   
-      // Reiniciamos el filtro de la empresa
+      // Limpiar el valor del select
+      document.getElementById("searchSelect").value = "";
+      setSelectFilter(""); // Reseteamos el filtro del select
+  
+      // Reiniciar el filtro de empresa
       gridRef.current.api.setFilterModel(null);
   
-      const input = e.target.value;
-      gridRef.current.api.setQuickFilter(input);
+      // Aplicar filtro rápido con el texto ingresado
+      gridRef.current.api.setQuickFilter(inputValue);
     }
   }, []);
-  
-  
 
 
   const handleConstanciaDownload = async (data) => {
@@ -548,10 +595,10 @@ const VisualizarRegistroEmo = () => {
 
   return (
     <div>
-      <div className="flex flex-row w-full gap-3 mt-2 mb-2 md:flex-row">
-        <div className="flex w-full gap-3 flx-row md:w-2/4 ">
+      <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
+        <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/5">
           <select
-            className="w-6/12 select select-bordered select-sm"
+            className="select select-bordered select-sm"
             id="searchSelect"
             onChange={(e) => onFilterTextBoxChanged(e, true)}
             value={selectFilter}
@@ -565,18 +612,18 @@ const VisualizarRegistroEmo = () => {
               );
             })}
           </select>
+          <input
+            type="text"
+            name="nombre"
+            placeholder="Busqueda"
+            className="input input-bordered input-sm"
+            id="searchInput"
+            onChange={onFilterTextBoxChanged}
+          />
         </div>
-      </div>
-      <div className="flex flex-row justify-between gap-3 mt-2 mb-2 md:flex-row w-12/12">
-        <input
-          type="text"
-          name="nombre"
-          placeholder="Busqueda"
-          className="w-3/12 input input-bordered input-sm"
-          id="searchInput"
-          onChange={onFilterTextBoxChanged}
-        />
-
+        
+      <div className="flex flex-col justify-end w-full gap-3 md:flex-row lg:w-2/5">
+      
         <div className="flex justify-between gap-3">
           {/* <Button
             description="Importar"
@@ -590,6 +637,7 @@ const VisualizarRegistroEmo = () => {
             Descargar
           </button>
         </div>
+      </div>
       </div>
 
       <div style={containerStyle}>
