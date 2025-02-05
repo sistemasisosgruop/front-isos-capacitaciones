@@ -38,6 +38,11 @@ const ListaCapacitaciones = () => {
   const [sweetAlertState, setSweetAlertState] = useState(false);
   const [selectedEmpresa, setSelectedEmpresa] = useState(null);
   const [originalData, setOriginalData] = useState([]);
+  const [codigoFiltro, setCodigoFiltro] = useState("");
+  const [mesFiltro, setMesFiltro] = useState(""); // Guarda el mes seleccionado (1-12)
+  const [añoFiltro, setAñoFiltro] = useState(""); // Guarda el año seleccionado (YYYY)
+
+
 
   const containerStyle = useMemo(() => ({ width: "100%", height: "80vh" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
@@ -49,7 +54,6 @@ const ListaCapacitaciones = () => {
   const empresaId = window.localStorage.getItem('empresaId')
 
   const handleEmpresaFilter = (selectedOption) => {
-    console.log(selectedOption)
     if (selectedOption) {
       // Si se selecciona una empresa, filtramos
       const filteredData = rowData.filter((row) =>
@@ -156,6 +160,7 @@ const ListaCapacitaciones = () => {
 
   const [columnDefs, setColumnDefs] = useState([
     { field: "id", hide: true },
+    { field: "codigo"},
     { field: "nombre" },
     { field: "urlVideo" },
     { field: "instructor" },
@@ -405,8 +410,40 @@ const ListaCapacitaciones = () => {
       console.log("====================================");
     });
 
-
   };
+
+  const aplicarFiltros = () => {
+    let datosFiltrados = originalData;
+
+    // Filtro por código
+    if (codigoFiltro.trim() !== "") {
+      datosFiltrados = datosFiltrados.filter((row) =>
+        row.codigo.toLowerCase().includes(codigoFiltro.toLowerCase())
+      );
+    }
+  
+    // Filtro por mes y año
+    if (mesFiltro || añoFiltro) {
+      datosFiltrados = datosFiltrados.filter((row) => {
+        if (!row.fechaInicio) return false; // Aseguramos que la fecha exista
+        const fecha = new Date(row.fechaInicio);
+        const mes = fecha.getMonth() + 1; // getMonth() devuelve de 0 a 11
+        const año = fecha.getFullYear();
+        return (
+          (!mesFiltro || mes === parseInt(mesFiltro)) &&
+          (!añoFiltro || año === parseInt(añoFiltro))
+        );
+      });
+    }
+  
+    setRowData(datosFiltrados);
+  };
+
+  // Ejecutar el filtrado cada vez que cambie un filtro
+  useEffect(() => {
+   aplicarFiltros();
+  }, [codigoFiltro, mesFiltro, añoFiltro, originalData]);
+      
 
   return (
     <div className="">
@@ -415,9 +452,9 @@ const ListaCapacitaciones = () => {
           <h2 className="mb-3 text-2xl font-bold">Capacitaciones</h2>
         </div>
         <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
-          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/5">
+          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/8">
             <select
-              className="select select-bordered select-sm"  // Ajusté el tamaño del select para que esté alineado con el input
+              className="select select-bordered select-sm lg:w-3/4"  // Ajusté el tamaño del select para que esté alineado con el input
               id="searchSelect"
               onChange={(e) => {
                 const selectedValue = e.target.value;
@@ -435,6 +472,55 @@ const ListaCapacitaciones = () => {
                   {empresa.label}
                 </option>
               ))}
+            </select>
+            {/* Filtro por código */}
+            <input
+              type="text"
+              name="codigo"
+              placeholder="Buscar por código"
+              className="input input-bordered input-sm w-full"
+              value={codigoFiltro}
+              onChange={(e) => {
+                setCodigoFiltro(e.target.value)
+              }}
+            />
+
+            {/* Filtro por mes */}
+            <select
+              className="select select-bordered select-sm w-full"
+              value={mesFiltro}
+              onChange={(e) => setMesFiltro(e.target.value)}
+            >
+              <option value="">Seleccionar mes</option>
+              <option value="1">Enero</option>
+              <option value="2">Febrero</option>
+              <option value="3">Marzo</option>
+              <option value="4">Abril</option>
+              <option value="5">Mayo</option>
+              <option value="6">Junio</option>
+              <option value="7">Julio</option>
+              <option value="8">Agosto</option>
+              <option value="9">Septiembre</option>
+              <option value="10">Octubre</option>
+              <option value="11">Noviembre</option>
+              <option value="12">Diciembre</option>
+            </select>
+
+            {/* Filtro por año */}
+            <select
+              className="select select-bordered select-sm w-full"
+              value={añoFiltro}
+              onChange={(e) => setAñoFiltro(e.target.value)}
+            >
+              <option value="">Seleccionar año</option>
+              {Array.from({ length: 10 }, (_, i) => {
+                const year = new Date().getFullYear() - i;
+                return (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                );
+              })}
             </select>
             <input
               type="text"
