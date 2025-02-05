@@ -42,12 +42,16 @@ const ReporteCertificado = () => {
   const [selectEmpresa, setSelectEmpresa] = useState("");
   const [selectCapacitacion, setSelectCapacitacion] = useState("");
   const [selectMes, setSelectMes] = useState("");
+  const [codigoFiltro, setCodigoFiltro] = useState("");
+  const [añoFiltro, setAñoFiltro] = useState("");
   const [dataCertificado, setDataCertificado] = useState("");
   const [dataReporte, setDataReporte] = useState([]);
   const [perPage, setPerPage] = useState(15);
   const [totalRows, setTotalRows] = useState(0);
   const [isOpenModal, openModal, closeModal] = useModals();
   const [page, setPage] = useState(1);
+  const filtrosAplicados = selectEmpresa || selectCapacitacion || codigoFiltro || selectMes || añoFiltro;
+
 
   const columns = [
     {
@@ -58,6 +62,12 @@ const ReporteCertificado = () => {
     {
       name: "Nombre",
       selector: (row) => row.nombreTrabajador,
+      sortable: true,
+      center: true,
+    },
+    {
+      name: "Codigo Capacitacion",
+      selector: (row) => row.capacitacion.codigo,
       sortable: true,
       center: true,
     },
@@ -91,14 +101,17 @@ const ReporteCertificado = () => {
     },
   ];
 
-  const getReportes = async (page, perPage, empresa, capacitacion, mes) => {
+  const getReportes = async (page, perPage, empresa, capacitacion, mes, codigo, anio) => {
     const response = await getReporte(
       page,
       perPage,
       empresa,
       capacitacion,
-      mes
+      mes,
+      codigo,
+      anio
     );
+    console.log(response.data.data);
     if (response.status === 200) {
       setDataReporte(response?.data?.data);
       setRowData(response?.data?.data);
@@ -117,8 +130,8 @@ const ReporteCertificado = () => {
   }, []);
 
   useEffect(() => {
-    getReportes(page, perPage, selectEmpresa, selectCapacitacion, selectMes);
-  }, [page, selectEmpresa, selectCapacitacion, selectMes]);
+    getReportes(page, perPage, selectEmpresa, selectCapacitacion, selectMes,codigoFiltro, añoFiltro);
+  }, [page, selectEmpresa, selectCapacitacion, selectMes, codigoFiltro, añoFiltro]);
 
   useEffect(() => {
     getCapacitaciones().then(({ data }) => {
@@ -132,6 +145,8 @@ const ReporteCertificado = () => {
       selectEmpresa,
       selectCapacitacion,
       selectMes,
+      codigoFiltro,
+      añoFiltro,
       true
     );
     if (response.status === 200) {
@@ -291,6 +306,16 @@ const ReporteCertificado = () => {
     noRowsPerPage: true,
     rangeSeparatorText: "de",
   };
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setCodigoDebounced(codigoFiltro); // ✅ Solo se actualiza después de 500ms
+    }, 500); // Espera 500ms después del último cambio
+  
+    return () => {
+      clearTimeout(handler); // ❌ Borra el timeout si el usuario sigue escribiendo
+    };
+  }, [codigoFiltro]);
+  
   return (
     <div className="">
       <div className="bg-white p-3">
@@ -300,7 +325,7 @@ const ReporteCertificado = () => {
         <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
           <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
             <select
-              className="select select-bordered select-sm"
+              className="w-1/4 select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectEmpresa(e.target.value)}
               value={selectEmpresa}
@@ -315,7 +340,7 @@ const ReporteCertificado = () => {
               })}
             </select>
             <select
-              className="select select-bordered select-sm w-1/2"
+              className="w-1/3 select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectCapacitacion(e.target.value)}
               value={selectCapacitacion}
@@ -329,6 +354,17 @@ const ReporteCertificado = () => {
                 );
               })}
             </select>
+            {/* Filtro por código */}
+            <input
+              type="text"
+              name="codigo"
+              placeholder="Buscar por código"
+              className="w-1/6 input input-bordered input-sm"
+              value={codigoFiltro}
+              onChange={(e) => {
+                setCodigoFiltro(e.target.value)
+              }}
+            />
             <select
               className="select select-bordered select-sm"
               // id="searchSelect"
@@ -344,6 +380,22 @@ const ReporteCertificado = () => {
                 );
               })}
             </select>
+            {/* Filtro por año */}
+            <select
+              className="w-1/5 select select-bordered select-sm"
+              value={añoFiltro}
+              onChange={(e) => setAñoFiltro(e.target.value)}
+            >
+              <option value="">Seleccionar año</option>
+              {Array.from({ length: 10 }, (_, i) => {
+                const year = new Date().getFullYear() - i;
+                return (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                );
+              })}
+            </select>
           </div>
           <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-1/5">
             <Button
@@ -354,6 +406,7 @@ const ReporteCertificado = () => {
             <button
               className="btn btn-sm btn-outline btn-error"
               onClick={() => descargarDocumento("pdf")}
+              disabled={!filtrosAplicados}
             >
               Descargar PDFS
             </button>

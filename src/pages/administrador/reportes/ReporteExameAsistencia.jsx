@@ -35,6 +35,8 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "80%" }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [rowData, setRowData] = useState([]);
+  const [codigoFiltro, setCodigoFiltro] = useState("");
+  const [añoFiltro, setAñoFiltro] = useState("");
   const [empresas, setEmpresas] = useState([]);
   const [capacitaciones, setCapacitaciones] = useState([]);
   const [selectEmpresa, setSelectEmpresa] = useState("");
@@ -58,6 +60,12 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     {
       name: "Nombre",
       selector: (row) => row.nombreTrabajador.toUpperCase(),
+      sortable: true,
+      center: true,
+    },
+    {
+      name: "Codigo Capacitacion",
+      selector: (row) => row.capacitacion.codigo,
       sortable: true,
       center: true,
     },
@@ -106,13 +114,15 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     },
   ];
 
-  const getReportes = async (page, perPage, empresa, capacitacion, mes) => {
+  const getReportes = async (page, perPage, empresa, capacitacion, mes, codigo, anio) => {
     const response = await getReporte(
       page,
       perPage,
       empresa,
       capacitacion,
-      mes
+      mes,
+      codigo,
+      anio
     );
     if (response.status === 200) {
       setDataReporte(response?.data?.data);
@@ -138,9 +148,19 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   }, []);
 
   useEffect(() => {
-    getReportes(page, perPage, selectEmpresa, selectCapacitacion, selectMes);
-  }, [page, selectEmpresa, selectCapacitacion, selectMes]);
+    getReportes(page, perPage, selectEmpresa, selectCapacitacion, selectMes,codigoFiltro,añoFiltro);
+  }, [page, selectEmpresa, selectCapacitacion, selectMes,codigoFiltro,añoFiltro]);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setCodigoDebounced(codigoFiltro); // ✅ Solo se actualiza después de 500ms
+    }, 500); // Espera 500ms después del último cambio
+  
+    return () => {
+      clearTimeout(handler); // ❌ Borra el timeout si el usuario sigue escribiendo
+    };
+  }, [codigoFiltro]);
+  
   const descargarDocumento = async (tipo) => {
     const response = await getReporte(
       page,
@@ -148,6 +168,8 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       selectEmpresa,
       selectCapacitacion,
       selectMes,
+      codigoFiltro,
+      añoFiltro,
       true
     );
     if (response.status === 200) {
@@ -321,6 +343,17 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
                 );
               })}
             </select>
+            {/* Filtro por código */}
+            <input
+              type="text"
+              name="codigo"
+              placeholder="Buscar por código"
+              className="w-1/6 input input-bordered input-sm"
+              value={codigoFiltro}
+              onChange={(e) => {
+                setCodigoFiltro(e.target.value)
+              }}
+            />
             <select
               className="w-1/5 select select-bordered select-sm"
               id="searchSelect"
@@ -332,6 +365,22 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
                 return (
                   <option key={month.numero} value={month.numero}>
                     {month.descripcion}
+                  </option>
+                );
+              })}
+            </select>
+            {/* Filtro por año */}
+            <select
+              className="w-1/5 select select-bordered select-sm"
+              value={añoFiltro}
+              onChange={(e) => setAñoFiltro(e.target.value)}
+            >
+              <option value="">Seleccionar año</option>
+              {Array.from({ length: 10 }, (_, i) => {
+                const year = new Date().getFullYear() - i;
+                return (
+                  <option key={year} value={year}>
+                    {year}
                   </option>
                 );
               })}

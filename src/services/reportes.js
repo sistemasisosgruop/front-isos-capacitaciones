@@ -2,7 +2,7 @@ import baseApi from "./baseApi";
 import objErrorApi from "./objError";
 const stepApi = "reporte";
 
-const getReporte = (page, limit, empresa, capacitacion, mes,all) => {
+const getReporte = (page, limit, empresa, capacitacion, mes,codigo,anio,all) => {
   console.log(page,limit,empresa,capacitacion,mes, all);
   let url = `${stepApi}?page=${page}&limit=${limit}`;
 
@@ -15,6 +15,12 @@ const getReporte = (page, limit, empresa, capacitacion, mes,all) => {
   }
   if (mes) {
     url += `&mes=${mes}`;
+  }
+  if (codigo) {
+    url += `&codigo=${codigo}`;
+  }
+  if (anio) {
+    url += `&anio=${anio}`;
   }
   if (all) {
     url += `&all=${all}`;
