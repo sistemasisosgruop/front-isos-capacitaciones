@@ -13,7 +13,7 @@ const validate = () => {
       areadetrabajo: [ value => value.length >= 1, 'Este campo es requerido' ],
       cargo: [ value => value.length >= 1, 'Este campo es requerido' ],
       fechadenac: [ value => value.length >= 1, 'Este campo es requerido' ],
-      empresa: [ value => value !== "", 'Este campo es requerido' ],
+      empresas: [ value => value !== "", 'Este campo es requerido' ],
       celular: [value => regexs.celular.test(value), 'Este campo es requerido' ]
     }
     

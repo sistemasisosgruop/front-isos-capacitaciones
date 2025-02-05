@@ -11,20 +11,28 @@ import {
   postTrabajador,
 } from "../../../../services/trabajador";
 
+import {
+  getEmpresasRelacionadas
+} from "../../../../services/empresa";
+
+import Select from 'react-select'
+
 const FormularioTrabajador = ({
   initialForm,
   addItem,
   updateRow,
   closeModal,
-  empresas,
+  Listempresas,
   updateData,
 }) => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [rol, setRol] = useState("")
+  const [empresaIds, setEmpresaIds] = useState([]);
+  const [filteredEmpresas, setFilteredEmpresas] = useState(Listempresas);
   const formValidations = validate();
   //tipo de accion del formulario
   const action = initialForm.dni === "" ? "ADD" : "UPDATE";
-
+  
   const {
     id,
     nombres,
@@ -37,7 +45,7 @@ const FormularioTrabajador = ({
     cargo,
     fechadenac,
     password,
-    empresa,
+    empresas,
     celular,
     email,
     user,
@@ -61,9 +69,28 @@ const FormularioTrabajador = ({
     onResetForm,
   } = useForm(initialForm, formValidations);
 
-  // console.log(initialForm);
+  // Cargar empresas cuando el componente se monte
+  useEffect(() => {
+    if (empresas && empresas.length > 0) {
+      setEmpresaIds(empresas.map((empresa) => empresa.id));
+    }
+  }, [empresas]); // Se ejecuta cuando `empresas` cambia
+
+
+  // Filtrar las empresas en función de las relaciones
+  useEffect(() => {
+    if (empresaIds.length > 0) {
+      getEmpresasRelacionadas(empresaIds).then((relacionadas) => {
+        setFilteredEmpresas(relacionadas.data);
+      });
+    } else {
+      setFilteredEmpresas(Listempresas);
+    }
+  }, [empresaIds, Listempresas]);
+
 
   const handleForm = async (event, action) => {
+
     event.preventDefault();
     setFormSubmitted(true);
 
@@ -75,7 +102,8 @@ const FormularioTrabajador = ({
     delete jsonData.rol
     const newFormDate = formatDateYMD(newFormat.fechadenac);
 
-    jsonData.empresaId = empresa;
+    jsonData.empresas = empresaIds;
+
     // jsonData.fechadenac = newFormDate;
 
     if (action === "ADD") {
@@ -108,6 +136,11 @@ const FormularioTrabajador = ({
           contraseña: password,
           rol: rol,
         };
+      }else{
+        jsonData.user = {
+          username: formState.dni,
+          rol: rol,
+        };
       }
       update(jsonData);
     }
@@ -119,23 +152,20 @@ const FormularioTrabajador = ({
   const update = (dataForm) => {
     showLoader();
     delete dataForm.emoPdf;
-      dataForm.user = {};
   
-    // Mueve la propiedad 'rol' dentro del objeto 'user'
-    dataForm.user.rol = rol;
     patchTrabajador(dataForm).then(({ data, message = null }) => {
       if (data) {
         const { createdAt, ...newRowData } = data;
 
         getTrabajador(dataForm.id).then(({ data }) => {
-          data["nombreEmpresa"] = data.empresa.nombreEmpresa;
+          data["nombreEmpresa"] = data.empresas?.map(emp => emp.nombreEmpresa).join(", ") || "Sin empresa";
           updateRow(data);
         });
         setRol(initialForm.rol || "")
         toast.success("Actualizado con exito", {
           position: "bottom-right",
         });
-        newRowData["nombreEmpresa"] = newRowData.empresa.nombreEmpresa;
+        newRowData["nombreEmpresa"] = newRowData.empresas?.map(emp => emp.nombreEmpresa).join(", ") || "Sin empresa";
         closeModal();
         setFormSubmitted(false);
         updateData();
@@ -158,7 +188,7 @@ const FormularioTrabajador = ({
       if (data) {
         const { createdAt, ...newrowData } = data;
         getTrabajador(data.id).then(({ data }) => {
-          data["nombreEmpresa"] = data.empresa.nombreEmpresa;
+          data["nombreEmpresa"] = data.empresas?.map(emp => emp.nombreEmpresa).join(", ") || "Sin empresa";
           addItem(0, data);
         });
         toast.success("Agregado con exito", {
@@ -396,30 +426,24 @@ const FormularioTrabajador = ({
 
         <div className="w-full md:w-1/3">
           <label htmlFor="empresa" className="font-semibold">
-            Empresa
+            Empresas
           </label>
 
-          <select
-            className="block w-full select select-bordered select-sm"
+          <Select
+            isMulti
             id="empresa"
             name="empresa"
-            onChange={onInputChange}
-            value={empresa}
-          >
-            <option value="" disabled>
-              Seleccione una empresa
-            </option>
-            {empresas.map((empresa) => {
-              return (
-                <option key={empresa.id} value={empresa.id}>
-                  {empresa.nombreEmpresa}
-                </option>
-              );
-            })}
-          </select>
-          {!!empresaValid && formSubmitted && (
-            <p className="text-sm text-red-700">{empresaValid}</p>
-          )}
+            options={filteredEmpresas.map((empresa) => ({
+              value: empresa.id,
+              label: empresa.nombreEmpresa,
+            }))}
+            value={empresaIds.map((id) => ({
+              value: id,
+              label: Listempresas.find((e) => e.id === id)?.nombreEmpresa || "",
+            }))}
+            onChange={(selected) => setEmpresaIds(selected.map((option) => option.value))}
+          />
+
         </div>
         <div className="w-full md:w-1/3">
           <label htmlFor="rol" className="font-semibold">

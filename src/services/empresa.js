@@ -8,6 +8,13 @@ const postEmpresas = (data) => {
     .catch(objErrorApi);
 };
 
+export const getEmpresasRelacionadas = async (empresaIds) => {
+  if (empresaIds.length === 0) return [];
+  return baseApi(stepApi)
+    .post("/relaciones", empresaIds)
+    .catch(objErrorApi);
+};
+
 const patchEmpresas = ( data, id ) => {
   return baseApi(stepApi)
     .patch(`/${ id }`, data)

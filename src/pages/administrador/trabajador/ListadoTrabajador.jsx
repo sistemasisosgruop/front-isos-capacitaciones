@@ -82,7 +82,7 @@ const ListadoTrabajador = () => {
       // style: "position: -webkit-sticky;position: sticky;background-color: white;width: 100px;min-width: 100px;max-width: 100px;left: 0px;"
     },
     {
-      name: "Apellido paterno",
+      name: "Nombres",
       selector: (row) => row.apellidoPaterno.toUpperCase(),
       sortable: true,
     },
@@ -133,7 +133,7 @@ const ListadoTrabajador = () => {
       center: true,
     },
     {
-      name: "Empresa",
+      name: "Empresas",
       selector: (row) => {
         return row?.empresas?.map((empresa) => empresa.nombreEmpresa).join(", ") || "No asociada";
       },
@@ -293,7 +293,6 @@ const ListadoTrabajador = () => {
   };
 
   const confirmUpdateState = () => {
-    showLoader();
     patchEstado(rowDelete).then(({ data, message = null }) => {
       if (data) {
         getTrabajador(rowDelete.id).then(({ data }) => {
@@ -352,7 +351,7 @@ const ListadoTrabajador = () => {
         { header: "Edad", key: "edad", width: 10 },
         { header: "Area", key: "areadetrabajo", width: 32 },
         { header: "Cargo", key: "cargo", width: 32 },
-        { header: "Empresa", key: "nombreEmpresa", width: 32 },
+        { header: "Empresas", key: "nombreEmpresa", width: 32 },
         { header: "EMO", key: "emoPdf", width: 32 },
         { header: "Habilitado", key: "habilitado", width: 32 },
       ];
@@ -492,7 +491,7 @@ const ListadoTrabajador = () => {
             closeModal={closeModal1}
             addItem={addItem}
             updateRow={updateRow}
-            empresas={empresas}
+            Listempresas={empresas}
             updateData = {getDataTrabajador}
           />
         </Modal>
