@@ -22,7 +22,6 @@ export const Modal = ({
   return (
     <div
       className={`container-modal ${isOpen && "show-modal"}`}
-      onClick={closeModal}
     >
       <div className={`modal-content ${size}`} onClick={handlePropagation}>
         <div className="modal-header">
