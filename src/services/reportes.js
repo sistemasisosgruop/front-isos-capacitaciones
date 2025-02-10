@@ -29,6 +29,36 @@ const getReporte = (page, limit, empresa, capacitacion, mes,codigo,anio,all) => 
   return baseApi(url).get().catch(objErrorApi);
 };
 
+
+const getReporteRecuperacion = (page, limit, empresa, capacitacion, mes,codigo,anio,all) => {
+  console.log(page,limit,empresa,capacitacion,mes, all);
+  let url = `${stepApi}/recuperacion?page=${page}&limit=${limit}`;
+
+  if (empresa) {
+    url += `&nombreEmpresa=${empresa}`;
+  }
+
+  if (capacitacion) {
+    url += `&capacitacion=${capacitacion}`;
+  }
+  if (mes) {
+    url += `&mes=${mes}`;
+  }
+  if (codigo) {
+    url += `&codigo=${codigo}`;
+  }
+  if (anio) {
+    url += `&anio=${anio}`;
+  }
+  if (all) {
+    url += `&all=${all}`;
+  }
+
+  console.log(url)
+
+
+  return baseApi(url).get().catch(objErrorApi);
+};
 const getReportCreate = (id) => {
   return baseApi(stepApi)
     .get(`/generar`)
@@ -50,4 +80,4 @@ const patchDarExamen = (idCapacitacion, idTrabajador, idExamen, preguntas) => {
     .catch(objErrorApi);
 };
 
-export { getReporte, patchDarExamen, getReportCreate, getReportStatus };
+export { getReporte, patchDarExamen, getReportCreate, getReportStatus, getReporteRecuperacion};

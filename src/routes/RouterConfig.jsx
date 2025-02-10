@@ -15,6 +15,8 @@ import CapacitacionesTrabajador from "../pages/trabajador/capacitaciones/Capacit
 import ListadoTest from "../pages/administrador/test/ListadoTest";
 import ReporteExameAsistencia from "../pages/administrador/reportes/ReporteExameAsistencia";
 import ReporteCertificado from "../pages/administrador/reportes/ReporteCertificado";
+import ReporteExamenRecuperacion from "../pages/administrador/reportes/ReporteExamenRecuperacion";
+
 import TestTrabajador from "../pages/trabajador/capacitaciones/TestTrabajador";
 import validateToken from "./validateToken";
 import OpcionesEmos from "../pages/administrador/emos/opcionesReportes";
@@ -29,6 +31,8 @@ import ReporteExameAsistenciaCapacitador from "../pages/capacitador/ReporteExame
 import ReporteCertificadoCapacitador1 from "../pages/capacitador/ReporteCertificadoCapacitador1";
 import ReporteExameAsistenciaSupervisor from "../pages/supervisor/ReporteExameAsistenciaSupervisor";
 import ReporteCertificadoSupervisor1 from "../pages/supervisor/ReporteCertificadoSupervisor1";
+
+
 
 const router = createBrowserRouter([
   {
@@ -178,6 +182,14 @@ const router = createBrowserRouter([
                   <ReporteExameAsistencia
                     titulo={"Reporte de examenes"}
                     esExamen={true}
+                  />
+                ),
+              },
+              {
+                path: "recuperacion",
+                element: (
+                  <ReporteExamenRecuperacion
+                    titulo={"Reporte de recuperacion de examenes"}
                   />
                 ),
               },
