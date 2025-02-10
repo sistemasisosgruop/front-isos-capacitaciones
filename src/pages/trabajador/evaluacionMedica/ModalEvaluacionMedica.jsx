@@ -68,7 +68,7 @@ const ModalEvaluacionMedica = ({ closeModal }) => {
         </strong>{" "}
         con documento de identidad N° <strong>{trabajador?.dni} </strong>,
         trabajador de la empresa{" "}
-        <strong>{trabajador?.empresa?.nombreEmpresa} </strong>, Declaro bajo
+        <strong>{trabajador?.empresas?.map((empresa) => empresa.nombreEmpresa).join(", ")}</strong>, Declaro bajo
         juramento que: <br /> - Acepto que mediante esta plataforma me entregaron los
         resultados de mi examen médico ocupacional y que estos son de carácter
         personal y confidencial, esto en cumplimiento de la normativa legal

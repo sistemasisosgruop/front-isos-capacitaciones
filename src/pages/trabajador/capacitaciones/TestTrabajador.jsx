@@ -61,14 +61,12 @@ const TestTrabajador = () => {
   const onGridReady = useCallback((params) => {
     getTests().then(({ data }) => {
       getTrabajador(authState.user.idUsuario).then((res) => {
-        const idEmpresaTrabajador = res.data.empresaId;
-        const newData = data.filter((obj) => {
-          let coincideEmpresa = false;
-          obj.Empresas.forEach((e) => {
-            if (e.id === idEmpresaTrabajador) coincideEmpresa = true;
-          });
-          if (coincideEmpresa) return true;
-        });
+        const empresasTrabajador = res.data.empresas.map((empresa) => empresa.id); // Obtener los IDs de todas las empresas del trabajador
+        
+        const newData = data.filter((obj) => 
+          obj.Empresas.some((e) => empresasTrabajador.includes(e.id)) // Filtrar si alguna empresa coincide
+        );
+
         setDataInit(newData);
         setRowData(newData);
       });
