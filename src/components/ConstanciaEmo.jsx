@@ -149,7 +149,7 @@ const ConstanciaEmo = ({ data, logo }) => {
                     }}
                   >
                     <Text>
-                      {data.condicion_aptitud.trim() === "APTO" ? "X" : ""}
+                      {data.condicion_aptitud?.trim() === "APTO" ? "X" : ""}
                     </Text>
                   </View>
                   <View

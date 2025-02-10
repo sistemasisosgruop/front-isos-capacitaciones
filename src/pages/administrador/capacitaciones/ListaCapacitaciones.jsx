@@ -139,7 +139,6 @@ const ListaCapacitaciones = () => {
   const handleSwitchChange = (data) => {
     // Cambiar el valor de recuperación en el estado local
     const updatedData = { ...data, recuperacion: !data.recuperacion };
-    console.log(updatedData);
   
     // Realizar la actualización en el backend
     patchEstadoRecuperacion(data.id, updatedData.recuperacion).then(({ data }) => {

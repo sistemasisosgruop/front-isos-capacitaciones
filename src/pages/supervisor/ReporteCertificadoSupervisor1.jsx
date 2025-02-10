@@ -121,11 +121,10 @@ const ReporteCertificadoSupervisor1 = () => {
   useEffect(() => {
     const userIsosString = localStorage.getItem("userIsos");
     const userIsosObject = JSON.parse(userIsosString);
-    const empresaId = userIsosObject ? userIsosObject.empresaId : null;
-
-    const empresaObj = empresas.find((item) => item.id == empresaId);
-    const empresa = empresaObj ? empresaObj.nombreEmpresa : null;
-    setSelectEmpresa(empresa);
+    const empresasId = userIsosObject ? userIsosObject.empresas.map(e => e.id) : []; // Obtener array de IDs
+    const empresaObj = empresas.filter(item => empresasId.includes(item.id)); // Filtrar por coincidencia en el array
+    const nombresEmpresas = empresaObj?.map(e => e.nombreEmpresa);
+    setSelectEmpresa(nombresEmpresas);
   }, [empresas]); // Dependencias para este useEffect
 
   useEffect(() => {
@@ -140,22 +139,22 @@ const ReporteCertificadoSupervisor1 = () => {
     });
   }, []);
   const descargarDocumento = async (tipo) => {
-    const response = await getReporte(
-      page,
-      perPage,
-      selectEmpresa,
-      selectCapacitacion,
-      selectMes,
-      true
-    );
-    if (response.status === 200) {
+    // const response = await getReporte(
+    //   page,
+    //   perPage,
+    //   selectEmpresa,
+    //   selectCapacitacion,
+    //   selectMes,
+    //   true
+    // );
+    // if (response.status === 200) {
       if (tipo === "excel") {
-        crearExcel(response.data.data); // Llamar a la función para generar Excel
+        crearExcel(dataReporte); // Llamar a la función para generar Excel
       }
       if (tipo === "pdf") {
-        descargarCertificados(response.data.data); // Llamar a la función para generar Excel
+        descargarCertificados(dataReporte); // Llamar a la función para generar Excel
       }
-    }
+    // }
   };
   const crearExcel = async (data) => {
     const workbook = new ExcelJS.Workbook();
@@ -224,6 +223,7 @@ const ReporteCertificadoSupervisor1 = () => {
   };
 
   const fetchImgsEmpresa = async (data) => {
+    console.log(data)
     try {
       const logo = await getImgs(data.empresaId, "logo");
       const certificado = await getImgs(data.empresaId, "certificado");

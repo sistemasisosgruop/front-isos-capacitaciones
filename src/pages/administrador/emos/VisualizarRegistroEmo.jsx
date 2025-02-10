@@ -427,18 +427,13 @@ const VisualizarRegistroEmo = () => {
   const [columnDefs, setColumnDefs] = useState([
     { field: "nro", hide: true },
     {
-      field: "apellidoPaterno",
-      headerName: "APELLIDO PATERNO",
-      minWidth: 200,
-      pinned: 'left'
+      field: "apellidosYNombres",
+      headerName: "APELLIDOS Y NOMBRES",
+      minWidth: 300,
+      pinned: 'left',
+      valueGetter: (params) => 
+        `${params.data.apellidoPaterno || ''} ${params.data.apellidoMaterno || ''} ${params.data.nombres || ''}`.trim()
     },
-    {
-      field: "apellidoMaterno",
-      headerName: "APELLIDO MATERNO",
-      minWidth: 200,
-      pinned: 'left'
-    },
-    { field: "nombres", headerName: "NOMBRES", minWidth: 200, pinned: 'left' },
     { field: "dni", headerName: "DNI", width: 110 },
     { field: "cargo", headerName: "PUESTO LABORAL" },
     {

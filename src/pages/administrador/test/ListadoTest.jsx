@@ -53,6 +53,7 @@ const ListadoTest = () => {
 
   const [columnDefs, setColumnDefs] = useState([
     { field: "id", hide: true },
+    { field: "codigo" },
     { field: "detalle" },
     { field: "urlTest", headerName: "URL video" },
     { field: "fechaCr", headerName: "Fecha de inicio" },

@@ -25,6 +25,7 @@ const FormularioTest = ({
   const {
     id,
     detalle,
+    codigo,
     urlTest,
     fechaCr,
     fechaVen,
@@ -32,6 +33,7 @@ const FormularioTest = ({
     Empresas,
 
     detalleValid,
+    codigoValid,
     urlTestValid,
     fechaCrValid,
     fechaVenValid,
@@ -115,6 +117,22 @@ const FormularioTest = ({
   return (
     <form onSubmit={(e) => handleForm(e, action)}>
       <div className="flex flex-col md:flex-row gap-3  mb-2">
+        <div className="w-full md:w-1/2">
+          <label htmlFor="codigo" className="font-semibold">
+            Codigo
+          </label>
+          <input
+            type="text"
+            name="codigo"
+            id="codigo"
+            className="input input-bordered input-sm w-full"
+            value={codigo}
+            onChange={onInputChange}
+          />
+          {!!codigoValid && formSubmitted && (
+            <p className="text-sm text-red-700">{detalleValid}</p>
+          )}
+        </div>
         <div className="w-full md:w-1/2">
           <label htmlFor="detalle" className="font-semibold">
             Nombre de test

@@ -159,15 +159,15 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   }, []);
 
   const descargarDocumento = async (tipo) => {
-    const response = await getReporte(
-      page,
-      perPage,
-      empresaNombre,
-      selectCapacitacion,
-      selectMes,
-      true
-    );
-    if (response.status === 200) {
+    // const response = await getReporte(
+    //   page,
+    //   perPage,
+    //   empresaNombre,
+    //   selectCapacitacion,
+    //   selectMes,
+    //   true
+    // );
+    // if (response.status === 200) {
       if (tipo === "excel") {
         generarExcel(dataReporte); // Llamar a la función para generar Excel
       }
@@ -177,7 +177,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       if (tipo === "examen") {
         
         descargarReporteExamenes(dataReporte); // Llamar a la función para generar Excel
-      }
+      // }
     }
   };
 
