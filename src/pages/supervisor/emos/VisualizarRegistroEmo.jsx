@@ -63,35 +63,40 @@ const VisualizarRegistroEmo = () => {
     getEmpresas().then((res) => {
       const userIsosString = localStorage.getItem("userIsos");
       const userIsosObject = JSON.parse(userIsosString);
-      const empresaId = userIsosObject ? userIsosObject.empresaId : null;
-      const filtered = res.data.filter(item=>item.id === empresaId);
-      const n = filtered.map(e => e.nombreEmpresa);
-      setEmpresas(filtered)
-      setSelectFilter(n)
+      const empresasId = userIsosObject ? userIsosObject.empresas.map(e => e.id) : []; // Obtener array de IDs
+
+      const filtered = res.data.filter(item => empresasId.includes(item.id)); // Filtrar por coincidencia en el array
+      const nombresEmpresas = filtered.map(e => e.nombreEmpresa);
+      setEmpresas(filtered);
+      setSelectFilter(nombresEmpresas);
     });
   }, []);
   
   const onGridReady = useCallback((params) => {
     const userIsosString = localStorage.getItem("userIsos");
     const userIsosObject = JSON.parse(userIsosString);
-    const empresaId = userIsosObject ? userIsosObject.empresaId : null;
-    
-    
+    const empresasId = userIsosObject ? userIsosObject.empresas.map(e => e.id) : []; // Obtener array de IDs
+  
     getTrabajadorEmo().then(({ data, message = null }) => {
       if (data) {
-        const filtered = data.data.filter(item=>item.empresa_id === empresaId);
-        const nombreEmpresa = filtered.nombreEmpresa;
+        const filtered = data.data.filter(trabajador => 
+          trabajador.empresas.some(emp => empresasId.includes(emp.empresa_id)) // Verifica si alguna empresa del trabajador coincide
+        );
+  
+        const nombresEmpresas = [...new Set(filtered.flatMap(trabajador => 
+          trabajador.empresas.map(emp => emp.nombreEmpresa)
+        ))]; // Extrae los nombres de empresas sin duplicados
         setRowData(filtered);  
-        setNombreEmpresa(nombreEmpresa);  
+        setNombreEmpresa(nombresEmpresas.join(", ")); // Convertir nombres a string separados por comas
       } else {
-        toast.error("Ocurrio un error en el servidor", {
+        toast.error("Ocurrió un error en el servidor", {
           position: "bottom-right",
         });
       }
     });
   }, []);
+  
 
-  // console.log(rowData);
   const addItem = useCallback((addIndex, newRow) => {
     const newItem = [newRow];
     gridRef.current.api.applyTransaction({
@@ -456,8 +461,17 @@ const VisualizarRegistroEmo = () => {
     { field: "estado_emo_whatsapp", headerName: "ESTADO WHATSAPP EMO", width: 250 },
     { field: "CONSTANCIAS", cellRenderer: renderConstanciaButtons, width: 150, hide: true },
     { field: "EMOS", cellRenderer: renderEmoButtons, width: 180, hide: true },
-    { field: "nombreEmpresa", hide: true, filter: true },
+    {
+      field: "nombreEmpresa",
+      headerName: "EMPRESAS",
+      valueGetter: (params) =>
+        params.data?.empresas?.map((e) => e.nombreEmpresa).join(", ") || "", // Muestra todas las empresas separadas por coma
+      filter: true,
+      width: 300,
+      hide: true
+    },
   ]);
+  
   const onFilterTextBoxChanged = useCallback((e, isSelect) => {
     if (isSelect) {
       const empresaNombre = e.target.value;

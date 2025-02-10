@@ -129,25 +129,28 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   useEffect(() => {
     const userIsosString = localStorage.getItem("userIsos");
     const userIsosObject = JSON.parse(userIsosString);
-    const empresaId = userIsosObject ? userIsosObject.empresaId : null;
-
-    const empresaObj = empresas.find((item) => item.id == empresaId);
-    const empresa = empresaObj ? empresaObj.nombreEmpresa : null;
-    setEmpresaNombre(empresa);
-  }, [empresas]); // Dependencias para este useEffect
+    const empresasId = userIsosObject ? userIsosObject.empresas.map(e => e.id) : []; // Obtener array de IDs
+    const empresaObj = empresas.filter(item => empresasId.includes(item.id)); // Filtrar por coincidencia en el array
+    const nombresEmpresas = empresaObj?.map(e => e.nombreEmpresa);
+    setEmpresaNombre(nombresEmpresas);
+  }, [empresas]);
 
   // Este useEffect se encarga de llamar a getReportes cuando empresaNombre cambia
-  useEffect(() => {
-    if (empresaNombre) {
-      getReportes();
-    }
-  }, [empresaNombre, page, perPage, selectCapacitacion, selectMes]);
+    useEffect(() => {
+      if (empresaNombre && empresaNombre.length > 0) {
+        getReportes();
+      }
+    }, [empresaNombre, page, perPage, selectCapacitacion, selectMes]);
+  
 
   useEffect(() => {
-    getEmpresas().then(({ data }) => {
-      setEmpresas(data);
-    });
+      getEmpresas().then(({ data }) => {
+        setEmpresas(Array.isArray(data) ? data : []); // Asegura que siempre se guarde un array
+      }).catch(error => {
+        console.error("Error al obtener empresas:", error);
+      });
   }, []);
+
 
   useEffect(() => {
     getCapacitaciones().then(({ data }) => {
@@ -166,13 +169,14 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     );
     if (response.status === 200) {
       if (tipo === "excel") {
-        generarExcel(response.data.data); // Llamar a la función para generar Excel
+        generarExcel(dataReporte); // Llamar a la función para generar Excel
       }
       if (tipo === "pdf") {
-        descargarExamenes(response.data.data); // Llamar a la función para generar Excel
+        descargarExamenes(dataReporte); // Llamar a la función para generar Excel
       }
       if (tipo === "examen") {
-        descargarReporteExamenes(response.data.data); // Llamar a la función para generar Excel
+        
+        descargarReporteExamenes(dataReporte); // Llamar a la función para generar Excel
       }
     }
   };
@@ -259,6 +263,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     }
   };
   const descargarReporteExamenes = async (data) => {
+    console.log(data)
     const arrayTrabajadores = data?.filter(
       (item) => item.asistenciaExamen == true
     );

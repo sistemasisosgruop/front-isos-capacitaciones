@@ -54,18 +54,17 @@ const FormLogin = () => {
             const nombres = data.supervisor.nombres;
             const apellidoPaterno = data.supervisor.apellidoPaterno;
             idUsuario = data.supervisor.id;
-            const empresaId = data.supervisor.empresaId
+            const empresas = data.supervisor.empresas
             rutaInicio = "/menu/supervisor/opciones";
-            login({ nombres, apellidoPaterno, token, idUsuario, rol, dni, empresaId });
+            login({ nombres, apellidoPaterno, token, idUsuario, rol, dni, empresas });
           }
           if (rol === "Capacitador") {
             // console.log(data.user)
             const nombres = data.capacitador.nombres;
             const apellidoPaterno = data.capacitador.apellidoPaterno;
             idUsuario = data.user.id;
-            const empresaId = data.capacitador.empresaId
             rutaInicio = "/menu/capacitador/opciones";
-            login({ nombres, apellidoPaterno, token, idUsuario, rol, dni, empresaId });
+            login({ nombres, apellidoPaterno, token, idUsuario, rol, dni });
           }
           if (rol === "Trabajador") {
             const nombres = data.worker.nombres;
