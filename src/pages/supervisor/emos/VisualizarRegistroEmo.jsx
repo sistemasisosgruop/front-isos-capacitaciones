@@ -64,30 +64,33 @@ const VisualizarRegistroEmo = () => {
       const userIsosString = localStorage.getItem("userIsos");
       const userIsosObject = JSON.parse(userIsosString);
       const empresasId = userIsosObject ? userIsosObject.empresas.map(e => e.id) : []; // Obtener array de IDs
-
+  
       const filtered = res.data.filter(item => empresasId.includes(item.id)); // Filtrar por coincidencia en el array
-      const nombresEmpresas = filtered.map(e => e.nombreEmpresa);
-      setEmpresas(filtered);
-      setSelectFilter(nombresEmpresas);
+      
+      if (filtered.length > 0) {
+        setEmpresas([filtered[0]]); // 🔥 Guardar solo la primera empresa en el estado
+        setSelectFilter([filtered[0].nombreEmpresa]); // 🔥 Guardar solo el nombre de la primera empresa
+      } else {
+        setEmpresas([]); // Si no hay empresas coincidentes, dejar vacío
+        setSelectFilter([]);
+      }
     });
   }, []);
+  
   
   const onGridReady = useCallback((params) => {
     const userIsosString = localStorage.getItem("userIsos");
     const userIsosObject = JSON.parse(userIsosString);
     const empresasId = userIsosObject ? userIsosObject.empresas.map(e => e.id) : []; // Obtener array de IDs
-  
     getTrabajadorEmo().then(({ data, message = null }) => {
       if (data) {
-        const filtered = data.data.filter(trabajador => 
-          trabajador.empresas.some(emp => empresasId.includes(emp.empresa_id)) // Verifica si alguna empresa del trabajador coincide
-        );
-  
-        const nombresEmpresas = [...new Set(filtered.flatMap(trabajador => 
-          trabajador.empresas.map(emp => emp.nombreEmpresa)
-        ))]; // Extrae los nombres de empresas sin duplicados
+        const filtered = data.data.filter(trabajador => {
+          return empresasId[0] == trabajador.empresa_id // Compara directamente
+        });
+
+        const nombresEmpresas = data.data.nombreEmpresa;
         setRowData(filtered);  
-        setNombreEmpresa(nombresEmpresas.join(", ")); // Convertir nombres a string separados por comas
+        setNombreEmpresa(nombresEmpresas); // Convertir nombres a string separados por comas
       } else {
         toast.error("Ocurrió un error en el servidor", {
           position: "bottom-right",
@@ -465,7 +468,7 @@ const VisualizarRegistroEmo = () => {
       field: "nombreEmpresa",
       headerName: "EMPRESAS",
       valueGetter: (params) =>
-        params.data?.empresas?.map((e) => e.nombreEmpresa).join(", ") || "", // Muestra todas las empresas separadas por coma
+        params.data.nombreEmpresa, // Muestra todas las empresas separadas por coma
       filter: true,
       width: 300,
       hide: true
@@ -488,15 +491,16 @@ const VisualizarRegistroEmo = () => {
         gridRef.current.api.setFilterModel(null);
       }
     } else {
+
       // Cuando se comienza a escribir en el input, borramos la selección del select
-      document.getElementById("searchSelect").value = "";
-      const userIsosString = localStorage.getItem("userIsos");
-      const userIsosObject = JSON.parse(userIsosString);
-      const empresaId = userIsosObject ? userIsosObject.empresaId : null;
-      setSelectFilter(empresaId);
+      // document.getElementById("searchSelect").value = "";
+      // const userIsosString = localStorage.getItem("userIsos");
+      // const userIsosObject = JSON.parse(userIsosString);
+      // const empresaId = userIsosObject ? userIsosObject.empresaId : null;
+      // setSelectFilter(empresaId);
   
-      // Reiniciamos el filtro de la empresa
-      gridRef.current.api.setFilterModel(null);
+      // // Reiniciamos el filtro de la empresa
+      // gridRef.current.api.setFilterModel(null);
   
       const input = e.target.value;
       gridRef.current.api.setQuickFilter(input);
@@ -504,8 +508,6 @@ const VisualizarRegistroEmo = () => {
   }, []);
   
   
-
-
   const handleConstanciaDownload = async (data) => {
     const logo = await getImgs(data.empresa_id, "logo");
     const srcLogo = URL.createObjectURL(new Blob([logo.data]));
