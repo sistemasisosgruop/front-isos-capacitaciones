@@ -43,6 +43,7 @@ const ReporteCertificadoSupervisor1 = () => {
   const [selectEmpresa, setSelectEmpresa] = useState("");
   const [selectCapacitacion, setSelectCapacitacion] = useState("");
   const [selectMes, setSelectMes] = useState("");
+  const [añoFiltro, setAñoFiltro] = useState("");
   const [dataCertificado, setDataCertificado] = useState("");
   const [dataReporte, setDataReporte] = useState([]);
   const [perPage, setPerPage] = useState(15);
@@ -99,7 +100,8 @@ const ReporteCertificadoSupervisor1 = () => {
       perPage,
       selectEmpresa,
       selectCapacitacion,
-      selectMes
+      selectMes,
+      añoFiltro
     );
     if (response.status === 200) {
       setDataReporte(response?.data?.data);
@@ -131,7 +133,7 @@ const ReporteCertificadoSupervisor1 = () => {
     if (selectEmpresa) {
       getReportes();
     }
-  }, [page, selectEmpresa, selectCapacitacion, selectMes]);
+  }, [page, selectEmpresa, selectCapacitacion, selectMes, añoFiltro]);
 
   useEffect(() => {
     getCapacitaciones().then(({ data }) => {
@@ -339,6 +341,22 @@ const ReporteCertificadoSupervisor1 = () => {
                 return (
                   <option key={month.numero} value={month.numero}>
                     {month.descripcion}
+                  </option>
+                );
+              })}
+            </select>
+             {/* Filtro por año */}
+             <select
+              className="w-1/5 select select-bordered select-sm"
+              value={añoFiltro}
+              onChange={(e) => setAñoFiltro(e.target.value)}
+            >
+              <option value="">Seleccionar año</option>
+              {Array.from({ length: 10 }, (_, i) => {
+                const year = new Date().getFullYear() - i;
+                return (
+                  <option key={year} value={year}>
+                    {year}
                   </option>
                 );
               })}
