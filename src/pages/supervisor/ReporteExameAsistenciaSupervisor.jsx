@@ -40,6 +40,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   const [selectEmpresa, setSelectEmpresa] = useState("");
   const [selectCapacitacion, setSelectCapacitacion] = useState("");
   const [selectMes, setSelectMes] = useState("");
+  const [añoFiltro, setAñoFiltro] = useState("");
   const [dataReporte, setDataReporte] = useState([]);
   const [dataExamen, setDataExamen] = useState("");
   const [perPage, setPerPage] = useState(15);
@@ -59,6 +60,12 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     {
       name: "Nombre",
       selector: (row) => row.nombreTrabajador.toUpperCase(),
+      sortable: true,
+      center: true,
+    },
+    {
+      name: "Codigo",
+      selector: (row) => row.capacitacion.codigo,
       sortable: true,
       center: true,
     },
@@ -95,6 +102,11 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       center: true,
     },
     {
+      name: "Hora examen",
+      selector: (row) => row.horaExamen,
+      center: true,
+    },
+    {
       name: "Opciones",
       button: true,
       cell: (e) => (
@@ -114,6 +126,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       empresaNombre,
       selectCapacitacion,
       selectMes,
+      añoFiltro,
       all
     );
     if (response.status === 200) {
@@ -126,6 +139,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       });
     }
   };
+
   useEffect(() => {
     const userIsosString = localStorage.getItem("userIsos");
     const userIsosObject = JSON.parse(userIsosString);
@@ -140,7 +154,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       if (empresaNombre && empresaNombre.length > 0) {
         getReportes();
       }
-    }, [empresaNombre, page, perPage, selectCapacitacion, selectMes]);
+    }, [empresaNombre, page, perPage, selectCapacitacion, selectMes, añoFiltro]);
   
 
   useEffect(() => {
@@ -369,6 +383,22 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
                 return (
                   <option key={month.numero} value={month.numero}>
                     {month.descripcion}
+                  </option>
+                );
+              })}
+            </select>
+            {/* Filtro por año */}
+            <select
+              className="w-1/5 select select-bordered select-sm"
+              value={añoFiltro}
+              onChange={(e) => setAñoFiltro(e.target.value)}
+            >
+              <option value="">Seleccionar año</option>
+              {Array.from({ length: 10 }, (_, i) => {
+                const year = new Date().getFullYear() - i;
+                return (
+                  <option key={year} value={year}>
+                    {year}
                   </option>
                 );
               })}

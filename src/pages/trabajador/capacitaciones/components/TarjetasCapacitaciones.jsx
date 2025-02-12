@@ -27,7 +27,7 @@ const TarjetasCapacitaciones = ({ data, verPreguntas, verCertificado }) => {
     >
       <div className="flex items-center justify-between mb-2">
         <h2 className="text-sm font-bold md:text-lg">
-          {data.capacitacion?.nombre}
+          {data.capacitacion?.nombre} {data.capacitacion?.codigo}
         </h2>
         <div
           className={`badge text-white`}
@@ -53,7 +53,7 @@ const TarjetasCapacitaciones = ({ data, verPreguntas, verCertificado }) => {
             <div
               className="block mb-2 text-blue-500 cursor-pointer badge badge-outline"
               onClick={() =>
-                descripcionEstado != 'Aprobado' && verPreguntas(data)
+                descripcionEstado !== 'Aprobado' && verPreguntas(data)
               }
             >
               Dar evaluación
