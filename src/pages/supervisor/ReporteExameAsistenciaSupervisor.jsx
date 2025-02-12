@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { getEmpresa, getEmpresas, getImgs } from "../../services/empresa";
 import Button from "../../components/Button";
 import { toast } from "react-toastify";
-import { getReporte } from "../../services/reportes";
+import { getReporte,getReporte2 } from "../../services/reportes";
 import { getCapacitaciones, getCapacitacionesSupervisor } from "../../services/capacitacion";
 import { Modal } from "../../components/modal/Modal";
 import useModals from "../../hooks/useModal";
@@ -120,7 +120,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   ];
 
   const getReportes = async (all) => {
-    const response = await getReporte(
+    const response = await getReporte2(
       page,
       perPage,
       empresaNombre,
@@ -369,8 +369,8 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               <option value={""}>Capacitación</option>
               {capacitaciones.map((capacitacion) => {
                 return (
-                  <option key={capacitacion.id} value={capacitacion.nombre}>
-                    {capacitacion.nombre}
+                  <option key={capacitacion.id} value={capacitacion.codigo}>
+                    ({capacitacion.codigo})- {capacitacion.nombre} 
                   </option>
                 );
               })}
