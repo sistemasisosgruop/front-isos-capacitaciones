@@ -3,7 +3,7 @@ import { getEmpresa, getEmpresas, getImgs } from "../../services/empresa";
 import Button from "../../components/Button";
 import { toast } from "react-toastify";
 import { getReporte } from "../../services/reportes";
-import { getCapacitaciones } from "../../services/capacitacion";
+import { getCapacitaciones, getCapacitacionesSupervisor } from "../../services/capacitacion";
 import { Modal } from "../../components/modal/Modal";
 import useModals from "../../hooks/useModal";
 import ExamenCapacitacion from "../../components/ExamenCapacitacion";
@@ -167,7 +167,10 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
 
 
   useEffect(() => {
-    getCapacitaciones().then(({ data }) => {
+    const userIsosString = localStorage.getItem("userIsos");
+    const userIsosObject = JSON.parse(userIsosString);
+    const empresasId = userIsosObject ? userIsosObject.empresas.map(e => e.id) : []; // Obtener array de IDs
+    getCapacitacionesSupervisor(empresasId[0]).then(({ data }) => {
       setCapacitaciones(data);
     });
   }, []);

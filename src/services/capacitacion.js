@@ -27,6 +27,17 @@ const getCapacitaciones = () => {
     .catch(objErrorApi);
 };
 
+const getCapacitacionesSupervisor = (empresaId) => {
+  return baseApi(stepApi)
+    .get("/empresa", {
+      params: {
+        empresaId
+      }
+    })
+    .catch(objErrorApi);
+};
+
+
 const getCapacitacionesReport = () => {
   return baseApi(stepApi)
     .get("/report")
@@ -79,6 +90,7 @@ export {
   postCapacitaciones,
   getPreguntas,
   patchCapacitaciones,
+  getCapacitacionesSupervisor,
   patchEstadoCapacitacion,
   deleteCapacitaciones,
   getFirmaCertificado,
