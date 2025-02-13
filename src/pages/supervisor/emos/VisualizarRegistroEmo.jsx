@@ -98,20 +98,6 @@ const VisualizarRegistroEmo = () => {
       }
     });
   }, []);
-  
-
-  const addItem = useCallback((addIndex, newRow) => {
-    const newItem = [newRow];
-    gridRef.current.api.applyTransaction({
-      add: newItem,
-      addIndex: addIndex,
-    });
-  }, []);
-
-  const updateRow = useCallback((data) => {
-    var rowNode = gridRef.current.api.getRowNode(data?.id);
-    rowNode.setData(data);
-  }, []);
 
   const getRowId = useMemo(() => {
     return (params) => {
@@ -128,26 +114,8 @@ const VisualizarRegistroEmo = () => {
     return (
       <>
         <label
-          onClick={() => sendConstanciaButton(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faPhone} />
-        </label>
-        <label
-          onClick={() => sendConstanciaEmailButton(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faEnvelope} />
-        </label>
-        <label
-          onClick={() => updateConstanciaButton(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faEdit} />
-        </label>
-        <label
-          onClick={() => handleConstanciaDownload(data)}
-          className="mr-2 cursor-pointer"
+          onClick={() => sendDownLoadEmo(data)}
+          className="cursor-pointer"
         >
           <FontAwesomeIcon icon={faDownload} />
         </label>
@@ -155,278 +123,44 @@ const VisualizarRegistroEmo = () => {
     );
   };
 
-  const renderEmoButtons = ({ data }) => {
-    return (
-      <>
-      <label
-          onClick={() => sendEmo(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faEye} />
-        </label>
-        <label
-          onClick={() => sendButton(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faPhone} />
-        </label>
-        <label
-          onClick={() => sendEmailButton(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faEnvelope} />
-        </label>
-        <label
-          onClick={() => sendEmail(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faMailBulk} />
-        </label>
-        <label
-          onClick={() => sendEmoWhatsapp(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faMailForward} />
-        </label>
-      </>
-    );
-  };
-  const updateConstanciaButton = (data) => {
-    setDescripcionModal("Actualizar trabajador");
-    openModal4();
-    setdataForm(data);
-  };
-
-  const sendConstanciaButton = async (data) => {
-    setDescripcionModal("Enviar por WhatsApp al trabajador");
-    const url = `${VITE_API_URL}/${ stepApi }/descargar/constancia/${data.trabajador_id}`;
-
-    if (!data.fecha_examen) {
-      toast.error("No importo los datos respectivos", {
-        position: "bottom-right",
-      });
-    } else if (!data.celular) {
-      toast.error("No tiene celular de envio", {
-        position: "bottom-right",
-      });
-    } else {
-      confirmAlert({
-        title: 'CONFIRMAR EL ENVIO - WHATSAPP',
-        message: '¿Estas seguro de enviar por Whatsapp?',
-        buttons: [
-          {
-            label: 'SI',
-            onClick: async () => {
-              const textToShare = `Su constancia de Examén Médico Ocupacional ha sido generado correctamente, puede revisarlo en el siguiente enlace: ${url}. Si no puede visualizarlo copie el enlace y peguelo en una ventana nueva y presione Enter`;
-              // data.celular = '959824954';
-              const response = await postSendWhatsapp(data);
-              if (response.status === 200) {
-                getTrabajadorEmo().then(({ data, message = null }) => {
-                  if (data) {
-                    setRowData(data.data);
-                  } else {
-                    toast.error("Ocurrio un error en el servidor", {
-                      position: "bottom-right",
-                    });
-                  }
-                });
-                toast.success("Se envio el Whatsapp correctamente.", {
-                  position: "bottom-right",
-                });
-                window.open(`https://wa.me/51${data.celular}?text=${textToShare}`, '_blank');
-              } else {
-                toast.error(message, {
-                  position: "bottom-right",
-                });
-              }
-            }
-          },
-          {
-            label: 'NO',
-            // onClick: () => alert('Click No')
-          }
-        ]
-      });
-    }
-    
-
-
-
-    // setdataForm(data);
-  };
-
-  const sendConstanciaEmailButton = async (data) => {
-    setDescripcionModal("Enviar por Correo al trabajador");
-    // console.log(data);
-    if (!data.fecha_examen) {
-      toast.error("No importo los datos respectivos", {
-        position: "bottom-right",
-      });
-    } else if (!data.email) {
-      toast.error("No tiene correo de envio", {
-        position: "bottom-right",
-      });
-    } else {
-      confirmAlert({
-        title: 'CONFIRMAR EL ENVIO - CONSTANCIA',
-        message: '¿Estas seguro de enviar el correo?',
-        buttons: [
-          {
-            label: 'SI',
-            onClick: async () => {
-              const response = await postSendEmail(data);
-              if (response.status === 200) {
-                getTrabajadorEmo().then(({ data, message = null }) => {
-                  if (data) {
-                    setRowData(data.data);
-                  } else {
-                    toast.error("Ocurrio un error en el servidor", {
-                      position: "bottom-right",
-                    });
-                  }
-                });
-                toast.success("Se envio el correo correctamente.", {
-                  position: "bottom-right",
-                });
-              } else {
-                toast.error(message, {
-                  position: "bottom-right",
-                });
-              }
-            }
-          },
-          {
-            label: 'NO',
-            // onClick: () => alert('Click No')
-          }
-        ]
-      });
-    }
-
-
-    
-  };
-
-  const sendButton = (data) => {
-    setDescripcionModal("Estado de Envios por WhatsApp");
-    openModal2();
-    setdataForm(data);
-  };
-
-  const sendEmo = (data) => {
-    setDescripcionModal("Estado de Envios por EMO");
-    openModal1();
-    setdataForm(data);
-  };
-  const sendEmailButton = (data) => {
-    setDescripcionModal("Estado de Envios por Correo al trabajador");
-    openModal3();
-    setdataForm(data);
-  };
-
-  const sendEmoWhatsapp = async (data) => {
-    setDescripcionModal("Enviar EMO por WhatsApp al trabajador");
+  const sendDownLoadEmo= async (data) => {
     const url = `${VITE_API_URL}/${ stepApi }/descargar/emo/${data.trabajador_id}`;
     console.log('enviando')
 
     if (!data.fecha_examen) {
-      toast.error("No importo los datos respectivos", {
-        position: "bottom-right",
+        toast.error("No importo los datos respectivos", {
+          position: "bottom-right",
       });
-    } else if (!data.celular) {
-      toast.error("No tiene celular de envio", {
-        position: "bottom-right",
-      });
-    } else {
-      confirmAlert({
-        title: 'CONFIRMAR EL ENVIO EXAMEN MÉDICO OCUPACIONAL - WHATSAPP',
-        message: '¿Estas seguro de enviar el Examen Médico Ocupacional por Whatsapp?',
-        buttons: [
-          {
-            label: 'SI',
-            onClick: async () => {
-              const textToShare = `Su Examén Médico Ocupacional ha sido generado correctamente, puede revisarlo en el siguiente enlace: ${url}. Si no puede visualizarlo copie el enlace y peguelo en una ventana nueva y presione Enter`;
-              // data.celular = '959824954';
-              const response = await postSendEmoWhatsapp(data);
-              if (response.status === 200) {
-                getTrabajadorEmo().then(({ data, message = null }) => {
-                  if (data) {
-                    setRowData(data.data);
-                  } else {
-                    toast.error("Ocurrio un error en el servidor", {
-                      position: "bottom-right",
-                    });
-                  }
-                });
-                toast.success("Se envio el Whatsapp correctamente.", {
-                  position: "bottom-right",
-                });
-                window.open(`https://wa.me/51${data.celular}?text=${textToShare}`, '_blank');
-              } else {
-                toast.error(message, {
-                  position: "bottom-right",
-                });
-              }
-            }
-          },
-          {
-            label: 'NO',
-            // onClick: () => alert('Click No')
-          }
-        ]
-      });
+      return;
     }
-    // setdataForm(data);
-  };
 
-  const sendEmail = async (data) => {
-    setDescripcionModal("Enviar por Correo al trabajador");
-    // console.log(data);
-    if (!data.fecha_examen) {
-      toast.error("No importo los datos respectivos", {
-        position: "bottom-right",
-      });
-    } else if (!data.email) {
-      toast.error("No tiene correo de envio", {
-        position: "bottom-right",
-      });
-    } else {
-      confirmAlert({
-        title: 'CONFIRMAR EL ENVIO - EXAMEN MÉDICO OCUPACIONAL',
-        message: '¿Estas seguro de enviar el correo?',
-        buttons: [
-          {
-            label: 'SI',
-            onClick: async () => {
-              const response = await postSendEmoEmail(data);
-              if (response.status === 200) {
-                getTrabajadorEmo().then(({ data, message = null }) => {
-                  if (data) {
-                    setRowData(data.data);
-                  } else {
-                    toast.error("Ocurrio un error en el servidor", {
-                      position: "bottom-right",
-                    });
-                  }
-                });
-                toast.success("Se envio el correo correctamente.", {
-                  position: "bottom-right",
-                });
-              } else {
-                toast.error(message, {
-                  position: "bottom-right",
-                });
-              }
-            }
-          },
-          {
-            label: 'NO',
-            // onClick: () => alert('Click No')
-          }
-        ]
-      });
-    }
-  };
+    try {
+      // Realiza una solicitud fetch para obtener el archivo
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+          throw new Error('Error al obtener el archivo');
+      }
+
+      // Convierte la respuesta a un Blob
+      const blob = await response.blob();
+
+      // Crea un enlace para descargar el archivo
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = `EMO_${data.trabajador_id}.pdf`; // Cambia la extensión si es necesario
+      a.click(); // Dispara la descarga
+
+      // Liberar el objeto URL creado
+      window.URL.revokeObjectURL(downloadUrl);
+    }catch (error) {
+        console.error("Error en la descarga:", error);
+        toast.error("Hubo un problema con la descarga del archivo", {
+            position: "bottom-right",
+        });
+    };
+  }
 
   const [columnDefs, setColumnDefs] = useState([
     { field: "nro", hide: true },
@@ -462,8 +196,7 @@ const VisualizarRegistroEmo = () => {
       headerName: "ESTADO CORREO EMO",
     },
     { field: "estado_emo_whatsapp", headerName: "ESTADO WHATSAPP EMO", width: 250 },
-    { field: "CONSTANCIAS", cellRenderer: renderConstanciaButtons, width: 150, hide: true },
-    { field: "EMOS", cellRenderer: renderEmoButtons, width: 180, hide: true },
+    { field: "CONSTANCIAS", cellRenderer: renderConstanciaButtons, width: 150 },
     {
       field: "nombreEmpresa",
       headerName: "EMPRESAS",
@@ -507,21 +240,6 @@ const VisualizarRegistroEmo = () => {
     }
   }, []);
   
-  
-  const handleConstanciaDownload = async (data) => {
-    const logo = await getImgs(data.empresa_id, "logo");
-    const srcLogo = URL.createObjectURL(new Blob([logo.data]));
-    const link = document.createElement("a");
-    const pdfBlob = await pdf(
-      <ConstanciaEmo data={data} logo={srcLogo} />
-    ).toBlob();
-    const pdfUrl = URL.createObjectURL(pdfBlob);
-    link.href = pdfUrl;
-    link.target = "_blank";
-    link.download = `Constancia-${data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres}.pdf`;
-    link.click();
-  };
-
   const handleDownloadMulitple = async (data) => {
 
 
