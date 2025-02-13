@@ -31,6 +31,13 @@ const opcionesTrabajador = () => {
           <h3 className="font-bold text-md mb-3">Evaluación médica</h3>
           <FontAwesomeIcon icon={faDownload} size="3x" />
         </Link>
+        <Link
+          to="../certificados"
+          className="bg-white text-center p-5 rounded-2xl shadow-xl w-3/4 md:w-1/2"
+        >
+          <h3 className="font-bold text-md mb-3">Mis certificados</h3>
+          <FontAwesomeIcon icon={faDownload} size="3x" />
+        </Link>
       </div>
     </div>
   );

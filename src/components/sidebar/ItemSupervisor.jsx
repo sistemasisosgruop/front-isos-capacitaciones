@@ -27,6 +27,13 @@ const ItemSupervisor = () => {
       >
         Test
       </MenuItem>
+
+      <MenuItem
+        component={<Link to="./supervisor/certificados" />}
+        icon={<FontAwesomeIcon icon={faFileInvoice} />}
+      >
+        Mis Certificados
+      </MenuItem>
       <MenuItem
         component={<Link to="./supervisor/evaluacion" />}
         icon={<FontAwesomeIcon icon={faNotesMedical} />}

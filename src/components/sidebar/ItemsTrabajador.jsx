@@ -25,6 +25,12 @@ const ItemsTrabajador = () => {
       >
         Evaluación médica
       </MenuItem>
+      <MenuItem
+        component={<Link to="./trabajador/certificados" />}
+        icon={<FontAwesomeIcon icon={faFileInvoice} />}
+      >
+        Mis Certificados
+      </MenuItem>
     </>
   );
 };
