@@ -54,6 +54,11 @@ const ReporteCertificadosTrabajador = () => {
 
   const columns = [
     {
+      name: "Codigo Certificado",
+      selector: (row) => row.reporteId,
+      sortable: true,
+    },
+    {
       name: "Codigo",
       selector: (row) => row.capacitacion.codigo,
       sortable: true,

@@ -50,6 +50,12 @@ const getCapacitacion = (id) => {
     .catch(objErrorApi);
 };
 
+const getCapacitacionCodigo = (codigo) => {
+  return baseApi(stepApi)
+    .get(`/codigo/${codigo}`)
+    .catch(objErrorApi);
+};
+
 const getCapacitacionUser = (id) => {
   return baseApi(stepApi)
     .get(`/capacitador/${id}`)
@@ -95,5 +101,6 @@ export {
   deleteCapacitaciones,
   getFirmaCertificado,
   getCapacitacionesReport,
-  patchEstadoRecuperacion
+  patchEstadoRecuperacion,
+  getCapacitacionCodigo
 };

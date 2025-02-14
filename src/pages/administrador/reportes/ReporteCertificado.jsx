@@ -60,6 +60,12 @@ const ReporteCertificado = () => {
       sortable: true,
     },
     {
+      name: "Codigo certificado",
+      selector: (row) => row.reporte.id,
+      sortable: true,
+      center: true,
+    },
+    {
       name: "Nombre",
       selector: (row) => row.nombreTrabajador,
       sortable: true,
