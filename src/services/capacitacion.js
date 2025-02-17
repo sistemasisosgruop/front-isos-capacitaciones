@@ -37,6 +37,16 @@ const getCapacitacionesSupervisor = (empresaId) => {
     .catch(objErrorApi);
 };
 
+const getCapacitacionesTrabajador = (dni) => {
+  return baseApi(stepApi)
+    .get("/trabajador", {
+      params: {
+        dni
+      }
+    })
+    .catch(objErrorApi);
+};
+
 
 const getCapacitacionesReport = () => {
   return baseApi(stepApi)
@@ -102,5 +112,6 @@ export {
   getFirmaCertificado,
   getCapacitacionesReport,
   patchEstadoRecuperacion,
-  getCapacitacionCodigo
+  getCapacitacionCodigo,
+  getCapacitacionesTrabajador
 };

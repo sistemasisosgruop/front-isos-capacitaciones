@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 import { getReporte,getCertificados } from "../../../services/reportes";
 import {
   getCapacitaciones,
+  getCapacitacionesTrabajador,
   getFirmaCertificado,
 } from "../../../services/capacitacion";
 import { PDFViewer, pdf } from "@react-pdf/renderer";
@@ -128,7 +129,9 @@ const ReporteCertificadosTrabajador = () => {
   }, [page, selectCapacitacion, selectMes, añoFiltro]);
 
   useEffect(() => {
-    getCapacitaciones().then(({ data }) => {
+    const dni =JSON.parse(localStorage.getItem("userIsos")).dni;
+    getCapacitacionesTrabajador(dni).then(({ data }) => {
+      console.log(data);
       setCapacitaciones(data);
     });
   }, []);
