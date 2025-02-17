@@ -27,6 +27,7 @@ const FormularioInicio = ({
 
   //tipo de accion del formulario
   const action = initialForm.empresas === "" ? "ADD" : "UPDATE";
+  console.log(action)
 
   const {
     id,
@@ -98,6 +99,7 @@ const FormularioInicio = ({
     data.append("userId", userId);
 
     if (action === "ADD") {
+      console.log(data);
       add(data);
     } else {
       update(data);
@@ -198,20 +200,25 @@ const FormularioInicio = ({
           )}
         </div>
         <div className="w-full md:w-2/4">
-          <label htmlFor="ruc" className="font-semibold">
-            Nombre de la empresa
-          </label>
-          <Select
-            isMulti
-            options={empresasDb}
-            onChange={handleEmpresas}
-            value={empresas}
-            placeholder="Selecciona empresa"
-          />
-          {!!empresasValid && formSubmitted && (
-            <p className="text-sm text-red-700">{empresasValid}</p>
-          )}
-        </div>
+        <label htmlFor="ruc" className="font-semibold">
+          Empresas
+        </label>
+        <Select
+          isMulti
+          options={empresasDb}
+          onChange={handleEmpresas}
+          value={empresas}
+          placeholder="Selecciona empresa"
+          className=""
+          menuPortalTarget={document.body} // Renderiza el menú fuera del modal
+          styles={{
+            menuPortal: (base) => ({ ...base, zIndex: 9999 }), // Asegura que esté sobre el modal
+          }}
+        />
+        {!!empresasValid && formSubmitted && (
+          <p className="text-sm text-red-700">{empresasValid}</p>
+        )}
+      </div>
       </div>
       <div className="flex flex-col gap-3 mb-2 md:flex-row">
         <div className="w-full md:w-1/3">

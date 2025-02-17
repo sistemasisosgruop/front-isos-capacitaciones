@@ -404,9 +404,7 @@ const ListaCapacitaciones = () => {
 
   const createWorkersReport = () => {
     getReportCreate().then(({ report }) => {
-      console.log("====================================");
       console.log(report);
-      console.log("====================================");
     });
 
   };
@@ -451,9 +449,9 @@ const ListaCapacitaciones = () => {
           <h2 className="mb-3 text-2xl font-bold">Capacitaciones</h2>
         </div>
         <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
-          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/8">
+          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-3/9">
             <select
-              className="select select-bordered select-sm lg:w-3/4"  // Ajusté el tamaño del select para que esté alineado con el input
+              className="select select-bordered select-sm"  // Ajusté el tamaño del select para que esté alineado con el input
               id="searchSelect"
               onChange={(e) => {
                 const selectedValue = e.target.value;
@@ -476,7 +474,7 @@ const ListaCapacitaciones = () => {
             <input
               type="text"
               name="codigo"
-              placeholder="Buscar por código"
+              placeholder="Codigo"
               className="input input-bordered input-sm w-full"
               value={codigoFiltro}
               onChange={(e) => {
@@ -486,7 +484,7 @@ const ListaCapacitaciones = () => {
 
             {/* Filtro por mes */}
             <select
-              className="select select-bordered select-sm w-full"
+              className="select select-bordered select-sm"
               value={mesFiltro}
               onChange={(e) => setMesFiltro(e.target.value)}
             >
@@ -507,7 +505,7 @@ const ListaCapacitaciones = () => {
 
             {/* Filtro por año */}
             <select
-              className="select select-bordered select-sm w-full"
+              className="select select-bordered select-sm"
               value={añoFiltro}
               onChange={(e) => setAñoFiltro(e.target.value)}
             >
@@ -531,7 +529,7 @@ const ListaCapacitaciones = () => {
             />
           </div>
 
-          <div className="flex flex-col justify-end w-full gap-3 md:flex-row lg:w-2/5">
+          <div className="flex flex-col justify-end w-full gap-3 md:flex-row lg:w-2/6">
             <ProgressBar/>
             <Button
               description="Registrar"

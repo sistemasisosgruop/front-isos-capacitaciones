@@ -219,10 +219,11 @@ const ListadoTrabajador = () => {
   const getDataTrabajador = async () => {
     const response = await getTrabajadores(page, perPage, empresaData, search);
     if (response.status === 200) {
-      setRowData(response.data.data);
+      setRowData(response?.data?.data);
       setTotalRows(response.data.pageInfo.total);
     }
   };
+  
   useEffect(() => {
     getDataTrabajador();
   }, [page, empresaData, search]);
@@ -317,7 +318,6 @@ const ListadoTrabajador = () => {
     setModalEmo(false);
   };
 
-
   //excel
   const crearExcel = async () => {
     const response = await getTrabajadores(
@@ -380,7 +380,9 @@ const ListadoTrabajador = () => {
         d.edad = d.edad
         d.areadetrabajo = d.areadetrabajo
         d.cargo = d.cargo
-        d.nombreEmpresa = d.empresa.nombreEmpresa
+        d.nombreEmpresa = Array.isArray(d.empresas)
+          ? d.empresas.map((e) => e.nombreEmpresa).join(", ")
+          : "NO ASOCIADO"
         d.emoPdf = (d.emoPdf == null || d.emoPdf == '' ) ? 'false' : 'true'
         d.habilitado = d.habilitado == 'VERDADERO' ? 'true' : 'false'
         // console.log(d.emoPdf);

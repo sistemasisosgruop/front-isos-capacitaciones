@@ -131,7 +131,6 @@ const CapacitacionesTrabajador = () => {
         position: "bottom-right",
       });
     }
-    console.log(validatePreguntas);
     const { examenId, capacitacionId, trabajadorID, preguntas } =
       validatePreguntas;
     const newFormatPreguntas = preguntas.map((e) => {
