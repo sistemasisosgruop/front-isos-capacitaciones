@@ -69,7 +69,6 @@ const VisualizarRegistroEmo = () => {
           const filteredData = data.data.filter((item) =>
             item.empresas.some((empresa) => empresa.nombreEmpresa === selectFilter)
           );
-  
           setRowData(filteredData);
         } else {
           setRowData(data.data); // Si no hay filtro, mostrar todos
@@ -465,46 +464,31 @@ const VisualizarRegistroEmo = () => {
     { field: "CONSTANCIAS", cellRenderer: renderConstanciaButtons, width: 150 },
     { field: "EMOS", cellRenderer: renderEmoButtons, width: 180 },
     {
-      field: "empresas", 
+      field: "nombreEmpresa", 
       headerName: "EMPRESAS",
       filter: 'agTextColumnFilter',  
-      cellRenderer: (params) => {
-        if (Array.isArray(params.value) && params.value.length > 0) {
-          return params.value.map(empresa => empresa.nombreEmpresa).join(", ");
-        }
-        return "";  
-      },
-      filterParams: {
-        textCustomComparator: (filter, value) => {
-          // Si el valor es un array, verificamos si alguno de los elementos incluye el filtro
-          if (Array.isArray(value)) {
-            return value.some(val => val.toLowerCase().includes(filter.toLowerCase()));
-          }
-          return value.toLowerCase().includes(filter.toLowerCase());
-        },
-      },
-      hide: false,
       width: 200,
     },
   ]);
 
   const onFilterTextBoxChanged = useCallback((e, isSelect) => {
     if (isSelect) {
-      const selectedValue = e.target.value; // Tomamos el valor seleccionado (una empresa o varias)
+      const selectedValue = e.target.value;
       setSelectFilter(selectedValue);
-  
-      // Si se selecciona alguna empresa
-      if (selectedValue && selectedValue.length > 0) {
-        // Suponiendo que selectedValue es un solo valor o un array de valores
+    
+      if (selectedValue) {
         gridRef.current.api.setFilterModel({
-          empresas: { // Cambié el nombre del filtro a 'empresa' para que coincida con tu lógica
-            type: "in", 
-            values: Array.isArray(selectedValue) ? selectedValue : [selectedValue], // Si es un solo valor, lo convertimos en array
+          nombreEmpresa: {
+            filterType: "text", // Filtro de tipo texto
+            type: "contains",   // Busca valores que contienen el texto
+            filter: selectedValue, // Valor a buscar
           },
         });
       } else {
-        // Si no hay selección, eliminamos el filtro de la empresa
-        gridRef.current.api.setFilterModel(null);
+        // Limpia solo el filtro de nombreEmpresa, no todos
+        gridRef.current.api.setFilterModel({
+          nombreEmpresa: null,
+        });
       }
     } else {
       // Cuando no es un select (es input), limpiamos la selección del select
