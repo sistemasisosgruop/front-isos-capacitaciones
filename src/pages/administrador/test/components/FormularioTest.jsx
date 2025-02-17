@@ -161,6 +161,10 @@ const FormularioTest = ({
             options={empresasDb}
             onChange={handleEmpresas}
             placeholder="Selecciona empresa"
+            menuPortalTarget={document.body} // Renderiza el menú fuera del modal
+            styles={{
+              menuPortal: (base) => ({ ...base, zIndex: 9999 }), // Asegura que esté sobre el modal
+            }}
           />
           {!!empresasValid && formSubmitted && (
             <p className="text-sm text-red-700">{empresasValid}</p>
