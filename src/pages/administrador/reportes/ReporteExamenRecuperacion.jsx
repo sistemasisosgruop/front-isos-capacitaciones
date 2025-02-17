@@ -102,6 +102,12 @@ const ReporteExamenRecuperacion = ({ titulo }) => {
       center: true,
     },
     {
+      name: "Hora examen",
+      selector: (row) => row.horaExamen,
+      sortable: true,
+      center: true,
+    },
+    {
       name: "Opciones",
       button: true,
       cell: (e) => (
@@ -312,7 +318,7 @@ const ReporteExamenRecuperacion = ({ titulo }) => {
         <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
           <div className="flex flex-col w-full gap-3 md:flex-row lg:w-auto">
             <select
-              className="w-1/4 select select-bordered select-sm"
+              className="w-1/5 select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectEmpresa(e.target.value)}
               value={selectEmpresa}
@@ -327,7 +333,7 @@ const ReporteExamenRecuperacion = ({ titulo }) => {
               })}
             </select>
             <select
-              className="w-1/3 select select-bordered select-sm"
+              className="w-1/5 select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectCapacitacion(e.target.value)}
               value={selectCapacitacion}
@@ -353,7 +359,7 @@ const ReporteExamenRecuperacion = ({ titulo }) => {
               }}
             />
             <select
-              className="w-1/5 select select-bordered select-sm"
+              className="w-1/6 select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectMes(e.target.value)}
               value={selectMes}
@@ -369,7 +375,7 @@ const ReporteExamenRecuperacion = ({ titulo }) => {
             </select>
             {/* Filtro por año */}
             <select
-              className="w-1/5 select select-bordered select-sm"
+              className="w-1/6 select select-bordered select-sm"
               value={añoFiltro}
               onChange={(e) => setAñoFiltro(e.target.value)}
             >

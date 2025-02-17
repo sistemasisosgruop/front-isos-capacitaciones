@@ -331,7 +331,7 @@ const ReporteCertificado = () => {
         <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
           <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
             <select
-              className="w-1/4 select select-bordered select-sm"
+              className="w-1/5 select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectEmpresa(e.target.value)}
               value={selectEmpresa}
@@ -346,7 +346,7 @@ const ReporteCertificado = () => {
               })}
             </select>
             <select
-              className="w-1/3 select select-bordered select-sm"
+              className="w-1/5 select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectCapacitacion(e.target.value)}
               value={selectCapacitacion}
@@ -388,7 +388,7 @@ const ReporteCertificado = () => {
             </select>
             {/* Filtro por año */}
             <select
-              className="w-1/5 select select-bordered select-sm"
+              className="w-1/6 select select-bordered select-sm"
               value={añoFiltro}
               onChange={(e) => setAñoFiltro(e.target.value)}
             >
@@ -403,7 +403,7 @@ const ReporteCertificado = () => {
               })}
             </select>
           </div>
-          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-1/5">
+          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-1/6">
             <Button
               description="Exportar"
               event={() => descargarDocumento("excel")}
