@@ -331,7 +331,7 @@ const ReporteCertificado = () => {
         <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
           <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
             <select
-              className="w-1/5 select select-bordered select-sm"
+              className="w-1/6 select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectEmpresa(e.target.value)}
               value={selectEmpresa}
@@ -346,7 +346,7 @@ const ReporteCertificado = () => {
               })}
             </select>
             <select
-              className="w-1/5 select select-bordered select-sm"
+              className="w-1/6 select select-bordered select-sm"
               id="searchSelect"
               onChange={(e) => setSelectCapacitacion(e.target.value)}
               value={selectCapacitacion}
@@ -365,7 +365,7 @@ const ReporteCertificado = () => {
               type="text"
               name="codigo"
               placeholder="Buscar por código"
-              className="w-1/6 input input-bordered input-sm"
+              className="w-full input input-bordered input-sm"
               value={codigoFiltro}
               onChange={(e) => {
                 setCodigoFiltro(e.target.value)
