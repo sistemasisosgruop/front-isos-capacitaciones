@@ -19,6 +19,7 @@ import { toast } from "react-toastify";
 import { getReporte } from "../../services/reportes";
 import {
   getCapacitaciones,
+  getCapacitacionesSupervisor,
   getFirmaCertificado,
 } from "../../services/capacitacion";
 import { PDFViewer, pdf } from "@react-pdf/renderer";
@@ -101,6 +102,7 @@ const ReporteCertificadoSupervisor1 = () => {
       selectEmpresa,
       selectCapacitacion,
       selectMes,
+      "",
       añoFiltro
     );
     if (response.status === 200) {
@@ -124,9 +126,10 @@ const ReporteCertificadoSupervisor1 = () => {
     const userIsosString = localStorage.getItem("userIsos");
     const userIsosObject = JSON.parse(userIsosString);
     const empresasId = userIsosObject ? userIsosObject.empresas.map(e => e.id) : []; // Obtener array de IDs
-    const empresaObj = empresas.filter(item => empresasId.includes(item.id)); // Filtrar por coincidencia en el array
+    const empresaObj = empresas.filter(item => empresasId.includes(item.id));
     const nombresEmpresas = empresaObj?.map(e => e.nombreEmpresa);
     setSelectEmpresa(nombresEmpresas);
+    console.log(selectEmpresa);
   }, [empresas]); // Dependencias para este useEffect
 
   useEffect(() => {
@@ -136,7 +139,10 @@ const ReporteCertificadoSupervisor1 = () => {
   }, [page, selectEmpresa, selectCapacitacion, selectMes, añoFiltro]);
 
   useEffect(() => {
-    getCapacitaciones().then(({ data }) => {
+    const userIsosString = localStorage.getItem("userIsos");
+    const userIsosObject = JSON.parse(userIsosString);
+    const empresasId = userIsosObject ? userIsosObject.empresas.map(e => e.id) : []; // Obtener array de IDs
+    getCapacitacionesSupervisor(empresasId[0]).then(({ data }) => {
       setCapacitaciones(data);
     });
   }, []);

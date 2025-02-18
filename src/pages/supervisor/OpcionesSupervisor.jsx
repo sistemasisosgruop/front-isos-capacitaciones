@@ -2,6 +2,7 @@ import {
   faAward,
   faClipboard,
   faLaptop,
+  faFileAlt
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link, Outlet } from "react-router-dom";
@@ -31,11 +32,22 @@ const OpcionesSupervisor = () => {
             </div>
           </Link>
         </div>
-
+        <div className="w-25">
+          <div className="w-25">
+            <Link to="../recuperacion">
+              <div className="bg-white text-center p-5 rounded-2xl shadow-xl">
+                <h3 className="font-bold text-sm mb-3">REPORTES DE RECUPERACIÓN</h3>
+                <FontAwesomeIcon icon={faFileAlt} size="3x" />
+              </div>
+            </Link>
+          </div>
+        </div>
       </div>
       <Outlet />
     </>
   );
+
+
 };
 
 export default OpcionesSupervisor;
