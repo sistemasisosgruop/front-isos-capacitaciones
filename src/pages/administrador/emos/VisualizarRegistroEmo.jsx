@@ -540,6 +540,7 @@ const VisualizarRegistroEmo = () => {
           item.fecha_lectura !== "" &&
           item.condicion_aptitud !== ""
       );
+      console.log(filterData);
   
       if(filterData.length === 0){
 

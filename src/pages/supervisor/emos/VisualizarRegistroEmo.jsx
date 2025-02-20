@@ -124,42 +124,17 @@ const VisualizarRegistroEmo = () => {
   };
 
   const sendDownLoadEmo= async (data) => {
-    const url = `${VITE_API_URL}/${ stepApi }/descargar/emo/${data.trabajador_id}`;
-    console.log('enviando')
-
-    if (!data.fecha_examen) {
-        toast.error("No importo los datos respectivos", {
-          position: "bottom-right",
-      });
-      return;
-    }
-
-    try {
-      // Realiza una solicitud fetch para obtener el archivo
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-          throw new Error('Error al obtener el archivo');
-      }
-
-      // Convierte la respuesta a un Blob
-      const blob = await response.blob();
-
-      // Crea un enlace para descargar el archivo
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = `EMO_${data.trabajador_id}.pdf`; // Cambia la extensión si es necesario
-      a.click(); // Dispara la descarga
-
-      // Liberar el objeto URL creado
-      window.URL.revokeObjectURL(downloadUrl);
-    }catch (error) {
-        console.error("Error en la descarga:", error);
-        toast.error("Hubo un problema con la descarga del archivo", {
-            position: "bottom-right",
-        });
-    };
+    const logo = await getImgs(data.empresa_id, "logo");
+    const srcLogo = URL.createObjectURL(new Blob([logo.data]));
+    const link = document.createElement("a");
+    const pdfBlob = await pdf(
+      <ConstanciaEmo data={data} logo={srcLogo} />
+    ).toBlob();
+    const pdfUrl = URL.createObjectURL(pdfBlob);
+    link.href = pdfUrl;
+    link.target = "_blank";
+    link.download = `Constancia-${data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres}.pdf`;
+    link.click();
   }
 
   const [columnDefs, setColumnDefs] = useState([
@@ -247,13 +222,13 @@ const VisualizarRegistroEmo = () => {
 
       const filterData = rowData.filter(
         (item) =>
-          item.nombreEmpresa === selectFilter &&
+          item.nombreEmpresa === selectFilter[0] &&
           item.fecha_examen !== "" &&
           item.clinica !== "" &&
           item.fecha_lectura !== "" &&
           item.condicion_aptitud !== ""
       );
-  
+      console.log(filterData);
       if(filterData.length === 0){
 
         return toast.error("No se encontro ningun registro completo para descargar la constancia.", {
