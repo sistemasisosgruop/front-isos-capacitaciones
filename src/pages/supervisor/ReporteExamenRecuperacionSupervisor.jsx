@@ -150,18 +150,15 @@ const ReporteExamenRecuperacionSupervisor = ({ titulo }) => {
       setDataReporte(response?.data?.data);
       setRowData(response?.data?.data);
       setTotalRows(response?.data?.pageInfo?.total);
+      const todasLasCapacitaciones = response?.data?.data.flatMap(item => item.capacitacion || []);
+    
+      setCapacitaciones(todasLasCapacitaciones);
     } else {
       toast.error("Ocurrio un error en el servidor", {
         position: "bottom-right",
       });
     }
   };
-
-  useEffect(() => {
-    getCapacitaciones().then(({ data }) => {
-      setCapacitaciones(data);
-    });
-  }, []);
 
   useEffect(() => {
     getReportes(page, perPage,selectEmpresa, selectCapacitacion, selectMes,codigoFiltro,añoFiltro);
