@@ -61,7 +61,10 @@ const ReporteCertificado = () => {
     },
     {
       name: "Codigo certificado",
-      selector: (row) => row.reporte.id,
+      selector: (row) => 
+        row.asistenciaExamen
+        ? `CERT-${row.trabajadorId}.${row.capacitacion.id}-${new Date(row.capacitacion.fechaInicio).getFullYear()}`
+        : "-",
       sortable: true,
       center: true,
     },

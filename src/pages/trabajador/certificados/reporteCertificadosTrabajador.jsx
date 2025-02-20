@@ -55,9 +55,13 @@ const ReporteCertificadosTrabajador = () => {
 
   const columns = [
     {
-      name: "Codigo Certificado",
-      selector: (row) => row.reporteId,
+      name: "Codigo certificado",
+      selector: (row) => 
+        row.asistenciaExamen
+        ? `CERT-${row.trabajadorId}.${row.capacitacion.id}-${new Date(row.capacitacion.fechaInicio).getFullYear()}`
+        : " ",
       sortable: true,
+      center: true,
     },
     {
       name: "Codigo",
