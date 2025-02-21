@@ -102,6 +102,11 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       center: true,
     },
     {
+      name: "Hora examen",
+      selector: (row) => row.horaExamen,
+      center: true,
+    },
+    {
       name: "Opciones",
       button: true,
       cell: (e) => (

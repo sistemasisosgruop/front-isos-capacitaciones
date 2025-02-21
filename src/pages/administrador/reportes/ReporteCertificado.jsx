@@ -93,6 +93,11 @@ const ReporteCertificado = () => {
       center: true,
     },
     {
+      name: "Hora examen",
+      selector: (row) => row.horaExamen,
+      center: true,
+    },
+    {
       name: "Opciones",
       sortable: true,
       center: true,
@@ -187,6 +192,7 @@ const ReporteCertificado = () => {
       { header: "Nota examen", key: "notaExamen", width: 10 },
       { header: "asistenciaExamen", key: "asistenciaExamen", width: 10 },
       { header: "Fecha examen", key: "fechaExamen", width: 32 },
+      { header: "Fecha examen", key: "horaExamen", width: 32 },
     ];
 
     // Obtener el rango correspondiente a la cabecera

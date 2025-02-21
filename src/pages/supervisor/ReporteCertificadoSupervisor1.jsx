@@ -78,6 +78,11 @@ const ReporteCertificadoSupervisor1 = () => {
       center: true,
     },
     {
+      name: "Hora examen",
+      selector: (row) => row.horaExamen,
+      center: true,
+    },
+    {
       name: "Opciones",
       sortable: true,
       center: true,
@@ -129,7 +134,6 @@ const ReporteCertificadoSupervisor1 = () => {
     const empresaObj = empresas.filter(item => empresasId.includes(item.id));
     const nombresEmpresas = empresaObj?.map(e => e.nombreEmpresa);
     setSelectEmpresa(nombresEmpresas);
-    console.log(selectEmpresa);
   }, [empresas]); // Dependencias para este useEffect
 
   useEffect(() => {
