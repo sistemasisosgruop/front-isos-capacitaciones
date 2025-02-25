@@ -338,7 +338,7 @@ const ReporteCertificado = () => {
           Reporte de certificados
         </h2>
         <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
-          <div className="flex flex-col md:flex-row w-full lg:w-3/5 gap-3">
+          <div className="flex flex-col md:flex-row w-full gap-3">
             <select
               className="w-1/6 select select-bordered select-sm"
               id="searchSelect"
@@ -374,7 +374,7 @@ const ReporteCertificado = () => {
               type="text"
               name="codigo"
               placeholder="Buscar por código"
-              className="w-full input input-bordered input-sm"
+              className="w-1/6 input input-bordered input-sm"
               value={codigoFiltro}
               onChange={(e) => {
                 setCodigoFiltro(e.target.value)
@@ -412,7 +412,7 @@ const ReporteCertificado = () => {
               })}
             </select>
           </div>
-          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-1/6">
+          {/* <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-1/6">
             <Button
               description="Exportar"
               event={() => descargarDocumento("excel")}
@@ -425,7 +425,7 @@ const ReporteCertificado = () => {
             >
               Descargar PDFS
             </button>
-          </div>
+          </div> */}
         </div>
 
         <div style={containerStyle}>

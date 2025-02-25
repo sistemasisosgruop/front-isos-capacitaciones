@@ -540,8 +540,7 @@ const VisualizarRegistroEmo = () => {
           item.fecha_lectura !== "" &&
           item.condicion_aptitud !== ""
       );
-      console.log(filterData);
-  
+
       if(filterData.length === 0){
 
         return toast.error("No se encontro ningun registro completo para descargar la constancia.", {
