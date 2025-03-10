@@ -412,7 +412,7 @@ const ReporteCertificado = () => {
               })}
             </select>
           </div>
-          {/* <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-1/6">
+          <div className="flex flex-col md:flex-row justify-end  gap-3 w-full lg:w-1/6">
             <Button
               description="Exportar"
               event={() => descargarDocumento("excel")}
@@ -425,7 +425,7 @@ const ReporteCertificado = () => {
             >
               Descargar PDFS
             </button>
-          </div> */}
+          </div>
         </div>
 
         <div style={containerStyle}>
