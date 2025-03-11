@@ -480,7 +480,7 @@ const VisualizarRegistroEmo = () => {
         gridRef.current.api.setFilterModel({
           nombreEmpresa: {
             filterType: "text", // Filtro de tipo texto
-            type: "contains",   // Busca valores que contienen el texto
+            type: "equals",   // Busca valores que contienen el texto
             filter: selectedValue, // Valor a buscar
           },
         });
