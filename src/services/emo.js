@@ -14,10 +14,9 @@ const stepApi = 'emo';
 //     .catch(objErrorApi);
 // };
 
-const getTrabajadorEmo = (page, limit) => {
-  let url = `${stepApi}?page=${page}&limit=${limit}`;
-  return baseApi(url)
-    .get()
+const getTrabajadorEmo = () => {
+  return baseApi(stepApi)
+    .get("/")
     .catch(objErrorApi);
 };
 
