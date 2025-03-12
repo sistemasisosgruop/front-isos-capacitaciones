@@ -67,7 +67,7 @@ const VisualizarRegistroEmo = () => {
       if (data) {
         if (selectFilter) {
           const filteredData = data.data.filter((item) =>
-            item.empresas.some((empresa) => empresa.nombreEmpresa === selectFilter)
+            item.nombreEmpresa === selectFilter
           );
           setRowData(filteredData);
         } else {
@@ -216,15 +216,15 @@ const VisualizarRegistroEmo = () => {
               // data.celular = '959824954';
               const response = await postSendWhatsapp(data);
               if (response.status === 200) {
-                getTrabajadorEmo().then(({ data, message = null }) => {
-                  if (data) {
-                    setRowData(data.data);
-                  } else {
-                    toast.error("Ocurrio un error en el servidor", {
-                      position: "bottom-right",
-                    });
-                  }
-                });
+                // getTrabajadorEmo().then(({ data, message = null }) => {
+                //   if (data) {
+                //     setRowData(data.data);
+                //   } else {
+                //     toast.error("Ocurrio un error en el servidor", {
+                //       position: "bottom-right",
+                //     });
+                //   }
+                // });
                 toast.success("Se envio el Whatsapp correctamente.", {
                   position: "bottom-right",
                 });
@@ -238,7 +238,6 @@ const VisualizarRegistroEmo = () => {
           },
           {
             label: 'NO',
-            // onClick: () => alert('Click No')
           }
         ]
       });
@@ -271,15 +270,15 @@ const VisualizarRegistroEmo = () => {
             onClick: async () => {
               const response = await postSendEmail(data);
               if (response.status === 200) {
-                getTrabajadorEmo().then(({ data, message = null }) => {
-                  if (data) {
-                    setRowData(data.data);
-                  } else {
-                    toast.error("Ocurrio un error en el servidor", {
-                      position: "bottom-right",
-                    });
-                  }
-                });
+                // getTrabajadorEmo().then(({ data, message = null }) => {
+                //   if (data) {
+                //     setRowData(data.data);
+                //   } else {
+                //     toast.error("Ocurrio un error en el servidor", {
+                //       position: "bottom-right",
+                //     });
+                //   }
+                // });
                 toast.success("Se envio el correo correctamente.", {
                   position: "bottom-right",
                 });
@@ -322,7 +321,6 @@ const VisualizarRegistroEmo = () => {
   const sendEmoWhatsapp = async (data) => {
     setDescripcionModal("Enviar EMO por WhatsApp al trabajador");
     const url = `${VITE_API_URL}/${ stepApi }/descargar/emo/${data.trabajador_id}`;
-    console.log('enviando')
 
     if (!data.fecha_examen) {
       toast.error("No importo los datos respectivos", {
@@ -344,15 +342,15 @@ const VisualizarRegistroEmo = () => {
               // data.celular = '959824954';
               const response = await postSendEmoWhatsapp(data);
               if (response.status === 200) {
-                getTrabajadorEmo().then(({ data, message = null }) => {
-                  if (data) {
-                    setRowData(data.data);
-                  } else {
-                    toast.error("Ocurrio un error en el servidor", {
-                      position: "bottom-right",
-                    });
-                  }
-                });
+                // getTrabajadorEmo().then(({ data, message = null }) => {
+                //   if (data) {
+                //     setRowData(data.data);
+                //   } else {
+                //     toast.error("Ocurrio un error en el servidor", {
+                //       position: "bottom-right",
+                //     });
+                //   }
+                // });
                 toast.success("Se envio el Whatsapp correctamente.", {
                   position: "bottom-right",
                 });
@@ -366,17 +364,14 @@ const VisualizarRegistroEmo = () => {
           },
           {
             label: 'NO',
-            // onClick: () => alert('Click No')
           }
         ]
       });
     }
-    // setdataForm(data);
   };
 
   const sendEmail = async (data) => {
     setDescripcionModal("Enviar por Correo al trabajador");
-    // console.log(data);
     if (!data.fecha_examen) {
       toast.error("No importo los datos respectivos", {
         position: "bottom-right",
@@ -395,15 +390,15 @@ const VisualizarRegistroEmo = () => {
             onClick: async () => {
               const response = await postSendEmoEmail(data);
               if (response.status === 200) {
-                getTrabajadorEmo().then(({ data, message = null }) => {
-                  if (data) {
-                    setRowData(data.data);
-                  } else {
-                    toast.error("Ocurrio un error en el servidor", {
-                      position: "bottom-right",
-                    });
-                  }
-                });
+                // getTrabajadorEmo().then(({ data, message = null }) => {
+                //   if (data) {
+                //     setRowData(data.data);
+                //   } else {
+                //     toast.error("Ocurrio un error en el servidor", {
+                //       position: "bottom-right",
+                //     });
+                //   }
+                // });
                 toast.success("Se envio el correo correctamente.", {
                   position: "bottom-right",
                 });
@@ -416,7 +411,6 @@ const VisualizarRegistroEmo = () => {
           },
           {
             label: 'NO',
-            // onClick: () => alert('Click No')
           }
         ]
       });
@@ -469,7 +463,38 @@ const VisualizarRegistroEmo = () => {
       filter: 'agTextColumnFilter',  
       width: 200,
     },
+    { field: "actualizado_fecha_caducidad", headerName: "actualizado_fecha_caducidad" },
+    { field: "actualizado_fecha_examen", headerName: "actualizado_fecha_examen" },
   ]);
+
+  const gridOptions = {
+    getRowStyle: (params) => {
+      const fechaVencimiento = new Date(params.data.fecha_vencimiento);
+      const actualizado_fecha_caducidad = params.data.actualizado_fecha_caducidad;
+      const actualizado_fecha_examen = params.data.actualizado_fecha_examen;
+      const hoy = new Date();
+
+      if(actualizado_fecha_examen == true && actualizado_fecha_caducidad == true){
+        return { backgroundColor: '#205781' };
+      }
+      else if(actualizado_fecha_caducidad == true)
+      {
+        return { backgroundColor: 'lightblue' };
+      }
+      
+      if (fechaVencimiento >= hoy) {
+        return { backgroundColor: 'lightgreen' };
+      }
+      else if (fechaVencimiento < hoy){
+        return { backgroundColor: 'red' };
+      }
+      
+      
+      
+        
+      return null; // Sin estilo si la fecha ya venció
+    }
+  };
 
   const onFilterTextBoxChanged = useCallback((e, isSelect) => {
     if (isSelect) {
@@ -508,7 +533,6 @@ const VisualizarRegistroEmo = () => {
 
 
   const handleConstanciaDownload = async (data) => {
-    // if(data.fecha_lectura) {
       const logo = await getImgs(data.empresa_id, "logo");
       const srcLogo = URL.createObjectURL(new Blob([logo.data]));
       const link = document.createElement("a");
@@ -520,18 +544,11 @@ const VisualizarRegistroEmo = () => {
       link.target = "_blank";
       link.download = `Constancia-${data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres}.pdf`;
       link.click();
-    // } else {
-    //   return toast.error("No se puede descargar debe tener la Fecha de Lectura", {
-    //     position: "bottom-right",
-    //   });
-    // }
+
   };
 
   const handleDownloadMulitple = async (data) => {
-
-
     if (selectFilter !== "") {
-
       const filterData = rowData.filter(
         (item) =>
           item.nombreEmpresa === selectFilter &&
@@ -542,13 +559,10 @@ const VisualizarRegistroEmo = () => {
       );
 
       if(filterData.length === 0){
-
         return toast.error("No se encontro ningun registro completo para descargar la constancia.", {
           position: "bottom-right",
         });
       }
-
-
       const logo = await getImgs(filterData[0].empresa_id, "logo");
       const srcLogo = URL.createObjectURL(new Blob([logo.data]));
       for (let i = 0; i < filterData.length; i++) {
@@ -560,10 +574,7 @@ const VisualizarRegistroEmo = () => {
         link.target = "_blank";
         link.download = `Constancia-${data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres}.pdf`;
         link.click();
-      
-        // Agregamos el 'setTimeout' aquí
         await new Promise((resolve) => setTimeout(resolve, 500)); 
-      
       };
     } else {
       toast.error("Seleccione una empresa para descargar el pdf.", {
@@ -604,11 +615,6 @@ const VisualizarRegistroEmo = () => {
       <div className="flex flex-col justify-end w-full gap-3 md:flex-row lg:w-2/5">
       
         <div className="flex justify-between gap-3">
-          {/* <Button
-            description="Importar"
-            icon={faFileImport}
-            event={openModalImport}
-          /> */}
           <button
             className="btn btn-sm btn-outline btn-error"
             onClick={handleDownloadMulitple}
@@ -624,6 +630,7 @@ const VisualizarRegistroEmo = () => {
           <AgGridReact
             rowData={rowData}
             columnDefs={columnDefs}
+            gridOptions={gridOptions}
             defaultColDef={defaultColDef}
             autoSizeColumns={true}
             rowGroupPanelShow={"always"}
