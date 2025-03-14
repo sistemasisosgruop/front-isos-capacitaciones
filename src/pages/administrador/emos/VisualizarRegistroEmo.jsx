@@ -55,6 +55,7 @@ const VisualizarRegistroEmo = () => {
   const [rowDelete, setRowDelete] = useState(null);
   const [descripcionModal, setDescripcionModal] = useState("");
   const gridRef = useRef();
+  const [selectedRows, setSelectedRows] = useState([]);
   const { VITE_API_URL } = getEnvVaribles();
   const stepApi = 'emo';
 
@@ -418,6 +419,7 @@ const VisualizarRegistroEmo = () => {
   };
 
   const [columnDefs, setColumnDefs] = useState([
+    { headerCheckboxSelection: true, checkboxSelection: true, width: 50,  pinned: 'left',},
     { field: "nro", hide: true },
     {
       field: "apellidosYNombres",
@@ -463,8 +465,8 @@ const VisualizarRegistroEmo = () => {
       filter: 'agTextColumnFilter',  
       width: 200,
     },
-    { field: "actualizado_fecha_caducidad", headerName: "actualizado_fecha_caducidad" },
-    { field: "actualizado_fecha_examen", headerName: "actualizado_fecha_examen" },
+    { field: "actualizado_fecha_caducidad", headerName: "actualizado_fecha_caducidad" , hide: true},
+    { field: "actualizado_fecha_examen", headerName: "actualizado_fecha_examen" , hide: true},
   ]);
 
   const gridOptions = {
@@ -547,41 +549,96 @@ const VisualizarRegistroEmo = () => {
 
   };
 
-  const handleDownloadMulitple = async (data) => {
-    if (selectFilter !== "") {
-      const filterData = rowData.filter(
-        (item) =>
-          item.nombreEmpresa === selectFilter &&
-          item.fecha_examen !== "" &&
-          item.clinica !== "" &&
-          item.fecha_lectura !== "" &&
-          item.condicion_aptitud !== ""
-      );
+  const onSelectionChanged = useCallback(() => {
+    const selectedNodes = gridRef.current.api.getSelectedNodes();
+    setSelectedRows(selectedNodes);
+  }, []);
 
-      if(filterData.length === 0){
-        return toast.error("No se encontro ningun registro completo para descargar la constancia.", {
+  const handleDownloadMulitple = async () => {
+    try {
+      let dataToDownload = [];
+      if (selectedRows.length > 0) {
+        // Si hay filas seleccionadas, usa esas
+        dataToDownload = selectedRows.filter(
+          (item) =>
+            item.data.fecha_examen !== "" &&
+            item.data.clinica !== "" &&
+            item.data.fecha_lectura !== "" &&
+            item.data.condicion_aptitud !== ""
+        );
+  
+        if (dataToDownload.length === 0) {
+          return toast.error("No se encontraron registros completos en la selección.", {
+            position: "bottom-right",
+          });
+        }
+
+
+    
+        // Generar PDFs
+        for (const data of dataToDownload) {
+          // Obtener logo
+          const logo = await getImgs(data.data.empresa_id, "logo");
+          const srcLogo = URL.createObjectURL(new Blob([logo.data]));
+          const link = document.createElement("a");
+          const pdfBlob = await pdf(<ConstanciaEmo data={data.data} logo={srcLogo} />).toBlob();
+          const pdfUrl = URL.createObjectURL(pdfBlob);
+          
+          link.href = pdfUrl;
+          link.target = "_blank";
+          link.download = `Constancia-${data.data.apellidoPaterno} ${data.data.apellidoMaterno} ${data.data.nombres}.pdf`;
+          link.click();
+    
+          await new Promise((resolve) => setTimeout(resolve, 500)); // Pequeña pausa entre descargas
+        }
+      } else if (selectFilter !== "") {
+        // Si no hay filas seleccionadas, filtrar por empresa
+        dataToDownload = rowData.filter(
+          (item) =>
+            item.nombreEmpresa === selectFilter &&
+            item.fecha_examen !== "" &&
+            item.clinica !== "" &&
+            item.fecha_lectura !== "" &&
+            item.condicion_aptitud !== ""
+        );
+  
+        if (dataToDownload.length === 0) {
+          return toast.error("No se encontró ningún registro completo para descargar la constancia.", {
+            position: "bottom-right",
+          });
+        }
+
+        // Obtener logo
+        const logo = await getImgs(dataToDownload[0].empresa_id, "logo");
+        const srcLogo = URL.createObjectURL(new Blob([logo.data]));
+    
+        // Generar PDFs
+        for (const data of dataToDownload) {
+          const link = document.createElement("a");
+          const pdfBlob = await pdf(<ConstanciaEmo data={data} logo={srcLogo} />).toBlob();
+          const pdfUrl = URL.createObjectURL(pdfBlob);
+          
+          link.href = pdfUrl;
+          link.target = "_blank";
+          link.download = `Constancia-${data.apellidoPaterno} ${data.apellidoMaterno} ${data.nombres}.pdf`;
+          link.click();
+    
+          await new Promise((resolve) => setTimeout(resolve, 500)); // Pequeña pausa entre descargas
+        }
+      } else {
+        return toast.error("Seleccione una empresa o registros para descargar el PDF.", {
           position: "bottom-right",
         });
       }
-      const logo = await getImgs(filterData[0].empresa_id, "logo");
-      const srcLogo = URL.createObjectURL(new Blob([logo.data]));
-      for (let i = 0; i < filterData.length; i++) {
-        const data = filterData[i];
-        const link = document.createElement("a");
-        const pdfBlob = await pdf(<ConstanciaEmo data={data} logo={srcLogo} />).toBlob();
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        link.href = pdfUrl;
-        link.target = "_blank";
-        link.download = `Constancia-${data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres}.pdf`;
-        link.click();
-        await new Promise((resolve) => setTimeout(resolve, 500)); 
-      };
-    } else {
-      toast.error("Seleccione una empresa para descargar el pdf.", {
+      
+    } catch (error) {
+      console.error("Error al generar PDF:", error);
+      toast.error("Ocurrió un error al generar los PDFs.", {
         position: "bottom-right",
       });
     }
   };
+  
 
   return (
     <div>
@@ -639,6 +696,10 @@ const VisualizarRegistroEmo = () => {
             rowHeight="34"
             ref={gridRef}
             getRowId={getRowId}
+            onSelectionChanged={onSelectionChanged}
+            rowSelection="multiple"
+            suppressRowClickSelection={true}
+            rowMultiSelectWithClick={true}
           ></AgGridReact>
         </div>
       </div>
