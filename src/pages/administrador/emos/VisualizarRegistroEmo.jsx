@@ -10,18 +10,8 @@ import { getEmpresas, getImgs } from "../../../services/empresa";
 import { getTrabajadores } from "../../../services/trabajador";
 import { AgGridReact } from "ag-grid-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPlus,
-  faEdit,
-  faMailForward,
-  faPhone,
-  faEye,
-  faMailBulk,
-  faTrashAlt,
-  faEnvelope,
-  faFileImport,
-  faDownload,
-} from "@fortawesome/free-solid-svg-icons";
+import { FaEnvelope, FaEdit, FaDownload } from "react-icons/fa";
+import { FaEye, FaPhoneAlt, FaEnvelopeOpenText, FaWhatsapp } from "react-icons/fa";
 import { Modal } from "../../../components/modal/Modal";
 import useModals from "../../../hooks/useModal";
 import FormularioImportar from "./FormularioImportar";
@@ -41,7 +31,7 @@ import getEnvVaribles from "../../../config/getEnvVariables";
 
 const VisualizarRegistroEmo = () => {
   const containerStyle = useMemo(() => ({ width: "100%", height: "75vh" }), []);
-  const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
+  const gridStyle = useMemo(() => ({ height: "100%", width: "100%" } ), []);
   const [isOpen1, openModal1, closeModal1] = useModals();
   const [isOpen2, openModal2, closeModal2] = useModals();
   const [isOpen3, openModal3, closeModal3] = useModals();
@@ -122,69 +112,59 @@ const VisualizarRegistroEmo = () => {
   }, []);
   const renderConstanciaButtons = ({ data }) => {
     return (
-      <>
-        <label
-          onClick={() => sendConstanciaButton(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faPhone} />
-        </label>
-        <label
-          onClick={() => sendConstanciaEmailButton(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faEnvelope} />
-        </label>
-        <label
-          onClick={() => updateConstanciaButton(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faEdit} />
-        </label>
-        <label
-          onClick={() => handleConstanciaDownload(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faDownload} />
-        </label>
-      </>
+      <div className="flex gap-2 items-center">
+        <FaWhatsapp 
+          className="cursor-pointer text-green-600 hover:text-green transition duration-200" 
+          size={16} 
+          onClick={() => sendConstanciaButton(data)} 
+        />
+        <FaEnvelope 
+          className="cursor-pointer text-yellow-500 hover:text-yellow-700 transition duration-200" 
+          size={16} 
+          onClick={() => sendConstanciaEmailButton(data)} 
+        />
+        <FaEdit 
+          className="cursor-pointer text-blue-500 hover:text-blue-700 transition duration-200" 
+          size={16} 
+          onClick={() => updateConstanciaButton(data)} 
+        />
+        <FaDownload 
+          className="cursor-pointer text-gray-500 hover:text-gray-700 transition duration-200" 
+          size={16} 
+          onClick={() => handleConstanciaDownload(data)} 
+        />
+      </div>
     );
   };
-
   const renderEmoButtons = ({ data }) => {
     return (
-      <>
-      <label
-          onClick={() => sendEmo(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faEye} />
-        </label>
-        <label
-          onClick={() => sendButton(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faPhone} />
-        </label>
-        <label
-          onClick={() => sendEmailButton(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faEnvelope} />
-        </label>
-        <label
-          onClick={() => sendEmail(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faMailBulk} />
-        </label>
-        <label
-          onClick={() => sendEmoWhatsapp(data)}
-          className="mr-2 cursor-pointer"
-        >
-          <FontAwesomeIcon icon={faMailForward} />
-        </label>
-      </>
+      <div className="flex gap-2 items-center">
+        <FaEye 
+          className="cursor-pointer text-gray-500 hover:text-gray-700 transition duration-200" 
+          size={16} 
+          onClick={() => sendEmo(data)} 
+        />
+        <FaPhoneAlt 
+          className="cursor-pointer text-gray-500 hover:text-gray-700 transition duration-200" 
+          size={16} 
+          onClick={() => sendButton(data)} 
+        />
+        <FaEnvelopeOpenText 
+          className="cursor-pointer text-gray-500 hover:text-gray-700 transition duration-200" 
+          size={16} 
+          onClick={() => sendEmailButton(data)} 
+        />
+        <FaEnvelope 
+        className="cursor-pointer text-yellow-500 hover:text-yellow-700 transition duration-200" 
+        size={16} 
+        onClick={() => sendEmail(data)} 
+        />
+        <FaWhatsapp 
+          className="cursor-pointer text-green-600 hover:text-green-800 transition duration-200" 
+          size={16} 
+          onClick={() => sendEmoWhatsapp(data)} 
+        />
+      </div>
     );
   };
   const updateConstanciaButton = (data) => {
@@ -429,7 +409,16 @@ const VisualizarRegistroEmo = () => {
       valueGetter: (params) => 
         `${params.data.apellidoPaterno || ''} ${params.data.apellidoMaterno || ''} ${params.data.nombres || ''}`.trim()
     },
-    { field: "dni", headerName: "DNI", width: 110 },
+    { field: "dni",
+       headerName: "DNI",
+        width: 110,
+        cellStyle: (params) => {
+          const state_created = params.data.state_created;
+          if(state_created){
+            return { backgroundColor: "lightblue", color: "black" };
+          }
+        }
+    },
     { field: "cargo", headerName: "PUESTO LABORAL" },
     {
       field: "fecha_examen",
@@ -456,47 +445,42 @@ const VisualizarRegistroEmo = () => {
       headerName: "ESTADO CORREO EMO",
     },
     { field: "estado_emo_whatsapp", headerName: "ESTADO WHATSAPP EMO", width: 250 },
-    { field: "estado", headerName: "ESTADO" },
-    { field: "CONSTANCIAS", cellRenderer: renderConstanciaButtons, width: 150 },
-    { field: "EMOS", cellRenderer: renderEmoButtons, width: 180 },
-    {
-      field: "nombreEmpresa", 
-      headerName: "EMPRESAS",
-      filter: 'agTextColumnFilter',  
-      width: 200,
-    },
-    { field: "actualizado_fecha_caducidad", headerName: "actualizado_fecha_caducidad" , hide: true},
-    { field: "actualizado_fecha_examen", headerName: "actualizado_fecha_examen" , hide: true},
-  ]);
+    { 
+      field: "estado",
+      headerName: "ESTADO",
+      cellStyle: (params) => {
+          const fechaVencimiento = new Date(params.data.fecha_vencimiento);
+          const actualizado_fecha_caducidad = params.data.actualizado_fecha_caducidad;
+          const actualizado_fecha_examen = params.data.actualizado_fecha_examen;
+          const hoy = new Date();
 
-  const gridOptions = {
-    getRowStyle: (params) => {
-      const fechaVencimiento = new Date(params.data.fecha_vencimiento);
-      const actualizado_fecha_caducidad = params.data.actualizado_fecha_caducidad;
-      const actualizado_fecha_examen = params.data.actualizado_fecha_examen;
-      const hoy = new Date();
+          if (actualizado_fecha_examen === true && actualizado_fecha_caducidad === true) {
+            return { backgroundColor: "#205781", color: "white" };
+          } else if (actualizado_fecha_caducidad === true) {
+            return { backgroundColor: "lightblue", color: "black" };
+          }
 
-      if(actualizado_fecha_examen == true && actualizado_fecha_caducidad == true){
-        return { backgroundColor: '#205781' };
-      }
-      else if(actualizado_fecha_caducidad == true)
+          if (fechaVencimiento >= hoy) {
+            return { backgroundColor: "lightgreen", color: "black" };
+          } else if (fechaVencimiento < hoy) {
+            return { backgroundColor: "red", color: "white" };
+          }
+
+          return {}; // Sin estilo si no cumple ninguna condición
+        },
+      },
+      { field: "CONSTANCIAS", cellRenderer: renderConstanciaButtons, width: 150,cellStyle: { display: "flex", alignItems: "center", justifyContent: "center" } },
+      { field: "EMOS", cellRenderer: renderEmoButtons, width: 180, cellStyle: { display: "flex", alignItems: "center", justifyContent: "center" } },
       {
-        return { backgroundColor: 'lightblue' };
-      }
-      
-      if (fechaVencimiento >= hoy) {
-        return { backgroundColor: 'lightgreen' };
-      }
-      else if (fechaVencimiento < hoy){
-        return { backgroundColor: 'red' };
-      }
-      
-      
-      
-        
-      return null; // Sin estilo si la fecha ya venció
-    }
-  };
+        field: "nombreEmpresa", 
+        headerName: "EMPRESAS",
+        filter: 'agTextColumnFilter',  
+        width: 200,
+      },
+      { field: "actualizado_fecha_caducidad", headerName: "actualizado_fecha_caducidad" , hide: true},
+      { field: "actualizado_fecha_examen", headerName: "actualizado_fecha_examen" , hide: true},
+    ]);
+
 
   const onFilterTextBoxChanged = useCallback((e, isSelect) => {
     if (isSelect) {
@@ -681,13 +665,29 @@ const VisualizarRegistroEmo = () => {
         </div>
       </div>
       </div>
-
+      <div className="flex flex-wrap items-center gap-3 p-2 bg-white shadow-md rounded-md text-xs border border-gray-300">
+        <div className="flex items-center gap-1">
+          <span className="w-4 h-4 bg-[#205781] rounded"></span>
+          <span>Examen y caducidad actualizados</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="w-4 h-4" style={{ backgroundColor: "#ADD8E6" }}></span>
+          <span>Solo fecha de caducidad actualizada</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="w-4 h-4" style={{ backgroundColor: "#90EE90" }}></span>
+          <span>Fecha de vencimiento en regla</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <span className="w-4 h-4 bg-red-500 rounded"></span>
+          <span>Examen vencido</span>
+        </div>
+      </div>
       <div style={containerStyle}>
         <div style={gridStyle} className="ag-theme-alpine">
           <AgGridReact
             rowData={rowData}
             columnDefs={columnDefs}
-            gridOptions={gridOptions}
             defaultColDef={defaultColDef}
             autoSizeColumns={true}
             rowGroupPanelShow={"always"}
