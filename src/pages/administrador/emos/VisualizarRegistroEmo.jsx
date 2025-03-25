@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FaEnvelope, FaEdit, FaDownload } from "react-icons/fa";
 import { FaEye, FaPhoneAlt, FaEnvelopeOpenText, FaWhatsapp } from "react-icons/fa";
 import { Modal } from "../../../components/modal/Modal";
+import { PDFDocument, rgb } from "pdf-lib";
 import useModals from "../../../hooks/useModal";
 import FormularioImportar from "./FormularioImportar";
 import FormularioTrabajador from "./FormularioTrabajador";
@@ -21,7 +22,7 @@ import FormularioEmos from "./FormularioEmos";
 import FormularioCorreos from "./FormularioCorreos";
 import { initialForm } from "./config";
 import { pdf } from "@react-pdf/renderer";
-import { getTrabajadorEmo, postSendEmail, postSendWhatsapp, postSendEmoEmail, postSendEmoWhatsapp } from "../../../services/emo";
+import { getTrabajadorEmo, postSendEmail, postSendWhatsapp, postSendEmoEmail, postSendEmoWhatsapp, postCrearConstancia,getGenerarConstancia} from "../../../services/emo";
 import ConstanciaEmo from "../../../components/ConstanciaEmo";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
@@ -519,19 +520,51 @@ const VisualizarRegistroEmo = () => {
 
 
   const handleConstanciaDownload = async (data) => {
-      const logo = await getImgs(data.empresa_id, "logo");
-      const srcLogo = URL.createObjectURL(new Blob([logo.data]));
-      const link = document.createElement("a");
-      const pdfBlob = await pdf(
-        <ConstanciaEmo data={data} logo={srcLogo} />
-      ).toBlob();
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      link.href = pdfUrl;
-      link.target = "_blank";
-      link.download = `Constancia-${data.apellidoPaterno + " " + data.apellidoMaterno + " " + data.nombres}.pdf`;
-      link.click();
-
+    try {
+      await postCrearConstancia(data);
+      // 📌 Llamamos a la API para generar la constancia antes de la descarga
+      const response = await getGenerarConstancia(data.trabajador_id, data.empresa_id);
+      if (!response) {
+        toast.error("No se pudo generar la constancia.");
+        return;
+      }
+  
+      toast.success("Constancia generada correctamente.");
+  
+        const url = `${VITE_API_URL}/emo/descargar/constancia/${data.trabajador_id}`;
+    
+        
+        // 📌 Descargar el PDF original
+        const response2 = await fetch(url);
+        if (!response2.ok) throw new Error("Error al obtener el PDF");
+        const existingPdfBytes = await response2.arrayBuffer();
+    
+        // 📌 Cargar el PDF en pdf-lib
+        const pdfDoc = await PDFDocument.load(existingPdfBytes);
+        const pages = pdfDoc.getPages();
+    
+        pages.forEach((page) => {
+          const { width, height } = page.getSize(); 
+    
+          page.drawText(`Código: ${data.trabajador_id}-${response.serial}`, {
+            x: width - 150, 
+            y: 30, 
+            size: 10,
+          });
+        });
+    
+        // 📌 Guardar el PDF modificado
+        const modifiedPdfBytes = await pdfDoc.save();
+    
+        // 📌 Descargar el nuevo PDF
+        saveAs(new Blob([modifiedPdfBytes], { type: "application/pdf" }), `Constancia-${data.trabajador_id}-${response.serial}.pdf`);
+    
+      } catch (error) {
+        console.error("Error al modificar y descargar la constancia:", error);
+      }
+    
   };
+  
 
   const onSelectionChanged = useCallback(() => {
     const selectedNodes = gridRef.current.api.getSelectedNodes();

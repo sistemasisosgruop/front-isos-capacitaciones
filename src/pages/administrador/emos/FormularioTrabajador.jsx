@@ -28,7 +28,7 @@ const FormularioTrabajador = ({
     fecha_examen: "",
     fecha_vencimiento: "",
     condicion_aptitud: "",
-    estado: "",
+    // estado: "",
   });
   const formValidations = validate();
   //tipo de accion del formulario
@@ -40,7 +40,7 @@ const FormularioTrabajador = ({
       fecha_examen: initialForm?.fecha_examen || "",
       fecha_vencimiento: initialForm?.fecha_vencimiento || "",
       condicion_aptitud: initialForm?.condicion_aptitud || "",
-      estado: initialForm?.estado || "",
+      // estado: initialForm?.estado || "",
     });
   }, [initialForm]);
 
@@ -171,7 +171,7 @@ const FormularioTrabajador = ({
           )} */}
         </div>
       </div>
-      <div className="w-full mt-2">
+      {/* <div className="w-full mt-2">
           <label htmlFor="estado" className="font-semibold">
             Estado
           </label>
@@ -187,7 +187,7 @@ const FormularioTrabajador = ({
             <option value="EMITIDO">EMITIDO</option>
             <option value="EMITIDO Y ENVIADO">EMITIDO Y ENVIADO</option>
           </select>
-        </div>
+        </div> */}
       <div className="flex justify-end mt-4">
         <Button description={"Guardar"} />
       </div>

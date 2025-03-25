@@ -45,6 +45,23 @@ const getDescargaConstancia = (id, ) => {
     .catch(objErrorApi);
 };
 
+
+const getGenerarConstancia = async (id, empresa_id) => {
+  try {
+    // Construimos la URL con los parámetros correctos
+    const url = `${stepApi}/generar/constancia/${id}?empresa_id=${empresa_id}`;
+
+    // Hacemos la petición GET
+    const response = await baseApi(url).get();
+    
+    return response.data; // Retornamos los datos obtenidos
+
+  } catch (error) {
+    console.error("Error al generar la constancia:", error);
+    return objErrorApi(error); // Manejo de errores
+  }
+};
+
 const postSendEmail = (data ) => {
   return baseApi(stepApi)
     .post(`/send-email`, data)
@@ -117,4 +134,4 @@ const updateTrabajadorEmo = (id, data) => {
 //     .catch(objErrorApi);
 // };
 
-export { getTrabajadorEmo, postSendEmoWhatsapp, getEnvioWhatsapp, postSendEmail, postSendEmoEmail, postSendWhatsapp, postImportarExcel, updateTrabajadorEmo, postEmo, getReporteEmo, getDescargaEmo, getDescargaConstancia, postCrearConstancia,getEmoTrabajador};
+export { getTrabajadorEmo, postSendEmoWhatsapp, getEnvioWhatsapp, postSendEmail, postSendEmoEmail, postSendWhatsapp, postImportarExcel, updateTrabajadorEmo, postEmo, getReporteEmo, getDescargaEmo, getDescargaConstancia, postCrearConstancia,getEmoTrabajador,getGenerarConstancia};

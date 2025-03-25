@@ -92,7 +92,7 @@ const ListadoTrabajador = () => {
       sortable: true,
     },
     {
-      name: "Nombres",
+      name: "Apellido paterno",
       selector: (row) => row.nombres.toUpperCase(),
       sortable: true,
     },

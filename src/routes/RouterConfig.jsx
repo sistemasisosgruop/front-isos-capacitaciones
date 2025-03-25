@@ -32,7 +32,7 @@ import ReporteCertificadoCapacitador1 from "../pages/capacitador/ReporteCertific
 import ReporteExameAsistenciaSupervisor from "../pages/supervisor/ReporteExameAsistenciaSupervisor";
 import ReporteCertificadoSupervisor1 from "../pages/supervisor/ReporteCertificadoSupervisor1";
 import ReporteExamenRecuperacionSupervisor from '../pages/supervisor/ReporteExamenRecuperacionSupervisor'
-
+import ReporteConstancias from "../pages/administrador/reportes/ReporteConstancias"
 
 const router = createBrowserRouter([
   {
@@ -200,6 +200,14 @@ const router = createBrowserRouter([
                 element: (
                   <ReporteExamenRecuperacion
                     titulo={"Reporte de recuperacion de examenes"}
+                  />
+                ),
+              },
+              {
+                path: "constancias",
+                element: (
+                  <ReporteConstancias
+                    titulo={"Reporte de emision de constancias"}
                   />
                 ),
               },

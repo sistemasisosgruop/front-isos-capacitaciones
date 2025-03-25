@@ -14,7 +14,7 @@ import {
   faFileExport,
   faArrowAltCircleDown,
 } from "@fortawesome/free-solid-svg-icons";
-
+import {postCrearConstancia} from "../../services/emo"
 import { toast } from "react-toastify";
 import { getReporte } from "../../services/reportes";
 import {
