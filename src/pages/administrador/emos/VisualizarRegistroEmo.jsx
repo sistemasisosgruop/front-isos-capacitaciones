@@ -15,6 +15,7 @@ import { FaEye, FaPhoneAlt, FaEnvelopeOpenText, FaWhatsapp } from "react-icons/f
 import { Modal } from "../../../components/modal/Modal";
 import { PDFDocument, rgb } from "pdf-lib";
 import useModals from "../../../hooks/useModal";
+import moment from "moment";
 import FormularioImportar from "./FormularioImportar";
 import FormularioTrabajador from "./FormularioTrabajador";
 import FormularioEnvios from "./FormularioEnvios";
@@ -198,15 +199,15 @@ const VisualizarRegistroEmo = () => {
               // data.celular = '959824954';
               const response = await postSendWhatsapp(data);
               if (response.status === 200) {
-                // getTrabajadorEmo().then(({ data, message = null }) => {
-                //   if (data) {
-                //     setRowData(data.data);
-                //   } else {
-                //     toast.error("Ocurrio un error en el servidor", {
-                //       position: "bottom-right",
-                //     });
-                //   }
-                // });
+                getTrabajadorEmo().then(({ data, message = null }) => {
+                  if (data) {
+                    setRowData(data.data);
+                  } else {
+                    toast.error("Ocurrio un error en el servidor", {
+                      position: "bottom-right",
+                    });
+                  }
+                });
                 toast.success("Se envio el Whatsapp correctamente.", {
                   position: "bottom-right",
                 });
@@ -252,15 +253,15 @@ const VisualizarRegistroEmo = () => {
             onClick: async () => {
               const response = await postSendEmail(data);
               if (response.status === 200) {
-                // getTrabajadorEmo().then(({ data, message = null }) => {
-                //   if (data) {
-                //     setRowData(data.data);
-                //   } else {
-                //     toast.error("Ocurrio un error en el servidor", {
-                //       position: "bottom-right",
-                //     });
-                //   }
-                // });
+                getTrabajadorEmo().then(({ data, message = null }) => {
+                  if (data) {
+                    setRowData(data.data);
+                  } else {
+                    toast.error("Ocurrio un error en el servidor", {
+                      position: "bottom-right",
+                    });
+                  }
+                });
                 toast.success("Se envio el correo correctamente.", {
                   position: "bottom-right",
                 });
@@ -324,15 +325,15 @@ const VisualizarRegistroEmo = () => {
               // data.celular = '959824954';
               const response = await postSendEmoWhatsapp(data);
               if (response.status === 200) {
-                // getTrabajadorEmo().then(({ data, message = null }) => {
-                //   if (data) {
-                //     setRowData(data.data);
-                //   } else {
-                //     toast.error("Ocurrio un error en el servidor", {
-                //       position: "bottom-right",
-                //     });
-                //   }
-                // });
+                getTrabajadorEmo().then(({ data, message = null }) => {
+                  if (data) {
+                    setRowData(data.data);
+                  } else {
+                    toast.error("Ocurrio un error en el servidor", {
+                      position: "bottom-right",
+                    });
+                  }
+                });
                 toast.success("Se envio el Whatsapp correctamente.", {
                   position: "bottom-right",
                 });
@@ -372,15 +373,15 @@ const VisualizarRegistroEmo = () => {
             onClick: async () => {
               const response = await postSendEmoEmail(data);
               if (response.status === 200) {
-                // getTrabajadorEmo().then(({ data, message = null }) => {
-                //   if (data) {
-                //     setRowData(data.data);
-                //   } else {
-                //     toast.error("Ocurrio un error en el servidor", {
-                //       position: "bottom-right",
-                //     });
-                //   }
-                // });
+                getTrabajadorEmo().then(({ data, message = null }) => {
+                  if (data) {
+                    setRowData(data.data);
+                  } else {
+                    toast.error("Ocurrio un error en el servidor", {
+                      position: "bottom-right",
+                    });
+                  }
+                });
                 toast.success("Se envio el correo correctamente.", {
                   position: "bottom-right",
                 });
@@ -451,19 +452,22 @@ const VisualizarRegistroEmo = () => {
       headerName: "ESTADO",
       cellStyle: (params) => {
           const fechaVencimiento = new Date(params.data.fecha_vencimiento);
+          const estado = params.data.estado;
           const actualizado_fecha_caducidad = params.data.actualizado_fecha_caducidad;
           const actualizado_fecha_examen = params.data.actualizado_fecha_examen;
-          const hoy = new Date();
+          const hoy = moment().format("YYYY-MM-DD");
 
           if (actualizado_fecha_examen === true && actualizado_fecha_caducidad === true) {
             return { backgroundColor: "#205781", color: "white" };
           } else if (actualizado_fecha_caducidad === true) {
             return { backgroundColor: "lightblue", color: "black" };
+          }else if( estado === 'ACTUALIZADO'){
+            return { backgroundColor: "#205781", color: "white" };
           }
 
-          if (fechaVencimiento >= hoy) {
+          if (moment(fechaVencimiento).isSameOrAfter(hoy) || estado === "VALIDO") {
             return { backgroundColor: "lightgreen", color: "black" };
-          } else if (fechaVencimiento < hoy) {
+          } else if (moment(hoy).isSameOrAfter(fechaVencimiento)){
             return { backgroundColor: "red", color: "white" };
           }
 
@@ -522,7 +526,6 @@ const VisualizarRegistroEmo = () => {
   const handleConstanciaDownload = async (data) => {
     try {
       await postCrearConstancia(data);
-      // 📌 Llamamos a la API para generar la constancia antes de la descarga
       const response = await getGenerarConstancia(data.trabajador_id, data.empresa_id);
       if (!response) {
         toast.error("No se pudo generar la constancia.");
@@ -590,23 +593,48 @@ const VisualizarRegistroEmo = () => {
           });
         }
 
-
-    
         // Generar PDFs
         for (const data of dataToDownload) {
-          // Obtener logo
-          const logo = await getImgs(data.data.empresa_id, "logo");
-          const srcLogo = URL.createObjectURL(new Blob([logo.data]));
-          const link = document.createElement("a");
-          const pdfBlob = await pdf(<ConstanciaEmo data={data.data} logo={srcLogo} />).toBlob();
-          const pdfUrl = URL.createObjectURL(pdfBlob);
+          try {
+            await postCrearConstancia(data.data);
+            const response = await getGenerarConstancia(data.data.trabajador_id, data.data.empresa_id);
+            if (!response) {
+              toast.error("No se pudo generar la constancia.");
+              return;
+            }
+        
+            toast.success("Constancia generada correctamente.");
+        
+            const url = `${VITE_API_URL}/emo/descargar/constancia/${data.data.trabajador_id}`;
+        
+            // 📌 Descargar el PDF original
+            const response2 = await fetch(url);
+            if (!response2.ok) throw new Error("Error al obtener el PDF");
+            const existingPdfBytes = await response2.arrayBuffer();
+        
+            // 📌 Cargar el PDF en pdf-lib
+            const pdfDoc = await PDFDocument.load(existingPdfBytes);
+            const pages = pdfDoc.getPages();
+        
+            pages.forEach((page) => {
+              const { width, height } = page.getSize(); 
+        
+              page.drawText(`Código: ${data.data.trabajador_id}-${response.serial}`, {
+                x: width - 150, 
+                y: 30, 
+                size: 10,
+              });
+            });
           
-          link.href = pdfUrl;
-          link.target = "_blank";
-          link.download = `Constancia-${data.data.apellidoPaterno} ${data.data.apellidoMaterno} ${data.data.nombres}.pdf`;
-          link.click();
-    
-          await new Promise((resolve) => setTimeout(resolve, 500)); // Pequeña pausa entre descargas
+              // 📌 Guardar el PDF modificado
+              const modifiedPdfBytes = await pdfDoc.save();
+          
+              // 📌 Descargar el nuevo PDF
+              saveAs(new Blob([modifiedPdfBytes], { type: "application/pdf" }), `Constancia-${data.data.trabajador_id}-${response.serial}.pdf`);
+          
+            } catch (error) {
+              console.error("Error al modificar y descargar la constancia:", error);
+            }
         }
       } else if (selectFilter !== "") {
         // Si no hay filas seleccionadas, filtrar por empresa
