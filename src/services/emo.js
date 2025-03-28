@@ -95,7 +95,7 @@ const getReporteEmo = (page,limit, empresa, search,all) => {
   let url = `${stepApi}/reporte?page=${page}&limit=${limit}`;
 
   if (empresa) {
-    url += `&nombreEmpresa=${empresa}`;
+    url += `&nombreEmpresa=${encodeURIComponent(empresa)}`;
   }
   if (search) {
     url += `&search=${search}`;
