@@ -560,7 +560,7 @@ const VisualizarRegistroEmo = () => {
         const modifiedPdfBytes = await pdfDoc.save();
     
         // 📌 Descargar el nuevo PDF
-        saveAs(new Blob([modifiedPdfBytes], { type: "application/pdf" }), `Constancia-${data.trabajador_id}-${response.serial}.pdf`);
+        saveAs(new Blob([modifiedPdfBytes], { type: "application/pdf" }), `Constancia-${data.nombres} ${data.apellidoPaterno} ${data.apellidoMaterno}-${response.serial}.pdf`);
     
       } catch (error) {
         console.error("Error al modificar y descargar la constancia:", error);
@@ -630,8 +630,8 @@ const VisualizarRegistroEmo = () => {
               const modifiedPdfBytes = await pdfDoc.save();
           
               // 📌 Descargar el nuevo PDF
-              saveAs(new Blob([modifiedPdfBytes], { type: "application/pdf" }), `Constancia-${data.data.trabajador_id}-${response.serial}.pdf`);
-          
+              saveAs(new Blob([modifiedPdfBytes], { type: "application/pdf" }), `Constancia-${data.nombres} ${data.apellidoPaterno} ${data.apellidoMaterno}-${response.serial}.pdf`);
+    
             } catch (error) {
               console.error("Error al modificar y descargar la constancia:", error);
             }
@@ -668,7 +668,7 @@ const VisualizarRegistroEmo = () => {
           link.download = `Constancia-${data.apellidoPaterno} ${data.apellidoMaterno} ${data.nombres}.pdf`;
           link.click();
     
-          await new Promise((resolve) => setTimeout(resolve, 500)); // Pequeña pausa entre descargas
+          await new Promise((resolve) => setTimeout(resolve, 500));
         }
       } else {
         return toast.error("Seleccione una empresa o registros para descargar el PDF.", {

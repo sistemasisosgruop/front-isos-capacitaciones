@@ -32,19 +32,19 @@ const patchEstado = (data) => {
     .patch(`/${id}`, { habilitado: !estado })
     .catch(objErrorApi);
 };
-
 const getTrabajadores = (page, limit, empresa, search, all) => {
   let url = `${stepApi}?page=${page}&limit=${limit}`;
-
+  
   if (empresa) {
-    url += `&nombreEmpresa=${empresa}`;
+    url += `&nombreEmpresa=${encodeURIComponent(empresa)}`; // Codifica la empresa
   }
   if (search) {
-    url += `&search=${search}`;
+    url += `&search=${encodeURIComponent(search)}`;
   }
   if (all) {
     url += `&all=${all}`;
   }
+
   return baseApi(url).get().catch(objErrorApi);
 };
 const getTrabajadoresEmpresa = (page, limit, empresa, search, all) => {
