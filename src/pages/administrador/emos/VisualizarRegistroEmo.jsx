@@ -659,16 +659,46 @@ const VisualizarRegistroEmo = () => {
     
         // Generar PDFs
         for (const data of dataToDownload) {
-          const link = document.createElement("a");
-          const pdfBlob = await pdf(<ConstanciaEmo data={data} logo={srcLogo} />).toBlob();
-          const pdfUrl = URL.createObjectURL(pdfBlob);
+          try {
+            await postCrearConstancia(data.data);
+            const response = await getGenerarConstancia(data.data.trabajador_id, data.data.empresa_id);
+            if (!response) {
+              toast.error("No se pudo generar la constancia.");
+              return;
+            }
+        
+            toast.success("Constancia generada correctamente.");
+        
+            const url = `${VITE_API_URL}/emo/descargar/constancia/${data.data.trabajador_id}`;
+        
+            // 📌 Descargar el PDF original
+            const response2 = await fetch(url);
+            if (!response2.ok) throw new Error("Error al obtener el PDF");
+            const existingPdfBytes = await response2.arrayBuffer();
+        
+            // 📌 Cargar el PDF en pdf-lib
+            const pdfDoc = await PDFDocument.load(existingPdfBytes);
+            const pages = pdfDoc.getPages();
+        
+            pages.forEach((page) => {
+              const { width, height } = page.getSize(); 
+        
+              page.drawText(`Código: ${data.data.trabajador_id}-${response.serial}`, {
+                x: width - 150, 
+                y: 30, 
+                size: 10,
+              });
+            });
           
-          link.href = pdfUrl;
-          link.target = "_blank";
-          link.download = `Constancia-${data.apellidoPaterno} ${data.apellidoMaterno} ${data.nombres}.pdf`;
-          link.click();
+              // 📌 Guardar el PDF modificado
+              const modifiedPdfBytes = await pdfDoc.save();
+          
+              // 📌 Descargar el nuevo PDF
+              saveAs(new Blob([modifiedPdfBytes], { type: "application/pdf" }), `Constancia-${data.data.nombres} ${data.data.apellidoPaterno} ${data.data.apellidoMaterno}-${response.serial}.pdf`);
     
-          await new Promise((resolve) => setTimeout(resolve, 500));
+            } catch (error) {
+              console.error("Error al modificar y descargar la constancia:", error);
+            }
         }
       } else {
         return toast.error("Seleccione una empresa o registros para descargar el PDF.", {
