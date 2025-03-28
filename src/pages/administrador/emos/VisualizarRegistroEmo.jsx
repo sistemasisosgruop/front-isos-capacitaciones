@@ -72,7 +72,7 @@ const VisualizarRegistroEmo = () => {
         });
       }
     });
-  }, [selectFilter, rowData]);
+  }, [selectFilter]);
   
 
   const onGridReady = useCallback((params) => {
