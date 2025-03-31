@@ -457,17 +457,17 @@ const VisualizarRegistroEmo = () => {
           const actualizado_fecha_examen = params.data.actualizado_fecha_examen;
           const hoy = moment().format("YYYY-MM-DD");
 
-          if (actualizado_fecha_examen === true && actualizado_fecha_caducidad === true) {
+          if (estado != "SIN EMO" && actualizado_fecha_examen === true && actualizado_fecha_caducidad === true) {
             return { backgroundColor: "#205781", color: "white" };
-          } else if (actualizado_fecha_caducidad === true) {
+          } else if (estado != "SIN EMO" &&  actualizado_fecha_caducidad === true) {
             return { backgroundColor: "lightblue", color: "black" };
-          }else if( estado === 'ACTUALIZADO'){
+          }else if(estado != "SIN EMO" && estado === 'ACTUALIZADO'){
             return { backgroundColor: "#205781", color: "white" };
           }
 
-          if (moment(fechaVencimiento).isSameOrAfter(hoy) || estado === "VALIDO") {
+          if (!isNaN(fechaVencimiento) &&  moment(fechaVencimiento).isSameOrAfter(hoy) || estado === "VALIDO") {
             return { backgroundColor: "lightgreen", color: "black" };
-          } else if (moment(hoy).isSameOrAfter(fechaVencimiento)){
+          } else if (estado != "SIN EMO" &&  moment(hoy).isSameOrAfter(fechaVencimiento)){
             return { backgroundColor: "red", color: "white" };
           }
 
