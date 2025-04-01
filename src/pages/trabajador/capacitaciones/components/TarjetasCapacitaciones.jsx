@@ -4,7 +4,7 @@ const TarjetasCapacitaciones = ({ data, verPreguntas, verCertificado }) => {
   if (data.capacitacion.recuperacion) {
     descripcionEstado = "Recuperacion";
     backgroundEstado = "rgb(249 115 22)";
-    if (data.notaExamen > 12) {
+    if (data.notaExamen >= 12) {
       descripcionEstado = "Aprobado";
       backgroundEstado = "rgb(13 148 136)";
     }
