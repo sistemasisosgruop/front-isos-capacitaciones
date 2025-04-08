@@ -630,7 +630,7 @@ const VisualizarRegistroEmo = () => {
               const modifiedPdfBytes = await pdfDoc.save();
           
               // 📌 Descargar el nuevo PDF
-              saveAs(new Blob([modifiedPdfBytes], { type: "application/pdf" }), `Constancia-${data.nombres} ${data.apellidoPaterno} ${data.apellidoMaterno}-${response.serial}.pdf`);
+              saveAs(new Blob([modifiedPdfBytes], { type: "application/pdf" }), `Constancia-${data.data.nombres} ${data.data.apellidoPaterno} ${data.data.apellidoMaterno}-${response.serial}.pdf`);
     
             } catch (error) {
               console.error("Error al modificar y descargar la constancia:", error);
