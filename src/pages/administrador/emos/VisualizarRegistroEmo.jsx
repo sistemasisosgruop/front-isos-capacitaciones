@@ -524,6 +524,15 @@ const VisualizarRegistroEmo = () => {
 
 
   const handleConstanciaDownload = async (data) => {
+
+    if (
+      data.fecha_examen !== "" &&
+      data.clinica !== "" &&
+      data.fecha_lectura !== "" &&
+      data.condicion_aptitud !== ""){
+        toast.error("No se pudo generar la constancia sin emo.");
+        return;
+      }
     try {
       await postCrearConstancia(data);
       const response = await getGenerarConstancia(data.trabajador_id, data.empresa_id);
@@ -581,12 +590,12 @@ const VisualizarRegistroEmo = () => {
         // Si hay filas seleccionadas, usa esas
         dataToDownload = selectedRows.filter(
           (item) =>
-            item.data.fecha_examen !== "" &&
-            item.data.clinica !== "" &&
-            item.data.fecha_lectura !== "" &&
-            item.data.condicion_aptitud !== ""
+            item.data.fecha_examen && item.data.fecha_examen !== "" &&
+            item.data.clinica && item.data.clinica !== "" &&
+            item.data.fecha_lectura && item.data.fecha_lectura !== "" &&
+            item.data.condicion_aptitud && item.data.condicion_aptitud !== ""
         );
-  
+
         if (dataToDownload.length === 0) {
           return toast.error("No se encontraron registros completos en la selección.", {
             position: "bottom-right",
