@@ -524,12 +524,16 @@ const VisualizarRegistroEmo = () => {
 
 
   const handleConstanciaDownload = async (data) => {
-
+    console.log(data.fecha_examen);
+    console.log(data.clinica);
+    console.log(data.fecha_lectura);
+    console.log(data.condicion_aptitud);
     if (
-      data.fecha_examen !== "" &&
-      data.clinica !== "" &&
-      data.fecha_lectura !== "" &&
-      data.condicion_aptitud !== ""){
+      data.fecha_examen == "" &&
+      data.clinica == "" || data.clinica == "-" &&
+      data.fecha_lectura == ""  &&
+      data.condicion_aptitud == "" || data.condicion_aptitud == "-"
+    ){
         toast.error("No se pudo generar la constancia sin emo.");
         return;
       }
