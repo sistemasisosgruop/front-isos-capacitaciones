@@ -82,8 +82,8 @@ const ListadoTrabajador = () => {
       // style: "position: -webkit-sticky;position: sticky;background-color: white;width: 100px;min-width: 100px;max-width: 100px;left: 0px;"
     },
     {
-      name: "Nombres",
-      selector: (row) => row.apellidoPaterno.toUpperCase(),
+      name: "Apellido paterno",
+      selector: (row) => row.nombres.toUpperCase(),
       sortable: true,
     },
     {
@@ -92,11 +92,10 @@ const ListadoTrabajador = () => {
       sortable: true,
     },
     {
-      name: "Apellido paterno",
-      selector: (row) => row.nombres.toUpperCase(),
+      name: "Nombres",
+      selector: (row) => row.apellidoPaterno.toUpperCase(),
       sortable: true,
     },
-
     {
       name: "DNI",
       selector: (row) => row.dni,
