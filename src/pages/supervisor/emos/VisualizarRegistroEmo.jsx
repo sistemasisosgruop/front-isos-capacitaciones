@@ -86,12 +86,11 @@ const VisualizarRegistroEmo = () => {
     getTrabajadorEmo().then(({ data, message = null }) => {
       if (data) {
         const filtered = data.data.filter(trabajador => {
-          return empresasId[0] == trabajador.empresa_id // Compara directamente
+          return empresasId[0] == trabajador.empresa_id
         });
-
         const nombresEmpresas = data.data.nombreEmpresa;
+        setNombreEmpresa(nombresEmpresas); 
         setRowData(filtered);  
-        setNombreEmpresa(nombresEmpresas); // Convertir nombres a string separados por comas
       } else {
         toast.error("Ocurrió un error en el servidor", {
           position: "bottom-right",
@@ -238,6 +237,7 @@ const VisualizarRegistroEmo = () => {
   const handleDownloadMulitple = async (data) => {
 
     if (selectFilter !== "") {
+
       const filterData = rowData.filter(
         (item) =>
           item.nombreEmpresa === selectFilter[0] &&
@@ -246,8 +246,9 @@ const VisualizarRegistroEmo = () => {
           item.fecha_lectura !== "" &&
           item.condicion_aptitud !== ""
       );
-      if(filterData.length === 0){
 
+
+      if(filterData.length === 0){
         return toast.error("No se encontro ningun registro completo para descargar la constancia.", {
           position: "bottom-right",
         });

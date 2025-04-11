@@ -45,6 +45,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   const [dataExamen, setDataExamen] = useState("");
   const [perPage, setPerPage] = useState(15);
   const [totalRows, setTotalRows] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [isOpenModal, openModal, closeModal] = useModals();
   const [page, setPage] = useState(1);
   const [empresaNombre, setEmpresaNombre] = useState("");
@@ -130,9 +131,9 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       all
     );
     if (response.status === 200) {
-      setDataReporte(response?.data?.data);
       setRowData(response?.data?.data);
       setTotalRows(response?.data?.pageInfo?.total);
+      setTotalPages(response?.data?.pageInfo?.totalPage);
     } else {
       toast.error("Ocurrio un error en el servidor", {
         position: "bottom-right",
@@ -149,7 +150,6 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     setEmpresaNombre(nombresEmpresas);
   }, [empresas]);
 
-  // Este useEffect se encarga de llamar a getReportes cuando empresaNombre cambia
     useEffect(() => {
       if (empresaNombre && empresaNombre.length > 0) {
         getReportes();
@@ -176,25 +176,27 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   }, []);
 
   const descargarDocumento = async (tipo) => {
-    // const response = await getReporte(
-    //   page,
-    //   perPage,
-    //   empresaNombre,
-    //   selectCapacitacion,
-    //   selectMes,
-    //   true
-    // );
-    // if (response.status === 200) {
+    const response = await getReporte2(
+      page,
+      perPage,
+      empresaNombre,
+      selectCapacitacion,
+      selectMes,
+      null,
+      añoFiltro,
+      true
+    );
+    if (response.status === 200) {
       if (tipo === "excel") {
-        generarExcel(dataReporte); // Llamar a la función para generar Excel
+        console.log(response)
+        generarExcel(response.data.data); 
       }
       if (tipo === "pdf") {
-        descargarExamenes(dataReporte); // Llamar a la función para generar Excel
+        descargarExamenes(response.data.data); 
       }
       if (tipo === "examen") {
-        
-        descargarReporteExamenes(dataReporte); // Llamar a la función para generar Excel
-      // }
+        descargarReporteExamenes(response.data.data); 
+      }
     }
   };
 
@@ -280,7 +282,6 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     }
   };
   const descargarReporteExamenes = async (data) => {
-    console.log(data)
     const arrayTrabajadores = data?.filter(
       (item) => item.asistenciaExamen == true
     );
@@ -297,7 +298,6 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     try {
       const logo = await getImgs(data?.empresaId, "logo");
       const srcLogo = URL.createObjectURL(new Blob([logo.data]));
-
       return { srcLogo };
     } catch (error) {
       console.error("Error en la solicitud:", error);
