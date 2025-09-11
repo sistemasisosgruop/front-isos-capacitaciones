@@ -532,7 +532,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               id="searchSelectCapacitacion"
               onChange={(e) => {
                 setSelectCapacitacion(e.target.value);
-                setSubmitClicked(false)
+                setSubmitClicked(false);
               }}
               value={selectCapacitacion}
             >
