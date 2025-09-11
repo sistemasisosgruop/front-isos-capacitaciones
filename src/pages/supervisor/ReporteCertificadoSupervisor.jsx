@@ -87,7 +87,6 @@ const ReporteCertificadoSupervisor = () => {
           )}
         </label>
       ),
-      center: true,
     },
   ];
 
