@@ -111,7 +111,7 @@ const router = createBrowserRouter([
                 path: "examenes",
                 element: (
                   <ReporteExameAsistenciaSupervisor
-                    titulo={"Reporte de examenes"}
+                    titulo={"Reporte de Progreso de Capacitación"}
                     esExamen={true}
                   />
                 ),
