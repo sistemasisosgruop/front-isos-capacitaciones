@@ -17,6 +17,9 @@
 .btn-sweet-success {
     background-color: rgb(44, 166, 154) !important;
 }
+.btn-search {
+    background-color: rgb(10, 112, 154) !important;
+}
 /* custom daysi UI */
 .table-compact td,
 .table-compact th {
@@ -51,7 +54,6 @@
   border-radius: 8px;
   overflow: hidden;
 }
-
 
 .loader {
   width: 48px;
@@ -111,4 +113,3 @@
   color: black; /* Adjust as needed */
   font-size: 0.9em;
 }
-

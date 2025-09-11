@@ -3,12 +3,12 @@ import { getEmpresa, getEmpresas, getImgs } from "../../services/empresa";
 import Button from "../../components/Button";
 import { toast } from "react-toastify";
 import { getReporte } from "../../services/reportes";
-import { getCapacitaciones } from "../../services/capacitacion";
+import { getCapacitacionEmpresa, getCapacitaciones, getFirmaCertificado } from "../../services/capacitacion";
 import { Modal } from "../../components/modal/Modal";
 import useModals from "../../hooks/useModal";
 import ExamenCapacitacion from "../../components/ExamenCapacitacion";
 import { getExamen, getExamenCapacitacion } from "../../services/examenes";
-import { months } from "../../config";
+import { generateYearOptions, months } from "../../config";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -17,8 +17,13 @@ import noData from "../../assets/img/no-data.png";
 import {
   faFileExport,
   faArrowAltCircleDown,
+  faTimes,
+  faCheck,
+  faFileExcel,
+  faDownload,
   faTimesCircle,
   faCheckCircle,
+  faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
@@ -27,83 +32,132 @@ import { GridApi } from "ag-grid-community";
 import DataTable from "react-data-table-component";
 import styled from "styled-components";
 import ReporteExamenCapacitacion from "../../components/ReporteExamenCapacitacion";
+import SpinnerLoader from "../../components/SpinnerLoader";
+import Certificado from "../../components/Certificado";
+import { formatDateDb } from "../../utils/formtDate";
+import SinRegistros from "../../components/SinRegistros";
+import ProgressCapacitacion from "../../components/ProgressCapacitacion";
 const StyledDataTable = styled(DataTable)`
   border: 1px solid lightgrey;
   border-radius: 5px;
 `;
 const ReporteExameAsistencia = ({ titulo, esExamen }) => {
-  const containerStyle = useMemo(() => ({ width: "100%", height: "80%" }), []);
+  const containerStyle = useMemo(() => ({ width: "100%", height:'60vh' }), []);
   const gridStyle = useMemo(() => ({ height: "100%", width: "100%" }), []);
   const [rowData, setRowData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [generate, setGenerate] = useState(false);
   const [empresas, setEmpresas] = useState([]);
   const [capacitaciones, setCapacitaciones] = useState([]);
   const [selectEmpresa, setSelectEmpresa] = useState("");
   const [selectCapacitacion, setSelectCapacitacion] = useState("");
   const [selectMes, setSelectMes] = useState("");
+  const [selectYear, setSelectYear] = useState("");
   const [dataReporte, setDataReporte] = useState([]);
   const [dataExamen, setDataExamen] = useState("");
   const [perPage, setPerPage] = useState(15);
   const [totalRows, setTotalRows] = useState(0);
   const [isOpenModal, openModal, closeModal] = useModals();
+  const [isOpenModalCertificado, openModalCertificado, closeModalCertificado] = useModals();
   const [page, setPage] = useState(1);
   const [empresaNombre, setEmpresaNombre] = useState("");
+  const [dniName, setDniName] = useState("");
+  const [dataCertificado, setDataCertificado] = useState("");
+  const [totalCapacitacion, setTotalCapacitacion] = useState("");
+  const [totalAcumulado, setTotalAcumulado] = useState("");
+
+  const [submitClicked, setSubmitClicked] = useState(false);
+
+  const currentYear = new Date().getFullYear();
+  const yearOptions = generateYearOptions(2016, currentYear);
 
   const columns = [
     {
-      name: "# trabajador",
-      selector: (row) => row.trabajadorId,
+      name: "DNI",
+      selector: (row) => row.trabajador.dni,
       sortable: true,
-      width: "120px",
+      width: "100px",
       center: true,
     },
     {
-      name: "Nombre",
+      name: "Nombres de Trabajador",
       selector: (row) => row.nombreTrabajador.toUpperCase(),
       sortable: true,
       center: true,
+      width: "220px",
     },
     {
       name: "Capacitación",
       selector: (row) => row.nombreCapacitacion,
       sortable: true,
       center: true,
+      width: "300px",
     },
     {
-      name: "Nota examen",
-      selector: (row) => row.notaExamen,
+      name: "Fecha de Capacitación",
+      selector: (row) => row.capacitacion.fechaCulminacion,
       sortable: true,
+      width: "180px",
       center: true,
     },
     {
-      name: "Asistencia examen",
+      name: "Nota de Exámen",
+      selector: (row) => row.notaExamen,
+      sortable: true,
+      width: "140px",
+      center: true,
+    },
+    {
+      name: "Fecha de Realización",
+      selector: (row) => row.fechaExamen,
+      sortable: true,
+      width: "180px",
+      center: true,
+    },
+    {
+      name: "Asistencia",
       button: true,
+      width: "100px",
       cell: (e) => (
         <label className="cursor-pointer">
           {e.asistenciaExamen ? (
-            <FontAwesomeIcon icon={faCheckCircle} size="1x" color="green" />
+            <FontAwesomeIcon icon={faCheck} size="lg" color="green" />
           ) : (
-            <FontAwesomeIcon icon={faTimesCircle} size="1x" color="red" />
+            <FontAwesomeIcon icon={faTimes} size="lg" color="red" />
           )}
         </label>
       ),
       center: true,
     },
     {
-      name: "Fecha examen",
-      selector: (row) => row.fechaExamen,
-      sortable: true,
-      center: true,
-    },
-    {
-      name: "Opciones",
-      button: true,
+      name: "Descarga Exámen",
+      // button: true,
       cell: (e) => (
         <label className="cursor-pointer" onClick={() => descargaExamen(e)}>
-          <FontAwesomeIcon icon={faArrowAltCircleDown} />
+          {e.asistenciaExamen && (
+          <FontAwesomeIcon icon={faDownload} color="red" size="lg" />
+          )}
         </label>
       ),
       center: true,
+      with: "120px",
       omit: esExamen ? false : true,
+    },
+    {
+      name: "Descarga Certificado",
+      width: "180px",
+      center: true,
+      omit: esExamen ? false : true,
+      cell: (e) => (
+        <label
+          className="cursor-pointer"
+          onClick={() => descargaCertificado(e)}
+        >
+          {e.asistenciaExamen && e.notaExamen >= 12 && (
+            <FontAwesomeIcon icon={faDownload} color="orange" size="lg" />
+          )}
+        </label>
+      ),
     },
   ];
 
@@ -114,12 +168,16 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       empresaNombre,
       selectCapacitacion,
       selectMes,
-      all
+      all,
+      selectYear,
+      dniName.toUpperCase()
     );
     if (response.status === 200) {
-      setDataReporte(response?.data?.data);
-      setRowData(response?.data?.data);
-      setTotalRows(response?.data?.pageInfo?.total);
+        setDataReporte(response?.data?.data);
+        setRowData(response?.data?.data);
+        setTotalRows(response?.data?.pageInfo?.total);
+        setTotalCapacitacion(response?.data?.pageInfo?.total);
+        setTotalAcumulado(response?.data?.pageInfo?.acumulado);
     } else {
       toast.error("Ocurrio un error en el servidor", {
         position: "bottom-right",
@@ -137,11 +195,25 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   }, [empresas]); // Dependencias para este useEffect
 
   // Este useEffect se encarga de llamar a getReportes cuando empresaNombre cambia
+  
+  const handleFilter = () => {
+    setIsLoading(true)
+    setDataReporte("");
+    setRowData("");
+    setTotalRows("");
+    try {
+      setTimeout(() => {
+        getReportes();    
+        setIsLoading(false)
+        setSubmitClicked(true);
+      }, 700)
+    } catch (error) {
+      console.log(error)
+    } 
+  }
   useEffect(() => {
-    if (empresaNombre) {
-      getReportes();
-    }
-  }, [empresaNombre, page, perPage, selectCapacitacion, selectMes]);
+    getReportes();
+  }, [empresaNombre, page, perPage, selectCapacitacion, selectMes, selectYear]);
 
   useEffect(() => {
     getEmpresas().then(({ data }) => {
@@ -150,7 +222,10 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
   }, []);
 
   useEffect(() => {
-    getCapacitaciones().then(({ data }) => {
+    const userIsosString = localStorage.getItem("userIsos");
+    const userIsosObject = JSON.parse(userIsosString);
+    const empresaId = userIsosObject ? userIsosObject.empresaId : null;
+    getCapacitacionEmpresa(empresaId).then(({ data }) => {
       setCapacitaciones(data);
     });
   }, []);
@@ -162,7 +237,9 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       empresaNombre,
       selectCapacitacion,
       selectMes,
-      true
+      true,
+      selectYear,
+      dniName.toUpperCase()
     );
     if (response.status === 200) {
       if (tipo === "excel") {
@@ -173,6 +250,9 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       }
       if (tipo === "examen") {
         descargarReporteExamenes(response.data.data); // Llamar a la función para generar Excel
+      }
+      if (tipo === "certificado") {
+        descargarCertificados(response.data.data); // Llamar a la función para generar Excel
       }
     }
   };
@@ -271,6 +351,31 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       });
     }
   };
+  
+
+  const descargaCertificado = async (data) => {
+      const empresaTrabajador = data.empresaId;
+      const promesas = [
+        getImgs(empresaTrabajador, "logo"),
+        getImgs(empresaTrabajador, "certificado"),
+        getFirmaCertificado(data.capacitacionId),
+      ];
+  
+      Promise.all(promesas.map((prom) => prom.then((res) => res))).then((res) => {
+        const srcLogo = URL.createObjectURL(new Blob([res[0].data]));
+        const srcCertificado = URL.createObjectURL(new Blob([res[1].data]));
+        const srcFirma = URL.createObjectURL(new Blob([res[2].data]));
+  
+        const imagenes = { srcLogo, srcCertificado, srcFirma };
+        const horasCapacitacion = data.capacitacion.horas;
+        data["imagenes"] = imagenes;
+        data["fechaCapacitacion"] = formatDateDb(data.capacitacion.fechaInicio);
+        data["horasCapacitacion"] =
+          horasCapacitacion < 10 ? "0" + horasCapacitacion : horasCapacitacion;
+        setDataCertificado(data);
+        openModalCertificado();
+      });
+    };
   const fetchImgsEmpresa = async (data) => {
     try {
       const logo = await getImgs(data?.empresaId, "logo");
@@ -282,6 +387,23 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       return { srcLogo: null, srcCertificado: null, srcFirma: null };
     }
   };
+
+  const fetchImgsEmpresaCertificado = async (data) => {
+      try {
+        const logo = await getImgs(data.empresaId, "logo");
+        const certificado = await getImgs(data.empresaId, "certificado");
+        const firma = await getFirmaCertificado(data.capacitacionId);
+  
+        const srcLogo = URL.createObjectURL(new Blob([logo.data]));
+        const srcCertificado = URL.createObjectURL(new Blob([certificado.data]));
+        const srcFirma = URL.createObjectURL(new Blob([firma.data]));
+  
+        return { srcLogo, srcCertificado, srcFirma };
+      } catch (error) {
+        console.error("Error en la solicitud:", error);
+        return { srcLogo: null, srcCertificado: null, srcFirma: null };
+      }
+    };
   const descargarExamenes = (data) => {
     const arrayTrabajadores = data
       ?.filter((data) => data.asistenciaExamen === true)
@@ -306,6 +428,56 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
       });
     handleDownload(arrayTrabajadores);
   };
+
+  const fetchCertificados = async (dataReporte, imagenesEmpresa) => {
+      try {
+        const horasCapacitacion = dataReporte.capacitacion.horas;
+  
+        dataReporte["imagenes"] = imagenesEmpresa;
+        dataReporte["fechaCapacitacion"] = formatDateDb(
+          dataReporte.capacitacion.fechaInicio
+        );
+        dataReporte["horasCapacitacion"] =
+          horasCapacitacion < 10 ? "0" + horasCapacitacion : horasCapacitacion;
+  
+        return { ...dataReporte };
+      } catch (error) {
+        console.error("Error en la solicitud:", error);
+        return { empresas: null, cargo: null };
+      }
+    };
+  const descargarCertificados = async (data) => {
+    try {
+      // Obtener el primer trabajador para obtener la empresaId
+      const primerTrabajador = data[0];
+      // Descargar las imágenes de la empresa solo una vez
+      const imagenesEmpresa = await fetchImgsEmpresaCertificado(primerTrabajador);
+
+      const resultados = await Promise.all(
+        data
+          ?.filter(
+            (data) =>
+              data.reporte.asistenciaExamen === true &&
+              data.reporte.notaExamen > 10
+          )
+          .map(async (reporte) => {
+            const data = await fetchCertificados(reporte, imagenesEmpresa);
+            return data;
+          })
+      );
+
+      handleDownloadCerticado(resultados);
+      // Aquí puedes procesar los resultados obtenidos para cada trabajador
+    } catch (error) {
+      console.error("Error al obtener los datos:", error);
+    }
+  };
+
+  const handleDniName = (e) => {
+    const dniName = e.target.value;
+    setDniName(dniName);
+  }
+  
   const handleDownloadReporte = async (array, logo) => {
     const link = document.createElement("a");
     const pdfBlob = await pdf(
@@ -332,31 +504,58 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     }
   };
 
+  const handleDownloadCerticado = async (list) => {
+      for (let i = 0; i < list.length; i++) {
+        const data = list[i];
+        const link = document.createElement("a");
+        const srcLogo = data.imagenes.srcLogo;
+        const pdfBlob = await pdf(
+          <Certificado data={data} logo={srcLogo} />
+        ).toBlob();
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        link.href = pdfUrl;
+        link.target = "_blank";
+        link.download = `Certificado-${data.nombreTrabajador}.pdf`;
+        link.click();
+        await new Promise((resolve) => setTimeout(resolve, 500)); // esperar 1 segundo antes de la próxima descarga
+      }
+    };
+
   return (
     <div className="">
-      <div className="bg-white p-3">
-        <h2 className="font-bold text-2xl mb-3 block">{titulo}</h2>
-        <div className="flex flex-col lg:flex-row justify-between gap-3 mb-3 w-full">
-          <div className="flex flex-col md:flex-row w-full lg:w-auto gap-3">
+      <div className="p-3 bg-white">
+        <h2 className="block mb-3 text-2xl font-bold">{titulo}</h2>
+        <div className="flex flex-col justify-between w-full gap-3 mb-3 lg:flex-row">
+          <div className="flex flex-col w-full gap-3 md:flex-row lg:w-auto">
             <select
-              className="select select-bordered select-sm w-full md:w-1/3"
-              id="searchSelect"
-              onChange={(e) => setSelectCapacitacion(e.target.value)}
+              className="w-full select select-bordered select-sm md:w-5/12"
+              id="searchSelectCapacitacion"
+              onChange={(e) => {
+                setSelectCapacitacion(e.target.value);
+                setSubmitClicked(false)
+              }}
               value={selectCapacitacion}
             >
               <option value={""}>Capacitación</option>
               {capacitaciones.map((capacitacion) => {
                 return (
-                  <option key={capacitacion.id} value={capacitacion.nombre}>
-                    {capacitacion.nombre}
+                  <option key={capacitacion.id} value={capacitacion.codigo}>
+                    {capacitacion.codigo} - {capacitacion.nombre}
                   </option>
                 );
               })}
             </select>
             <select
-              className="select select-bordered select-sm w-full md:w-1/5"
+              className="w-full select select-bordered select-sm md:w-1/12"
               id="searchSelect"
-              onChange={(e) => setSelectMes(e.target.value)}
+              onChange={(e) => {
+                if (e.target.value === "") {
+                  setSelectMes("");
+                  setSelectYear("");
+                } else {
+                  setSelectMes(e.target.value)
+                }
+              }}
               value={selectMes}
             >
               <option value={""}>Mes</option>
@@ -368,42 +567,73 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
                 );
               })}
             </select>
-          </div>
-          <div className="flex flex-col md:flex-row justify-end gap-3 w-full lg:w-auto">
-            <button
-              className="btn btn-sm btn-outline btn-info w-full md:w-auto"
-              onClick={() => {
-                if (selectCapacitacion) {
-                  descargarDocumento("examen");
-                } else {
-                  toast.error(
-                    "Seleccione una capacitación para realizar la descarga.",
-                    {
-                      position: "bottom-right",
-                    }
-                  );
-                }
-              }}
+
+            <select
+              className="w-full select select-bordered select-sm md:w-1/12"
+              id="searchYear"
+              onChange={(e) => setSelectYear(e.target.value)}
+              value={selectYear}
             >
-              Descargar Reporte
-            </button>
-            <Button
-              description="Exportar"
-              event={() => descargarDocumento("excel")}
-              icon={faFileExport}
+              <option value={""}>Año</option>
+              {yearOptions.map((year) => {
+                return (
+                  <option key={year.value} value={year.value}>
+                    {year.label}
+                  </option>
+                );
+              })}
+            </select>
+            <input
+              type="text"
+              name="dniname"
+              placeholder="DNI / Nombre del Trabajador"
+              className="w-full input input-bordered input-sm md:w-2/12"
+              id="dniname"
+              onChange={handleDniName}
             />
             <button
-              className="btn btn-sm btn-outline btn-error w-full md:w-auto"
-              onClick={() => descargarDocumento("pdf")}
+              className="w-full gap-2 text-white capitalize btn btn-sm btn-search md:w-2/12"
+              onClick={handleFilter}
+              disabled={isLoading}
             >
-              Descargar PDFS
+              <FontAwesomeIcon icon={faSearch} />
+               {isLoading ? "Buscando..." : "Aplicar Búsqueda"}
             </button>
           </div>
         </div>
+        {submitClicked && totalCapacitacion > 0 ? 
+          <div className="flex flex-col justify-between w-full mt-1 mb-6 md:flex-row lg:w-auto">
+              <div className="w-full text-accent md:w-4/12">
+                <span className="ml-1 text-sm">La empresa tiene { totalCapacitacion } { totalCapacitacion < 2 ? 'Colaborador' : 'Colaboradores'}</span>
+                <ProgressCapacitacion progress={totalAcumulado} total={totalCapacitacion} />
+              </div>
+              <div className="justify-end mt-6"> 
+                <Button
+                  description="Exportar Progreso"
+                  event={() => descargarDocumento("excel")}
+                  classname="w-full mb-2 mr-2 capitalize md:w-auto"
+                  icon={faFileExcel}
+                />
+                <button
+                  className="w-full mb-2 mr-2 text-white capitalize btn btn-sm btn-error md:w-auto"
+                  onClick={() => descargarDocumento("pdf")}
+                >
+                  Descargar Exámenes
+                </button>
+                <button
+                  className="w-full text-white capitalize btn btn-sm btn-error md:w-auto"
+                  onClick={() => descargarDocumento("certificado")}
+                >
+                  Descargar Certificados
+                </button>
+              </div>
+          </div>
+          : null
+        }
 
-        {rowData.length > 0 ? (
+        {submitClicked ? (
           <div style={containerStyle}>
-            <div style={gridStyle} className="ag-theme-alpine">
+            <div style={gridStyle} className="ag-theme-alpine">          
               <StyledDataTable
                 columns={columns}
                 data={rowData}
@@ -430,9 +660,13 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               />
             </div>
           </div>
-        ) : (
-          <p>Sin registros</p>
-        )}
+        ) : 
+          (
+            <span>
+              {isLoading ? <SpinnerLoader isLoading={isLoading} /> : <SinRegistros text="Debe aplicar un criterio de búsqueda" classname="bg-white" />}
+            </span>
+          )
+        }
       </div>
       <Modal
         isOpen={isOpenModal}
@@ -445,8 +679,20 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
           <ExamenCapacitacion data={dataExamen} />
         </PDFViewer>
       </Modal>
+
+      <Modal
+        isOpen={isOpenModalCertificado}
+        openModal={openModalCertificado}
+        closeModal={closeModalCertificado}
+        title=""
+        size={"modal-lg"}
+      >
+        <PDFViewer width={"100%"} height={"454px"}>
+          <Certificado data={dataCertificado} />
+        </PDFViewer>
+      </Modal>
     </div>
-  );
+    );
 };
 
 export default ReporteExameAsistencia;
