@@ -1,10 +1,10 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-const Button = ({ icon = null, description, event }) => {
+const Button = ({ icon = null, description, event, classname = "" }) => {
   return (
     <button
       type="submit"
-      className="btn btn-active btn-sm btn-accent gap-2 text-white"
+      className={`gap-2 text-white btn btn-active btn-sm btn-accent ${classname}`}
       onClick={event}
     >
       {description}
