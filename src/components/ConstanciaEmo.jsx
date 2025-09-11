@@ -27,7 +27,6 @@ const ConstanciaEmo = ({ data, logo }) => {
       paddingRight: 50,
       paddingTop: 30,
       paddingBottom: 20,
-      fontFamily: "Times-Roman",
     },
     header: {
       display: "flex",
