@@ -14,7 +14,6 @@ const formatDateYMD = (date) => {
 };
 
 const formatDateDb = (date) => {
-  console.log(date);
   const fechaJs = new Date(date);
   
   // Establecer la zona horaria a UTC antes de obtener el día
