@@ -1,8 +1,8 @@
 
-const SinRegistros = () => {
+const SinRegistros = ({ text = "sin registros", classname = "bg-slate-100"}) => {
   return (
-    <div className='w-full flex justify-center items-center bg-slate-100' style={{height:'60vh'}}>
-      <h3 className='font-bold text-2xl'> sin registros</h3>
+    <div className={`flex items-center justify-center w-full ${classname}`} style={{height:'60vh'}}>
+      <h3 className='text-2xl font-bold'> { text }</h3>
     </div>
   )
 }
