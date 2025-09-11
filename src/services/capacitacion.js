@@ -27,6 +27,12 @@ const getCapacitaciones = () => {
     .catch(objErrorApi);
 };
 
+const getCapacitacionEmpresa = (id) => {
+  return baseApi(stepApi)
+    .get(`/empresa/${id}`)
+    .catch(objErrorApi);
+};
+
 const getCapacitacionesReport = () => {
   return baseApi(stepApi)
     .get("/report")
@@ -67,6 +73,7 @@ const deleteCapacitaciones = (id) => {
 
 export {
   getCapacitaciones,
+  getCapacitacionEmpresa,
   getCapacitacion,
   getCapacitacionUser,
   postCapacitaciones,
