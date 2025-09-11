@@ -94,7 +94,6 @@ const ReporteCertificadoCapacitador1 = () => {
           )}
         </label>
       ),
-      center: true,
     },
   ];
 
