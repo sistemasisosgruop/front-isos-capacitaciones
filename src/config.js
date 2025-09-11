@@ -49,6 +49,15 @@ const months = [
   },
 ];
 
+const generateYearOptions = (minYear, maxYear) => {
+  const years = [];
+  for (let year = minYear; year <= maxYear; year++) {
+    years.push({ value: year, label: String(year) });
+  }
+  return years;
+};
+
 export {
   months,
+  generateYearOptions
 } 
