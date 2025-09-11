@@ -87,7 +87,6 @@ const ReporteCertificado = () => {
           )}
         </label>
       ),
-      center: true,
     },
   ];
 
