@@ -552,8 +552,10 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
                 if (e.target.value === "") {
                   setSelectMes("");
                   setSelectYear("");
+                  setSubmitClicked(false);
                 } else {
                   setSelectMes(e.target.value)
+                  setSubmitClicked(false);
                 }
               }}
               value={selectMes}
@@ -571,7 +573,15 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
             <select
               className="w-full select select-bordered select-sm md:w-1/12"
               id="searchYear"
-              onChange={(e) => setSelectYear(e.target.value)}
+              onChange={(e) => {
+                if (e.target.value === "") {
+                  setSelectYear("");
+                  setSubmitClicked(false);
+                } else {
+                  setSelectYear(e.target.value)
+                  setSubmitClicked(false);
+                }
+              }}
               value={selectYear}
             >
               <option value={""}>Año</option>
