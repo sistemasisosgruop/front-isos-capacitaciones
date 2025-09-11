@@ -40,7 +40,7 @@ const ItemSupervisor = () => {
         Constancias y Envios
       </MenuItem>
       <MenuItem
-        component={<Link to="./supervisor/reportes/opciones" />}
+        component={<Link to="./supervisor/reportes/examenes" />}
         icon={<FontAwesomeIcon icon={faClipboard} />}
       >
         Reportes
