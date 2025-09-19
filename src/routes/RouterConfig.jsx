@@ -4,7 +4,6 @@ import Menu from "../pages/Menu";
 import NotFound404 from "../pages/notFound404/NotFound404";
 import "../styles/global.css";
 import { userRoles } from "./constantsRoles";
-import ProtectedRoute from "./protectetRoute";
 import OpcionesTrabajador from "../pages/trabajador/opcionesTrabajador";
 import OpcionesAdmin from "../pages/administrador/opciones/OpcionesAdmin";
 import ListadoEmpresa from "../pages/administrador/empresa/ListadoEmpresa";
