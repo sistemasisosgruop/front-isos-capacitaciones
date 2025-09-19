@@ -28,6 +28,7 @@ import ReporteExameAsistenciaCapacitador from "../pages/capacitador/ReporteExame
 import ReporteCertificadoCapacitador1 from "../pages/capacitador/ReporteCertificadoCapacitador1";
 import ReporteExameAsistenciaSupervisor from "../pages/supervisor/ReporteExameAsistenciaSupervisor";
 import ReporteCertificadoSupervisor1 from "../pages/supervisor/ReporteCertificadoSupervisor1";
+import ProtectedRoute from "./ProtectetRoute";
 
 const router = createBrowserRouter([
   {
