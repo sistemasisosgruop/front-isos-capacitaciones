@@ -3,7 +3,7 @@ import { getEmpresa, getEmpresas, getImgs } from "../../services/empresa";
 import Button from "../../components/Button";
 import { toast } from "react-toastify";
 import { getReporte } from "../../services/reportes";
-import { getCapacitacionEmpresa, getCapacitaciones, getFirmaCertificado } from "../../services/capacitacion";
+import { getCapacitacion, getCapacitacionEmpresa, getCapacitaciones, getFirmaCertificado } from "../../services/capacitacion";
 import { Modal } from "../../components/modal/Modal";
 import useModals from "../../hooks/useModal";
 import ExamenCapacitacion from "../../components/ExamenCapacitacion";
@@ -30,7 +30,7 @@ import { saveAs } from "file-saver";
 import { Link, PDFViewer, pdf } from "@react-pdf/renderer";
 import { GridApi } from "ag-grid-community";
 import DataTable from "react-data-table-component";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import ReporteExamenCapacitacion from "../../components/ReporteExamenCapacitacion";
 import SpinnerLoader from "../../components/SpinnerLoader";
 import Certificado from "../../components/Certificado";
@@ -225,9 +225,14 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
     const userIsosString = localStorage.getItem("userIsos");
     const userIsosObject = JSON.parse(userIsosString);
     const empresaId = userIsosObject ? userIsosObject.empresaId : null;
-    getCapacitacionEmpresa(empresaId).then(({ data }) => {
-      setCapacitaciones(data);
-    });
+    if (empresaId === null) {
+      setCapacitaciones(0);
+      return
+    } else {
+      getCapacitacionEmpresa(empresaId).then(({ data }) => {
+        setCapacitaciones(data);
+      });
+    }
   }, []);
 
   const descargarDocumento = async (tipo) => {
@@ -537,7 +542,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               value={selectCapacitacion}
             >
               <option value={""}>Capacitación</option>
-              {capacitaciones.map((capacitacion) => {
+              {capacitaciones.length > 0 && capacitaciones.map((capacitacion) => {
                 return (
                   <option key={capacitacion.id} value={capacitacion.codigo}>
                     {capacitacion.codigo} - {capacitacion.nombre}
@@ -546,7 +551,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               })}
             </select>
             <select
-              className="w-full select select-bordered select-sm md:w-1/12"
+              className="w-full select select-bordered select-sm md:w-2/12"
               id="searchSelect"
               onChange={(e) => {
                 if (e.target.value === "") {
@@ -571,7 +576,7 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
             </select>
 
             <select
-              className="w-full select select-bordered select-sm md:w-1/12"
+              className="w-full select select-bordered select-sm md:w-2/12"
               id="searchYear"
               onChange={(e) => {
                 if (e.target.value === "") {
@@ -597,14 +602,14 @@ const ReporteExameAsistencia = ({ titulo, esExamen }) => {
               type="text"
               name="dniname"
               placeholder="DNI / Nombre del Trabajador"
-              className="w-full input input-bordered input-sm md:w-2/12"
+              className="w-full input input-bordered input-sm md:w-3/12"
               id="dniname"
               onChange={handleDniName}
             />
             <button
-              className="w-full gap-2 text-white capitalize btn btn-sm btn-search md:w-2/12"
+              className="w-full gap-2 text-white capitalize btn btn-sm btn-search md:w-3/12"
               onClick={handleFilter}
-              disabled={isLoading}
+              disabled={capacitaciones.length === undefined ? true :  isLoading}
             >
               <FontAwesomeIcon icon={faSearch} />
                {isLoading ? "Buscando..." : "Aplicar Búsqueda"}
